@@ -312,6 +312,18 @@ describe('Rekap Nilai: panel Pengaturan Tabel vs preview', () => {
   const htmlCardCount = (html, className) =>
     (html.match(new RegExp('class="' + className + '"', 'g')) || []).length;
 
+  it('tidak menampilkan keterangan Format pada isi dokumen dalam kedua mode', () => {
+    const h = open();
+    for (const mode of ['format', 'lengkap']) {
+      h.state.currentData.header.modePengisian = mode;
+      h.renderer.render(h.template, h.state.currentData, {});
+      const html = h.preview.innerHTML;
+      expect(html).toContain('REKAPITULASI NILAI');
+      expect(html).not.toContain('kolom nilai dikosongkan, siap cetak');
+      expect(html).not.toContain('(Format —');
+    }
+  });
+
   it('keeps Tahun Pelajaran on one line and aligns Semester/Tahun at the right edge', () => {
     const h = open();
     h.state.currentData.header.semester = 'Genap';
