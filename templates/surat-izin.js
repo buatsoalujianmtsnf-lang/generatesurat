@@ -17,7 +17,7 @@ const TemplateSuratIzin = (() => {
     id: TEMPLATE_ID,
     name: 'Surat Izin Tidak Masuk',
     description: 'Surat permohonan izin tidak masuk sekolah dari orang tua/wali murid.',
-    icon: '✉️',
+    icon: 'mail',
     orientation: 'portrait',
     paperSize: 'a4',
     category: 'izin',
@@ -154,7 +154,7 @@ const TemplateSuratIzin = (() => {
     {
       id: 'sekolah',
       title: 'Data Sekolah',
-      icon: '🏫',
+      icon: 'school',
       fields: [
         {
           key: 'sekolah.namaSekolahan',
@@ -168,7 +168,7 @@ const TemplateSuratIzin = (() => {
     {
       id: 'murid',
       title: 'Data Murid',
-      icon: '👤',
+      icon: 'user',
       fields: [
         {
           key: 'murid.namaOrangTuaWali',
@@ -196,7 +196,7 @@ const TemplateSuratIzin = (() => {
     {
       id: 'izin',
       title: 'Keterangan Izin',
-      icon: '📅',
+      icon: 'calendar',
       fields: [
         {
           key: 'izin.hariTanggalIzin',
@@ -246,7 +246,7 @@ const TemplateSuratIzin = (() => {
     {
       id: 'pengirim',
       title: 'Tanda Tangan',
-      icon: '✍️',
+      icon: 'signature',
       fields: [
         {
           key: 'pengirim.namaLokasi',
