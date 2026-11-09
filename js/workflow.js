@@ -316,9 +316,16 @@ const Workflow = (() => {
     const errors = _collectPrintChecks();
 
     if (errors.length === 0) {
-      if (typeof Print !== 'undefined' && typeof Print.printDocument === 'function') {
-        Print.printDocument();
+      if (typeof Print === 'undefined' || typeof Print.printDocument !== 'function') {
+        UI.toast('Fitur cetak belum siap. Silakan coba lagi.', 'error');
+        return false;
       }
+      if (State.getActiveTemplate() === 'surat-izin') {
+        // Fail closed: surat izin tidak dapat dicetak sebelum pernyataan disetujui.
+        return typeof IzinDeclaration !== 'undefined'
+          && IzinDeclaration.request('print', () => Print.printDocument());
+      }
+      Print.printDocument();
       return true;
     }
 
@@ -336,11 +343,15 @@ const Workflow = (() => {
     const errors = _collectPrintChecks();
 
     if (errors.length === 0) {
-      if (typeof PdfExport !== 'undefined' && typeof PdfExport.exportDocument === 'function') {
-        PdfExport.exportDocument();
-      } else {
+      if (typeof PdfExport === 'undefined' || typeof PdfExport.exportDocument !== 'function') {
         UI.toast('Fitur ekspor PDF belum siap. Periksa koneksi internet lalu coba lagi.', 'error');
+        return false;
       }
+      if (State.getActiveTemplate() === 'surat-izin') {
+        return typeof IzinDeclaration !== 'undefined'
+          && IzinDeclaration.request('pdf', () => PdfExport.exportDocument());
+      }
+      PdfExport.exportDocument();
       return true;
     }
 
