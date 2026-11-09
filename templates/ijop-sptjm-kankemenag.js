@@ -15,7 +15,7 @@ const TemplateIjopSptjmKankemenag = (() => {
     id: TEMPLATE_ID,
     name: 'IJOP: SPTJM dari Kakankemenag',
     description: 'Surat Pernyataan Tanggung Jawab Mutlak (SPTJM) dari Kepala Kantor Kemenag Kab. Musi Rawas (bermeterai Rp 10.000).',
-    icon: '🖋️',
+    icon: 'signature',
     orientation: 'portrait',
     paperSize: 'a4',
     category: 'ijop',
@@ -40,7 +40,7 @@ const TemplateIjopSptjmKankemenag = (() => {
     {
       id: 'surat',
       title: 'Identitas Surat',
-      icon: '📋',
+      icon: 'clipboard-list',
       fields: [
         {
           key: 'surat.nomor',
@@ -60,7 +60,7 @@ const TemplateIjopSptjmKankemenag = (() => {
     {
       id: 'kakankemenag',
       title: 'Data Kakankemenag',
-      icon: '👤',
+      icon: 'user',
       fields: [
         {
           key: 'kakankemenag.nama',

@@ -36,7 +36,7 @@ const About = (() => {
     return `
       <details class="about-section" ${open ? 'open' : ''}>
         <summary class="about-section__summary">
-          <span class="about-section__icon" aria-hidden="true">${icon}</span>
+          <span class="about-section__icon" aria-hidden="true">${typeof AppIcons !== "undefined" ? AppIcons.svg(icon) : icon}</span>
           <span>${title}</span>
           <span class="about-section__chevron" aria-hidden="true"></span>
         </summary>
@@ -62,7 +62,7 @@ const About = (() => {
         </div>`
       : `
         <div class="about-acknowledged">
-          <span class="about-acknowledged__icon" aria-hidden="true">✓</span>
+          <span class="about-acknowledged__icon" aria-hidden="true"><span data-tabler-icon="circle-check"></span></span>
           <span>S&amp;K penggunaan aplikasi telah disetujui pada perangkat ini.</span>
         </div>`;
 
@@ -70,7 +70,7 @@ const About = (() => {
       <div class="about-modal-content">
 
         <div class="about-hero">
-          <div class="about-hero__icon" aria-hidden="true">✉️</div>
+          <div class="about-hero__icon" aria-hidden="true"><span data-tabler-icon="mail"></span></div>
           <div class="about-hero__main">
             <span class="about-eyebrow">INFORMASI APLIKASI</span>
             <h4 class="about-hero__title">Generator Surat Madrasah</h4>
@@ -83,21 +83,21 @@ const About = (() => {
 
         <div class="about-highlights">
           <div class="about-highlight">
-            <span class="about-highlight__icon">🔒</span>
+            <span class="about-highlight__icon"><span data-tabler-icon="shield-check"></span></span>
             <div>
               <strong>Berbasis perangkat</strong>
               <small>Data surat dikelola di browser pengguna.</small>
             </div>
           </div>
           <div class="about-highlight">
-            <span class="about-highlight__icon">💾</span>
+            <span class="about-highlight__icon"><span data-tabler-icon="device-floppy"></span></span>
             <div>
               <strong>Backup &amp; Draft</strong>
               <small>Data dapat disimpan sebagai draft dan backup JSON.</small>
             </div>
           </div>
           <div class="about-highlight">
-            <span class="about-highlight__icon">🖨️</span>
+            <span class="about-highlight__icon"><span data-tabler-icon="printer"></span></span>
             <div>
               <strong>Siap cetak</strong>
               <small>Preview dirancang mengikuti hasil print/PDF.</small>
@@ -120,7 +120,7 @@ const About = (() => {
           </div>
           <div class="about-support-grid">
             <section class="about-support-card about-donation-card" aria-labelledby="about-donation-title">
-              <div class="about-support-card__icon about-support-card__icon--donation" aria-hidden="true">♥</div>
+              <div class="about-support-card__icon about-support-card__icon--donation" aria-hidden="true"><span data-tabler-icon="circle-check"></span></div>
               <div class="about-support-card__main">
                 <div class="about-support-card__eyebrow">DUKUNG PENGEMBANGAN</div>
                 <strong id="about-donation-title" class="about-support-card__title">Dukungan &amp; Donasi</strong>
@@ -136,13 +136,13 @@ const About = (() => {
                 <div class="about-support-card__footer">
                   <span class="about-support-card__note">Detail tujuan/nomor donasi diberikan melalui WhatsApp.</span>
                   <a class="about-support-cta" href="${WA_URL}" target="_blank" rel="noopener noreferrer">
-                    Hubungi pengembang <span aria-hidden="true">→</span>
+                    Hubungi pengembang <span aria-hidden="true"><span data-tabler-icon="chevron-right"></span></span>
                   </a>
                 </div>
               </div>
             </section>
             <section class="about-support-card about-template-request-card" aria-labelledby="about-template-request-title">
-              <div class="about-support-card__icon about-support-card__icon--template" aria-hidden="true">▦</div>
+              <div class="about-support-card__icon about-support-card__icon--template" aria-hidden="true"><span data-tabler-icon="file-text"></span></div>
               <div class="about-support-card__main">
                 <div class="about-support-card__eyebrow">KONTRIBUSI PENGGUNA</div>
                 <strong id="about-template-request-title" class="about-support-card__title">Request Template Surat</strong>

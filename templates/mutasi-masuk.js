@@ -15,7 +15,7 @@ const TemplateMutasiMasuk = (() => {
     id: TEMPLATE_ID,
     name: 'Daftar Pengesahan Siswa Mutasi Masuk',
     description: 'Daftar pengesahan siswa baru mutasi masuk ke madrasah, lengkap dengan data asal sekolah dan kelas.',
-    icon: '🔄',
+    icon: 'arrows-exchange',
     orientation: 'landscape',
     paperSize: 'a4',
     category: 'registrasi',
@@ -111,7 +111,7 @@ const TemplateMutasiMasuk = (() => {
     {
       id: 'meta',
       title: 'Data Madrasah',
-      icon: '🏫',
+      icon: 'school',
       fields: [
         {
           key: 'meta.namaMadrasah',
@@ -167,7 +167,7 @@ const TemplateMutasiMasuk = (() => {
     {
       id: 'siswa',
       title: 'Daftar Siswa Mutasi',
-      icon: '👥',
+      icon: 'users',
       type: 'repeatable',
       itemLabel: 'Siswa',
       itemFactory: _createSiswa,
@@ -277,7 +277,7 @@ const TemplateMutasiMasuk = (() => {
     {
       id: 'tandaTangan',
       title: 'Tanda Tangan',
-      icon: '✍️',
+      icon: 'signature',
       fields: [
         {
           key: 'tandaTangan.kotaMadrasah',

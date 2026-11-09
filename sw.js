@@ -3,7 +3,7 @@
    ============================================================= */
 
 const CACHE_PREFIX = 'generator-surat-platform-';
-const CACHE_NAME = CACHE_PREFIX + 'v32';
+const CACHE_NAME = CACHE_PREFIX + 'v33';
 const APP_SHELL = [
   './',
   './index.html',
@@ -23,12 +23,15 @@ const APP_SHELL = [
   './css/signature-modal.css',
   './css/izin-declaration.css',
   './css/daisyui-adapter.css',
+  './css/tabler-icons.css',
   './css/platform.css',
   './css/document-viewer.css',
   './css/print.css',
   './js/theme-init.js',
   './js/routes.js',
   './js/utils.js',
+  './js/app-icons.js',
+  './js/icon-init.js',
   './js/storage.js',
   './js/state.js',
   './js/validation.js',
@@ -68,6 +71,7 @@ const APP_SHELL = [
   './js/vendor/xlsx.full.min.js',
   './assets/icons/logo.svg',
   './assets/icons/favicon.svg',
+  './assets/icons/tabler-sprite.svg',
 ];
 
 const STATIC_DESTINATIONS = new Set([

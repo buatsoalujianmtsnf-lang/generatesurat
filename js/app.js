@@ -577,7 +577,7 @@ const App = (() => {
       <div style="display:flex;align-items:center;justify-content:center;
         min-height:100vh;padding:2rem;font-family:system-ui,sans-serif;">
         <div style="max-width:480px;text-align:center;">
-          <div style="font-size:3rem;margin-bottom:1rem;">⚠️</div>
+          <div style="font-size:3rem;margin-bottom:1rem;"><span data-tabler-icon="info-circle"></span></div>
           <h1 style="margin-bottom:.5rem;font-size:1.25rem;">Aplikasi tidak dapat dimuat</h1>
           <p style="color:#64748b;margin-bottom:1.5rem;">
             Terjadi kesalahan saat memulai aplikasi. Coba muat ulang halaman.

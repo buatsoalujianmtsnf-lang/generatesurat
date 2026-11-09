@@ -70,7 +70,7 @@ const DataManager = (() => {
 
         <div class="data-manager__actions">
           <button type="button" class="data-manager-action" id="dm-export">
-            <span class="data-manager-action__icon" aria-hidden="true">⇩</span>
+            <span class="data-manager-action__icon" aria-hidden="true"><span data-tabler-icon="download"></span></span>
             <span>
               <strong>Export Backup</strong>
               <small>Simpan seluruh data aktif sebagai file JSON.</small>
@@ -78,7 +78,7 @@ const DataManager = (() => {
           </button>
 
           <button type="button" class="data-manager-action" id="dm-import">
-            <span class="data-manager-action__icon" aria-hidden="true">⇧</span>
+            <span class="data-manager-action__icon" aria-hidden="true"><span data-tabler-icon="upload"></span></span>
             <span>
               <strong>Import Backup</strong>
               <small>Restore data dari file backup Generator Surat.</small>

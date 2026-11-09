@@ -17,7 +17,7 @@ const TemplateSiswaBaru = (() => {
     id: TEMPLATE_ID,
     name: 'Daftar Pengesahan Siswa Baru',
     description: 'Daftar pengesahan siswa baru tahun ajaran, umumnya untuk kelas VII. Kelas tercantum di header.',
-    icon: '🎓',
+    icon: 'school',
     orientation: 'landscape',
     paperSize: 'a4',
     category: 'registrasi',
@@ -115,7 +115,7 @@ const TemplateSiswaBaru = (() => {
     {
       id: 'meta',
       title: 'Data Madrasah',
-      icon: '🏫',
+      icon: 'school',
       fields: [
         {
           key: 'meta.namaMadrasah',
@@ -182,7 +182,7 @@ const TemplateSiswaBaru = (() => {
     {
       id: 'siswa',
       title: 'Daftar Siswa Baru',
-      icon: '👥',
+      icon: 'users',
       type: 'repeatable',
       itemLabel: 'Siswa',
       itemFactory: _createSiswa,
@@ -272,7 +272,7 @@ const TemplateSiswaBaru = (() => {
     {
       id: 'tandaTangan',
       title: 'Tanda Tangan',
-      icon: '✍️',
+      icon: 'signature',
       fields: [
         {
           key: 'tandaTangan.kotaMadrasah',

@@ -24,10 +24,10 @@ const TableConfigUI = (() => {
 
   /* ── Label dan ikon ── */
   const H_ALIGN_OPTIONS = [
-    { value: 'left',    label: 'Kiri',    icon: '⬅' },
-    { value: 'center',  label: 'Tengah',  icon: '↔' },
-    { value: 'right',   label: 'Kanan',   icon: '➡' },
-    { value: 'justify', label: 'Justify', icon: '☰' },
+    { value: 'left',    label: 'Kiri',    icon: 'chevron-left' },
+    { value: 'center',  label: 'Tengah',  icon: 'arrows-horizontal' },
+    { value: 'right',   label: 'Kanan',   icon: 'chevron-right' },
+    { value: 'justify', label: 'Justify', icon: 'list-check' },
   ];
 
   const V_ALIGN_OPTIONS = [
@@ -162,7 +162,7 @@ const TableConfigUI = (() => {
         class="btn btn--sm btn--danger-outline tbl-cfg__reset-all btn-sm btn-error btn-outline"
         data-action="reset-all"
         title="Reset semua pengaturan tabel ke default template">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" aria-hidden="true"><path d="M3.51 15a9 9 0 1 0 .49-4.95"/><polyline points="1,4 1,10 7,10"/></svg>
+        <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-refresh"></use></svg>
         Reset Semua Tabel
       </button>` : '';
 
@@ -175,11 +175,11 @@ const TableConfigUI = (() => {
             aria-controls="tbl-cfg-body"
             id="tbl-cfg-toggle">
             <span class="tbl-cfg-accordion__toggle-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="9"/></svg>
+              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-layout-sidebar"></use></svg>
             </span>
             <span class="tbl-cfg-accordion__toggle-title">Pengaturan Tabel</span>
             <span class="tbl-cfg-accordion__chevron" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>
+              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-chevron-down"></use></svg>
             </span>
           </button>
           ${resetAllBtn}
@@ -211,7 +211,7 @@ const TableConfigUI = (() => {
         data-action="reset-table"
         data-table-id="${_esc(tableId)}"
         title="Reset pengaturan tabel ini ke default template">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true"><path d="M3.51 15a9 9 0 1 0 .49-4.95"/><polyline points="1,4 1,10 7,10"/></svg>
+        <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-refresh"></use></svg>
         Reset
       </button>`;
 
@@ -257,7 +257,7 @@ const TableConfigUI = (() => {
         '" aria-expanded="' + isOpen + '" aria-controls="' + sectionId + '" data-section-key="' + _esc(sectionKey) + '">' +
         '<span class="tbl-cfg__section-icon" aria-hidden="true">🎨</span>' +
         '<span class="tbl-cfg__section-title">Warna Tabel</span>' +
-        '<span class="tbl-cfg__section-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="6 9 12 15 18 9"/></svg></span>' +
+        '<span class="tbl-cfg__section-chevron" aria-hidden="true"><svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-chevron-down"></use></svg></span>' +
       '</button>' +
       '<div class="tbl-cfg__section-body' + (isOpen ? ' is-open' : '') + '" id="' + sectionId + '" role="region">' +
         '<div class="tbl-cfg__color-hint">Atur warna dasar <strong>Header</strong> dan <strong>Isi</strong> tabel. Untuk Isi, buat aturan berdasarkan baris dan/atau kolom.</div>' +
@@ -349,7 +349,7 @@ const TableConfigUI = (() => {
         data-action="reset-col-widths"
         data-table-id="${_esc(tableId)}"
         title="Reset semua lebar kolom ke Auto">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11" aria-hidden="true"><path d="M3.51 15a9 9 0 1 0 .49-4.95"/><polyline points="1,4 1,10 7,10"/></svg>
+        <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-refresh"></use></svg>
         Reset Lebar
       </button>`;
 
@@ -371,7 +371,7 @@ const TableConfigUI = (() => {
           <span class="tbl-cfg__section-title">Lebar Kolom</span>
           ${totalStr}
           <span class="tbl-cfg__section-chevron" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="6 9 12 15 18 9"/></svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-chevron-down"></use></svg>
           </span>
         </button>
         <div class="tbl-cfg__section-body${isOpen ? ' is-open' : ''}"
@@ -473,7 +473,7 @@ const TableConfigUI = (() => {
     const sectionKey   = `${tableId}-${section}`;
     const isOpen       = _openSections[sectionKey] !== false;
     const sectionLabel = section === 'header' ? 'Header Tabel' : 'Isi Tabel';
-    const sectionIcon  = section === 'header' ? '📌' : '📝';
+    const sectionIcon  = section === 'header' ? 'pinned' : 'writing';
     const sectionId    = `tbl-sec-${_esc(tableId)}-${section}`;
 
     const columnsHtml = columns.map((col, position) => {
@@ -491,7 +491,7 @@ const TableConfigUI = (() => {
           data-action="copy-header-to-body"
           data-table-id="${_esc(tableId)}"
           title="Salin pengaturan Header ke Isi Tabel (bold akan di-off)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true"><polyline points="8,17 3,12 8,7"/><line x1="3" y1="12" x2="15" y2="12"/><path d="M21 12a6 6 0 0 1-6 6"/></svg>
+          <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-download"></use></svg>
           Salin dari Header
         </button>
       </div>` : '';
@@ -503,10 +503,10 @@ const TableConfigUI = (() => {
           aria-expanded="${isOpen}"
           aria-controls="${sectionId}"
           data-section-key="${_esc(sectionKey)}">
-          <span class="tbl-cfg__section-icon" aria-hidden="true">${sectionIcon}</span>
+          <span class="tbl-cfg__section-icon" aria-hidden="true"><span data-tabler-icon="${sectionIcon}"></span></span>
           <span class="tbl-cfg__section-title">${_esc(sectionLabel)}</span>
           <span class="tbl-cfg__section-chevron" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="6 9 12 15 18 9"/></svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-chevron-down"></use></svg>
           </span>
         </button>
         <div class="tbl-cfg__section-body${isOpen ? ' is-open' : ''}"
@@ -548,7 +548,7 @@ const TableConfigUI = (() => {
         title="Horizontal: ${opt.label}"
         aria-label="Horizontal alignment: ${opt.label}"
         aria-pressed="${hAlign === opt.value}"
-      >${opt.icon}</button>`).join('');
+      ><span data-tabler-icon="${opt.icon}"></span></button>`).join('');
 
     const vAlignOptions = V_ALIGN_OPTIONS.map(opt =>
       `<option value="${opt.value}"${vAlign === opt.value ? ' selected' : ''}>${opt.label}</option>`
@@ -637,7 +637,7 @@ const TableConfigUI = (() => {
                 title="Teks dalam satu baris (nowrap)"
                 aria-label="Wrap Teks OFF untuk ${_esc(colLabel)}"
                 aria-pressed="${!isWrap}">
-                <svg viewBox="0 0 20 14" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="13" aria-hidden="true"><line x1="1" y1="3" x2="19" y2="3"/><line x1="1" y1="7" x2="19" y2="7"/><line x1="1" y1="11" x2="13" y2="11"/></svg>
+                <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-file-text"></use></svg>
                 <span>Off</span>
               </button>
               <button type="button"
@@ -648,7 +648,7 @@ const TableConfigUI = (() => {
                 title="Teks dapat membungkus ke baris berikutnya"
                 aria-label="Wrap Teks ON untuk ${_esc(colLabel)}"
                 aria-pressed="${isWrap}">
-                <svg viewBox="0 0 20 14" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="13" aria-hidden="true"><line x1="1" y1="3" x2="19" y2="3"/><line x1="1" y1="7" x2="14" y2="7"/><path d="M14 5 L14 9 L17 7" stroke-linejoin="round" stroke-linecap="round"/><line x1="1" y1="11" x2="10" y2="11"/></svg>
+                <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-writing"></use></svg>
                 <span>On</span>
               </button>
             </div>
@@ -675,7 +675,7 @@ const TableConfigUI = (() => {
               ${da}
               title="Semua kolom ${sectionLabel}: ${opt.label}"
               aria-label="Semua kolom ${sectionLabel}: Horizontal ${opt.label}"
-            >${opt.icon}</button>`).join('')}
+             ><span data-tabler-icon="${opt.icon}"></span></button>`).join('')}
           <button type="button"
             class="tbl-cfg__apply-btn tbl-cfg__apply-btn--bold"
             data-action="apply-all-bold-on"
@@ -696,14 +696,14 @@ const TableConfigUI = (() => {
             ${da}
             title="Semua kolom ${sectionLabel}: Wrap Teks ON"
             aria-label="Semua kolom ${sectionLabel}: Wrap Teks ON"
-          ><svg viewBox="0 0 20 14" fill="none" stroke="currentColor" stroke-width="2" width="16" height="11" aria-hidden="true"><line x1="1" y1="3" x2="19" y2="3"/><line x1="1" y1="7" x2="14" y2="7"/><path d="M14 5 L14 9 L17 7" stroke-linejoin="round" stroke-linecap="round"/><line x1="1" y1="11" x2="10" y2="11"/></svg></button>
+          ><svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-file-text"></use></svg></button>
           <button type="button"
             class="tbl-cfg__apply-btn"
             data-action="apply-all-wrap-off"
             ${da}
             title="Semua kolom ${sectionLabel}: Wrap Teks OFF"
             aria-label="Semua kolom ${sectionLabel}: Wrap Teks OFF"
-          ><svg viewBox="0 0 20 14" fill="none" stroke="currentColor" stroke-width="2" width="16" height="11" aria-hidden="true" style="opacity:.6"><line x1="1" y1="3" x2="19" y2="3"/><line x1="1" y1="7" x2="19" y2="7"/><line x1="1" y1="11" x2="13" y2="11"/></svg></button>
+          ><svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" style="opacity:.6"><use href="assets/icons/tabler-sprite.svg#ti-file-text"></use></svg></button>
         </div>
       </div>`;
   }

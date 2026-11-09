@@ -43,6 +43,7 @@
   <link rel="stylesheet" href="css/signature-modal.css" />
   <link rel="stylesheet" href="css/izin-declaration.css" />
   <link rel="stylesheet" href="css/daisyui-adapter.css" />
+  <link rel="stylesheet" href="css/tabler-icons.css" />
 </head>
 <body>
 
@@ -73,15 +74,15 @@
             <a class="lp__button lp__button--secondary btn btn-outline" href="#koleksi">Jelajahi Template</a>
           </div>
           <div class="lp__hero-proof">
-            <span class="lp__proof-item"><span class="lp__proof-check">✓</span> Pratinjau sebelum cetak</span>
-            <span class="lp__proof-item"><span class="lp__proof-check">✓</span> Tersedia ekspor PDF</span>
-            <span class="lp__proof-item"><span class="lp__proof-check">✓</span> Tanda tangan pada surat izin</span>
+            <span class="lp__proof-item"><span class="lp__proof-check" data-tabler-icon="circle-check"></span> Pratinjau sebelum cetak</span>
+            <span class="lp__proof-item"><span class="lp__proof-check" data-tabler-icon="circle-check"></span> Tersedia ekspor PDF</span>
+            <span class="lp__proof-item"><span class="lp__proof-check" data-tabler-icon="circle-check"></span> Tanda tangan pada surat izin</span>
           </div>
         </div>
         <div class="lp__preview card" aria-hidden="true">
           <div class="lp__paper">
             <div class="lp__paper-top">
-              <span class="lp__paper-icon">📄</span>
+              <span class="lp__paper-icon" data-tabler-icon="file-text"></span>
               <span class="lp__paper-meta"><strong>GENERATOR SURAT</strong><small>Pratinjau dokumen · A4</small></span>
             </div>
             <span class="lp__paper-kicker">SURAT KETERANGAN</span>
@@ -96,9 +97,9 @@
             </div>
             <div class="lp__line lp__line--wide"></div>
             <div class="lp__line lp__line--mid"></div>
-            <div class="lp__sign"><span class="lp__sign-mark">✍</span><div class="lp__line lp__line--mid"></div></div>
+            <div class="lp__sign"><span class="lp__sign-mark" data-tabler-icon="signature"></span><div class="lp__line lp__line--mid"></div></div>
           </div>
-          <div class="lp__preview-badge badge badge-success"><span>✓</span> Dokumen siap dicetak</div>
+          <div class="lp__preview-badge badge badge-success"><span data-tabler-icon="circle-check"></span> Dokumen siap dicetak</div>
         </div>
       </div>
     </section>
@@ -118,7 +119,7 @@
             <p class="lp__section-intro">Template dikelompokkan berdasarkan keperluan administrasi. Buka salah satu surat untuk langsung mulai mengisinya.</p>
           </div>
           <label class="lp__search input">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m16 16 5 5" /></svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2"><use href="assets/icons/tabler-sprite.svg#ti-search"></use></svg>
             <input id="lp-template-search" type="search" aria-label="Cari template surat" placeholder="Cari template surat..." autocomplete="off" />
           </label>
         </div>
@@ -135,9 +136,9 @@
         <h2 id="lp-features-title">Dari pengisian hingga dokumen jadi</h2>
         <p class="lp__section-intro" style="margin-bottom:28px">Fitur penting tersedia di editor tanpa perlu berpindah-pindah aplikasi.</p>
         <div class="lp__features">
-          <article class="lp__feature card"><span class="lp__feature-icon" aria-hidden="true">🧩</span><h3>Template terstruktur</h3><p>Form yang relevan dengan jenis surat memudahkan pengisian informasi secara konsisten.</p></article>
-          <article class="lp__feature card"><span class="lp__feature-icon" aria-hidden="true">👁️</span><h3>Pratinjau langsung</h3><p>Lihat perubahan isi surat saat mengetik dan sesuaikan pengaturan dokumen sebelum dicetak.</p></article>
-          <article class="lp__feature card"><span class="lp__feature-icon" aria-hidden="true">📥</span><h3>Cetak dan ekspor PDF</h3><p>Simpan hasil surat sebagai PDF atau cetak langsung dari aplikasi.</p></article>
+          <article class="lp__feature card"><span class="lp__feature-icon" aria-hidden="true" data-tabler-icon="layout-sidebar"></span><h3>Template terstruktur</h3><p>Form yang relevan dengan jenis surat memudahkan pengisian informasi secara konsisten.</p></article>
+          <article class="lp__feature card"><span class="lp__feature-icon" aria-hidden="true" data-tabler-icon="eye"></span><h3>Pratinjau langsung</h3><p>Lihat perubahan isi surat saat mengetik dan sesuaikan pengaturan dokumen sebelum dicetak.</p></article>
+          <article class="lp__feature card"><span class="lp__feature-icon" aria-hidden="true" data-tabler-icon="download"></span><h3>Cetak dan ekspor PDF</h3><p>Simpan hasil surat sebagai PDF atau cetak langsung dari aplikasi.</p></article>
         </div>
       </div>
     </section>
@@ -167,7 +168,7 @@
     <div class="modal-box">
       <div class="modal-header">
         <h3 id="modal-title" class="modal-title"></h3>
-        <button id="modal-close-btn" class="modal-close-btn btn btn-ghost btn-circle btn-sm" aria-label="Tutup modal">&times;</button>
+        <button id="modal-close-btn" class="modal-close-btn btn btn-ghost btn-circle btn-sm" aria-label="Tutup modal"><span data-tabler-icon="refresh"></span></button>
       </div>
       <div id="modal-body" class="modal-body"></div>
       <div id="modal-footer" class="modal-footer modal-action"></div>
@@ -179,14 +180,14 @@
 
     <!-- EXPIRED DATA BANNER (inside app container agar layout benar) -->
     <div id="expired-banner" class="expired-banner hidden alert alert-warning" role="alert">
-      <span class="expired-banner__icon">⚠️</span>
+      <span class="expired-banner__icon" data-tabler-icon="info-circle"></span>
       <span id="expired-banner-text" class="expired-banner__text">
         Penyimpanan cepat telah kedaluwarsa. Snapshot terakhir masih dapat dipulihkan.
       </span>
       <button id="expired-banner-restore" class="btn btn--sm btn--secondary expired-banner__restore btn-sm btn-outline" type="button" hidden>
         Pulihkan Snapshot
       </button>
-      <button id="expired-banner-close" class="expired-banner__close" aria-label="Tutup notifikasi">&times;</button>
+      <button id="expired-banner-close" class="expired-banner__close" aria-label="Tutup notifikasi"><span data-tabler-icon="trash"></span></button>
     </div>
 
     <!-- HEADER -->
@@ -204,7 +205,7 @@
       <div class="app-header__actions" role="group" tabindex="0" aria-label="Tombol tindakan editor, geser horizontal untuk melihat semua tombol">
         <!-- Storage info (disembunyikan di mobile via CSS) -->
         <div id="storage-info" class="storage-info hidden">
-          <span class="storage-info__icon">💾</span>
+          <span class="storage-info__icon" data-tabler-icon="device-floppy"></span>
           <span id="storage-info-text" class="storage-info__text"></span>
         </div>
         <!-- Platform status (disembunyikan di mobile, tampil di overflow menu) -->
@@ -215,60 +216,60 @@
 
         <!-- ── Tombol primer: selalu visible di semua ukuran layar ── -->
         <button id="btn-export-pdf" class="btn btn--sm btn--secondary header-btn-primary btn-sm btn-outline" title="Ekspor surat langsung menjadi PDF" aria-label="Ekspor surat langsung menjadi PDF">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 3h9l3 3v15H6z"/><path d="M14 3v4h4M9 13h6M9 17h6"/></svg>
+          <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-file-type-pdf"></use></svg>
           <span class="btn-label">PDF</span>
         </button>
         <button id="btn-print" class="btn btn--sm btn--primary header-btn-primary btn-sm btn-primary" title="Cetak surat">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6,9 6,2 18,2 18,9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2" height="8"><use href="assets/icons/tabler-sprite.svg#ti-printer"></use></svg>
           <span class="btn-label">Cetak</span>
         </button>
 
         <!-- ── Aksi lainnya tetap dalam satu deretan dan dapat digeser horizontal ── -->
         <div class="header-overflow-group" id="header-overflow-group" aria-label="Aksi lainnya">
           <button id="btn-install-app" class="btn btn--sm btn--secondary platform-action btn-sm btn-outline" title="Pasang aplikasi" aria-label="Pasang Generator Surat sebagai aplikasi" hidden aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-download"></use></svg>
             <span class="btn-label">Pasang</span>
           </button>
           <button id="btn-update-app" class="btn btn--sm btn--secondary platform-action platform-update btn-sm btn-outline" title="Perbarui aplikasi" aria-label="Muat versi terbaru aplikasi" hidden aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.9-4M4 5v5h5M4 13a8 8 0 0 0 14.9 4M20 19v-5h-5"/></svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-refresh"></use></svg>
             <span class="btn-label">Perbarui</span>
           </button>
           <button id="btn-about" class="btn btn--sm btn--secondary btn-sm btn-outline" title="Tentang aplikasi" aria-label="Tentang aplikasi">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/></svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-info-circle"></use></svg>
             <span class="btn-label">Tentang</span>
           </button>
           <button id="btn-theme-toggle" class="btn btn--sm btn--secondary btn-sm btn-outline" data-theme="auto" title="Ganti tema tampilan" aria-label="Ganti tema tampilan">
-            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" aria-hidden="true" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
-            <svg class="icon-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" aria-hidden="true" style="display:none"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l4 4"/></svg>
+            <svg class="ti-icon icon-sun" viewBox="0 0 24 24" aria-hidden="true" width="1.8" height="14"><use href="assets/icons/tabler-sprite.svg#ti-sun"></use></svg>
+            <svg class="ti-icon icon-moon" viewBox="0 0 24 24" aria-hidden="true" style="display:none" width="1.8" height="14"><use href="assets/icons/tabler-sprite.svg#ti-moon"></use></svg>
+            <svg class="ti-icon icon-auto" viewBox="0 0 24 24" aria-hidden="true" style="display:none" width="1.8" height="14"><use href="assets/icons/tabler-sprite.svg#ti-device-desktop"></use></svg>
             <span class="btn-label">Tema</span>
           </button>
           <span class="header-overflow-divider" role="separator" aria-hidden="true"></span>
           <button id="btn-undo" class="btn btn--sm btn--secondary btn-sm btn-outline" title="Batalkan perubahan terakhir (Ctrl+Z)" aria-label="Batalkan perubahan terakhir" disabled>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-arrow-back-up"></use></svg>
             <span class="btn-label">Undo</span>
           </button>
           <button id="btn-redo" class="btn btn--sm btn--secondary btn-sm btn-outline" title="Ulangi perubahan (Ctrl+Y)" aria-label="Ulangi perubahan" disabled>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-arrow-forward-up"></use></svg>
             <span class="btn-label">Redo</span>
           </button>
           <button id="btn-save" class="btn btn--sm btn--secondary btn-sm btn-outline" title="Simpan data ke penyimpanan lokal">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/></svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2"><use href="assets/icons/tabler-sprite.svg#ti-device-floppy"></use></svg>
             <span class="btn-label">Simpan</span>
           </button>
           <span class="header-overflow-divider" role="separator" aria-hidden="true"></span>
           <button id="btn-export-data" class="btn btn--sm btn--secondary btn-sm btn-outline" title="Ekspor semua data ke file JSON" aria-label="Ekspor data ke file JSON">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-download"></use></svg>
             <span class="btn-label">Ekspor Data</span>
           </button>
           <!-- Input file tersembunyi untuk impor JSON -->
           <input type="file" id="input-import-data" accept=".json,application/json" style="display:none" aria-hidden="true" />
           <button id="btn-import-data" class="btn btn--sm btn--secondary btn-sm btn-outline" title="Impor data dari file JSON" aria-label="Impor data dari file JSON">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-upload"></use></svg>
             <span class="btn-label">Impor Data</span>
           </button>
           <button id="btn-reset" class="btn btn--sm btn--danger-outline btn-sm btn-error btn-outline" title="Reset dan hapus semua data">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="1,4 1,10 7,10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2"><use href="assets/icons/tabler-sprite.svg#ti-refresh"></use></svg>
             <span class="btn-label">Reset</span>
           </button>
           <!-- Platform status (duplikat untuk dropdown mobile) -->
@@ -291,19 +292,19 @@
         <!-- Tab Navigation -->
         <nav class="editor-tabs tabs tabs-border" role="tablist" aria-label="Bagian editor">
           <button class="editor-tab active tab" role="tab" aria-selected="true" aria-controls="tab-template" id="tab-btn-template" data-tab="template">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2" height="18"><use href="assets/icons/tabler-sprite.svg#ti-layout-sidebar"></use></svg>
             Template
           </button>
           <button class="editor-tab tab" role="tab" aria-selected="false" aria-controls="tab-kop" id="tab-btn-kop" data-tab="kop">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M2 12h20M2 17h20"/></svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2" height="5"><use href="assets/icons/tabler-sprite.svg#ti-file-text"></use></svg>
             KOP Surat
           </button>
           <button class="editor-tab tab" role="tab" aria-selected="false" aria-controls="tab-form" id="tab-btn-form" data-tab="form">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2"><use href="assets/icons/tabler-sprite.svg#ti-writing"></use></svg>
             Isi Surat
           </button>
           <button class="editor-tab tab" role="tab" aria-selected="false" aria-controls="tab-settings" id="tab-btn-settings" data-tab="settings">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2"><use href="assets/icons/tabler-sprite.svg#ti-settings"></use></svg>
             Pengaturan
           </button>
         </nav>
@@ -353,7 +354,7 @@
         <div class="editor-tab-content" id="tab-form" role="tabpanel" aria-labelledby="tab-btn-form">
           <div id="form-container">
             <div class="form-empty-state card" id="form-empty-state">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.5"><use href="assets/icons/tabler-sprite.svg#ti-file-text"></use></svg>
               <p>Pilih template surat terlebih dahulu.</p>
               <button class="btn btn--sm btn--secondary btn-sm btn-outline" type="button" data-action="select-template">Pilih Template</button>
             </div>
@@ -381,11 +382,7 @@
             aria-controls="preview-panel"
             aria-expanded="true"
             title="Sembunyikan preview surat">
-            <svg class="mobile-preview-toggle__icon" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-              <rect x="3" y="4" width="18" height="16" rx="2"/>
-              <path d="M7 8h10M7 12h6M7 16h8"/>
-            </svg>
+            <svg class="ti-icon mobile-preview-toggle__icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8" height="16"><use href="assets/icons/tabler-sprite.svg#ti-eye"></use></svg>
             <span class="mobile-preview-toggle__label">Sembunyikan Preview</span>
           </button>
         </div>
@@ -404,10 +401,10 @@
 
             <div class="viewer-page-nav" role="group" aria-label="Navigasi halaman">
               <button type="button" id="viewer-page-first" class="btn-icon viewer-document-control btn btn-ghost btn-square btn-sm" title="Halaman pertama" aria-label="Halaman pertama">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 6l-6 6 6 6M19 6l-6 6 6 6M5 6v12"/></svg>
+                <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-chevrons-left"></use></svg>
               </button>
               <button type="button" id="viewer-page-prev" class="btn-icon viewer-document-control btn btn-ghost btn-square btn-sm" title="Halaman sebelumnya" aria-label="Halaman sebelumnya">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+                <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-chevron-left"></use></svg>
               </button>
               <label class="viewer-page-input-wrap">
                 <input id="viewer-page-current" class="viewer-page-input viewer-document-control" type="number" min="1" value="" inputmode="numeric" aria-label="Nomor halaman aktif" />
@@ -415,10 +412,10 @@
                 <span id="viewer-page-total">—</span>
               </label>
               <button type="button" id="viewer-page-next" class="btn-icon viewer-document-control btn btn-ghost btn-square btn-sm" title="Halaman berikutnya" aria-label="Halaman berikutnya">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+                <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-chevron-right"></use></svg>
               </button>
               <button type="button" id="viewer-page-last" class="btn-icon viewer-document-control btn btn-ghost btn-square btn-sm" title="Halaman terakhir" aria-label="Halaman terakhir">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M13 6l6 6-6 6M5 6l6 6-6 6M19 6v12"/></svg>
+                <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-chevrons-right"></use></svg>
               </button>
             </div>
 
@@ -427,25 +424,25 @@
           </div>
           <div class="preview-toolbar__actions">
             <button id="btn-fit-page" class="btn-icon btn btn-ghost btn-square btn-sm" title="Sesuaikan ke halaman" aria-label="Sesuaikan preview ke halaman">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v4H4M16 4v4h4M4 16h4v4M20 16h-4v4"/></svg>
+              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8" height="16"><use href="assets/icons/tabler-sprite.svg#ti-arrows-maximize"></use></svg>
             </button>
             <button id="btn-fit-width" class="btn-icon btn btn-ghost btn-square btn-sm" title="Sesuaikan ke lebar" aria-label="Sesuaikan preview ke lebar">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M4 12h16"/></svg>
+              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-arrows-horizontal"></use></svg>
             </button>
             <span class="preview-toolbar__divider" aria-hidden="true"></span>
             <button id="btn-zoom-out" class="btn-icon btn btn-ghost btn-square btn-sm" title="Perkecil tampilan" aria-label="Perkecil tampilan">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2"><use href="assets/icons/tabler-sprite.svg#ti-zoom-out"></use></svg>
             </button>
             <span id="zoom-level-text" class="zoom-level-text">100%</span>
             <button id="btn-zoom-in" class="btn-icon btn btn-ghost btn-square btn-sm" title="Perbesar tampilan" aria-label="Perbesar tampilan">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2"><use href="assets/icons/tabler-sprite.svg#ti-zoom-in"></use></svg>
             </button>
             <button id="btn-zoom-reset" class="btn-icon btn btn-ghost btn-square btn-sm" title="Reset zoom" aria-label="Reset zoom">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3.51 15a9 9 0 1 0 .49-4.95"/><polyline points="1,4 1,10 7,10"/></svg>
+              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2"><use href="assets/icons/tabler-sprite.svg#ti-refresh"></use></svg>
             </button>
             <span class="preview-toolbar__divider" aria-hidden="true"></span>
             <button id="viewer-focus-toggle" class="btn-icon viewer-focus-toggle btn btn-ghost btn-square btn-sm" title="Mode fokus preview" aria-label="Buka preview dalam mode fokus" aria-pressed="false">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-arrows-maximize"></use></svg>
               <span class="viewer-focus-label">Fokus</span>
             </button>
           </div>
@@ -462,7 +459,7 @@
                 </div>
                 <!-- Pesan statis setelah skeleton (tersembunyi hingga JS siap) -->
                 <div id="preview-empty-msg" style="display:none; text-align:center; color: var(--color-text-muted); padding: var(--space-8);">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true" style="width:48px;height:48px;margin:0 auto var(--space-4)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" style="width:48px;height:48px;margin:0 auto var(--space-4)" width="1"><use href="assets/icons/tabler-sprite.svg#ti-file-text"></use></svg>
                   <p>Preview surat akan muncul di sini setelah template dipilih dan data diisi.</p>
                 </div>
               </div>
@@ -480,6 +477,7 @@
   <!-- SheetJS: engine baca/tulis file Excel di browser (di-vendor lokal, tanpa CDN) -->
   <script src="js/vendor/xlsx.full.min.js"></script>
   <script src="js/utils.js"></script>
+  <script src="js/app-icons.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/state.js"></script>
   <script src="js/validation.js"></script>
@@ -518,6 +516,7 @@
   <script src="js/theme.js"></script>
   <script src="js/data-io.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/icon-init.js"></script>
 
 </body>
 </html>

@@ -16,7 +16,7 @@ const TemplateDPU = (() => {
     id: TEMPLATE_ID,
     name: 'Daftar Peserta Ujian (DPU)',
     description: 'Daftar peserta ujian madrasah dengan data registrasi, asal sekolah, dan status EMIS.',
-    icon: '📋',
+    icon: 'clipboard-list',
     orientation: 'landscape',   // A4 Landscape
     paperSize: 'a4',
     category: 'ujian',
@@ -92,7 +92,7 @@ const TemplateDPU = (() => {
     {
       id: 'meta',
       title: 'Data Madrasah',
-      icon: '🏫',
+      icon: 'school',
       fields: [
         {
           key: 'meta.namaMadrasah',
@@ -145,7 +145,7 @@ const TemplateDPU = (() => {
     {
       id: 'peserta',
       title: 'Daftar Peserta',
-      icon: '👥',
+      icon: 'users',
       type: 'repeatable',
       itemLabel: 'Peserta',
       itemFactory: _createPeserta,
@@ -259,7 +259,7 @@ const TemplateDPU = (() => {
     {
       id: 'tandaTangan',
       title: 'Tanda Tangan',
-      icon: '✍️',
+      icon: 'signature',
       fields: [
         {
           key: 'tandaTangan.kota',

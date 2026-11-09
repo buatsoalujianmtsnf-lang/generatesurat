@@ -57,7 +57,9 @@ describe('Application shell integration', () => {
     expect(position('js/preview-renderer.js')).toBeLessThan(position('js/print.js'));
     expect(position('js/pdf-export.js')).toBeLessThan(position('js/app.js'));
     expect(position('js/platform.js')).toBeLessThan(position('js/app.js'));
-    expect(position('js/app.js')).toBe(scripts.length - 1);
+    // Icon hydrator runs after the main app so dynamic UI is fully mounted.
+    expect(position('js/app.js')).toBe(scripts.length - 2);
+    expect(position('js/icon-init.js')).toBe(scripts.length - 1);
   });
 
   it('loads and registers all ten runtime templates with unique stable identifiers', () => {

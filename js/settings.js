@@ -91,7 +91,7 @@ const Settings = (() => {
       <!-- ── PRESET ─────────────────────────────────── -->
       <div class="settings-card card" id="settings-card-preset">
         <div class="settings-card__header">
-          <span class="settings-card__icon">📋</span>
+          <span class="settings-card__icon"><span data-tabler-icon="clipboard-list"></span></span>
           <span class="settings-card__title">Preset Dokumen</span>
         </div>
         <div class="settings-card__body">
@@ -103,7 +103,7 @@ const Settings = (() => {
       <!-- ── DOKUMEN ─────────────────────────────────── -->
       <div class="settings-card card" id="settings-card-document">
         <div class="settings-card__header">
-          <span class="settings-card__icon">📄</span>
+          <span class="settings-card__icon"><span data-tabler-icon="file-text"></span></span>
           <span class="settings-card__title">Dokumen</span>
         </div>
         <div class="settings-card__body">
@@ -154,21 +154,11 @@ const Settings = (() => {
             <label class="settings-label">Orientasi</label>
             <div class="orientation-btns" id="orientation-btns" role="group" aria-label="Orientasi halaman">
               <button type="button" class="orient-btn active" data-orient="portrait" title="Portrait">
-                <svg class="orient-icon" viewBox="0 0 24 32" fill="none">
-                  <rect x="1" y="1" width="22" height="30" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <line x1="5" y1="10" x2="19" y2="10" stroke="currentColor" stroke-width="1.5"/>
-                  <line x1="5" y1="15" x2="16" y2="15" stroke="currentColor" stroke-width="1.5"/>
-                  <line x1="5" y1="20" x2="18" y2="20" stroke="currentColor" stroke-width="1.5"/>
-                </svg>
+                <svg class="ti-icon orient-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-file-description"></use></svg>
                 <span>Portrait</span>
               </button>
               <button type="button" class="orient-btn" data-orient="landscape" title="Landscape">
-                <svg class="orient-icon landscape" viewBox="0 0 32 24" fill="none">
-                  <rect x="1" y="1" width="30" height="22" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <line x1="7" y1="7" x2="25" y2="7" stroke="currentColor" stroke-width="1.5"/>
-                  <line x1="7" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="1.5"/>
-                  <line x1="7" y1="17" x2="24" y2="17" stroke="currentColor" stroke-width="1.5"/>
-                </svg>
+                <svg class="ti-icon orient-icon landscape" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-file-spreadsheet"></use></svg>
                 <span>Landscape</span>
               </button>
             </div>
@@ -176,7 +166,7 @@ const Settings = (() => {
 
           <!-- Info ukuran aktual -->
           <div class="settings-paper-info" id="paper-info-box">
-            <span class="settings-paper-info__icon">📐</span>
+            <span class="settings-paper-info__icon"><span data-tabler-icon="arrows-maximize"></span></span>
             <span id="paper-info-text">A4 Portrait — 210 × 297 mm</span>
           </div>
 
@@ -186,7 +176,7 @@ const Settings = (() => {
       <!-- ── TIPOGRAFI ─────────────────────────────── -->
       <div class="settings-card card" id="settings-card-typography">
         <div class="settings-card__header">
-          <span class="settings-card__icon">🔤</span>
+          <span class="settings-card__icon"><span data-tabler-icon="file-text"></span></span>
           <span class="settings-card__title">Tipografi Isi Surat</span>
         </div>
         <div class="settings-card__body">
@@ -264,7 +254,7 @@ const Settings = (() => {
       <!-- ── MARGIN ─────────────────────────────────── -->
       <div class="settings-card card" id="settings-card-margin">
         <div class="settings-card__header">
-          <span class="settings-card__icon">↔️</span>
+          <span class="settings-card__icon"><span data-tabler-icon="arrows-horizontal"></span></span>
           <span class="settings-card__title">Margin</span>
           <span class="settings-card__hint">(mm)</span>
         </div>
@@ -333,7 +323,7 @@ const Settings = (() => {
       <!-- ── FOOTER NOMOR HALAMAN ──────────────────── -->
       <div class="settings-card card" id="settings-card-page-number">
         <div class="settings-card__header">
-          <span class="settings-card__icon">🔢</span>
+          <span class="settings-card__icon"><span data-tabler-icon="list-check"></span></span>
           <span class="settings-card__title">Footer Nomor Halaman</span>
         </div>
         <div class="settings-card__body">
@@ -430,7 +420,7 @@ const Settings = (() => {
       <!-- ── CETAK ─────────────────────────────────── -->
       <div class="settings-card card" id="settings-card-print">
         <div class="settings-card__header">
-          <span class="settings-card__icon">🖨️</span>
+          <span class="settings-card__icon"><span data-tabler-icon="printer"></span></span>
           <span class="settings-card__title">Cetak</span>
         </div>
         <div class="settings-card__body">
@@ -461,7 +451,7 @@ const Settings = (() => {
           </div>
 
           <div class="info-box info-box--info" style="margin-top:8px;">
-            <span class="info-box__icon">ℹ️</span>
+            <span class="info-box__icon"><span data-tabler-icon="info-circle"></span></span>
             <span>Skala cetak diupayakan melalui CSS <code>@page</code>. Beberapa
             browser tetap menampilkan dialog cetak milik mereka dan
             memungkinkan pengguna mengubah skala di sana. Skala yang
@@ -474,7 +464,7 @@ const Settings = (() => {
       <!-- ── PREVIEW ─────────────────────────────────── -->
       <div class="settings-card card" id="settings-card-preview">
         <div class="settings-card__header">
-          <span class="settings-card__icon">👁️</span>
+          <span class="settings-card__icon"><span data-tabler-icon="eye"></span></span>
           <span class="settings-card__title">Tampilan Preview</span>
         </div>
         <div class="settings-card__body">
@@ -519,7 +509,7 @@ const Settings = (() => {
       <!-- ── DATA LOKAL ─────────────────────────────── -->
       <div class="settings-card card" id="settings-card-data">
         <div class="settings-card__header">
-          <span class="settings-card__icon">💾</span>
+          <span class="settings-card__icon"><span data-tabler-icon="device-floppy"></span></span>
           <span class="settings-card__title">Data Lokal</span>
         </div>
         <div class="settings-card__body">
@@ -551,7 +541,7 @@ const Settings = (() => {
       <!-- ── DATA MANAGEMENT ───────────────────────── -->
       <div class="settings-card card" id="settings-card-data-manager">
         <div class="settings-card__header">
-          <span class="settings-card__icon">🗂️</span>
+          <span class="settings-card__icon"><span data-tabler-icon="books"></span></span>
           <span class="settings-card__title">Manajemen Data Lanjutan</span>
         </div>
         <div class="settings-card__body">
@@ -565,7 +555,7 @@ const Settings = (() => {
       <!-- ── TINDAKAN ─────────────────────────────── -->
       <div class="settings-card card" id="settings-card-actions">
         <div class="settings-card__header">
-          <span class="settings-card__icon">⚙️</span>
+          <span class="settings-card__icon"><span data-tabler-icon="settings"></span></span>
           <span class="settings-card__title">Tindakan</span>
         </div>
         <div class="settings-card__body settings-actions-body">
@@ -1417,7 +1407,7 @@ const Settings = (() => {
 
     const meta = AppStorage.getMeta();
 
-    avEl.textContent = AppStorage.isAvailable() ? '✅ Tersedia' : '❌ Tidak tersedia';
+    avEl.textContent = AppStorage.isAvailable() ? 'Tersedia' : 'Tidak tersedia';
 
     if (!meta) {
       saveEl.textContent = '—';
@@ -1431,7 +1421,7 @@ const Settings = (() => {
 
     const rem = Utils.getRemainingTime(meta.expiresAt);
     if (rem <= 0) {
-      remEl.textContent = '⚠️ Sudah kedaluwarsa';
+      remEl.textContent = 'Sudah kedaluwarsa';
       remEl.style.color = 'var(--color-danger)';
     } else {
       remEl.textContent = Utils.formatDuration(rem);

@@ -15,7 +15,7 @@ const TemplateIjopRekomendasiPengawas = (() => {
     id: TEMPLATE_ID,
     name: 'IJOP: Rekomendasi Pengawas',
     description: 'Rekomendasi perpanjangan izin operasional RA/Madrasah dari Pengawas Madrasah.',
-    icon: '✅',
+    icon: 'circle-check',
     orientation: 'portrait',
     paperSize: 'a4',
     category: 'ijop',
@@ -54,7 +54,7 @@ const TemplateIjopRekomendasiPengawas = (() => {
     {
       id: 'surat',
       title: 'Identitas Surat',
-      icon: '📋',
+      icon: 'clipboard-list',
       fields: [
         {
           key: 'surat.nomor',
@@ -74,7 +74,7 @@ const TemplateIjopRekomendasiPengawas = (() => {
     {
       id: 'pengawas',
       title: 'Data Pengawas Madrasah',
-      icon: '👤',
+      icon: 'user',
       fields: [
         {
           key: 'pengawas.nama',
@@ -109,7 +109,7 @@ const TemplateIjopRekomendasiPengawas = (() => {
     {
       id: 'lembaga',
       title: 'Data RA/Madrasah yang Direkomendasikan',
-      icon: '🏫',
+      icon: 'school',
       fields: [
         {
           key: 'lembaga.namaLembaga',
@@ -158,7 +158,7 @@ const TemplateIjopRekomendasiPengawas = (() => {
     {
       id: 'penandatangan',
       title: 'Penandatangan (Kasi Penmad)',
-      icon: '✍️',
+      icon: 'signature',
       fields: [
         {
           key: 'penandatangan.kasiPenmad.nama',

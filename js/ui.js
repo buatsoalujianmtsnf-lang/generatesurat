@@ -27,7 +27,7 @@ const UI = (() => {
     toastEl.setAttribute('aria-live', 'assertive');
 
     toastEl.innerHTML = `
-      <span class="toast__icon">${cfg.icon}</span>
+      <span class="toast__icon">${typeof AppIcons !== "undefined" ? AppIcons.svg(cfg.icon) : cfg.icon}</span>
       <div class="toast__body">
         <div class="toast__title">${Utils.escapeHtml(cfg.title)}</div>
         <div class="toast__message">${Utils.escapeHtml(message)}</div>

@@ -171,7 +171,7 @@ const KopEditor = (() => {
 
     section.innerHTML = `
       <div class="kop-logo-section__title">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-photo"></use></svg>
         Logo KOP Surat
       </div>
 
@@ -230,7 +230,7 @@ const KopEditor = (() => {
       <div class="kop-logo-upload${hasImage ? ' hidden' : ''}" id="logo-upload-${side}">
         <input type="file" accept="image/*" class="kop-logo-upload__input"
           id="logo-file-${side}" aria-label="Pilih logo ${side}" />
-        <div class="kop-logo-upload__icon">🖼️</div>
+        <div class="kop-logo-upload__icon"><span data-tabler-icon="photo"></span></div>
         <div class="kop-logo-upload__text">Klik untuk upload</div>
       </div>
 
@@ -443,10 +443,10 @@ const KopEditor = (() => {
 
     const alignBtns = ['left', 'center', 'right'].map(a => {
       const icon = a === 'left'
-        ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>`
+        ? `<svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-layout-sidebar"></use></svg>`
         : a === 'center'
-        ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="10" x2="6" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="18" y1="18" x2="6" y2="18"/></svg>`
-        : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="10" x2="7" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="7" y2="18"/></svg>`;
+        ? `<svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-file-text"></use></svg>`
+        : `<svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-layout-sidebar"></use></svg>`;
       return `<button type="button" class="align-btn${row.textAlign === a ? ' active' : ''}"
         data-align="${a}" title="Rata ${a}">${icon}</button>`;
     }).join('');
@@ -455,9 +455,7 @@ const KopEditor = (() => {
       <div class="kop-row-item__header">
         <span class="kop-row-item__num">${idx + 1}</span>
         <span class="kop-row-item__preview-text">${Utils.escapeHtml(Utils.truncate(previewText, 45))}</span>
-        <svg class="kop-row-item__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="6 9 12 15 18 9"/>
-        </svg>
+        <svg class="ti-icon kop-row-item__chevron" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-chevron-down"></use></svg>
       </div>
       <div class="kop-row-item__body">
         <!-- Teks -->

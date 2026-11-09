@@ -22,6 +22,7 @@ type GeneratorStorageApi = {
   readonly TTL_DURATION_MS: number;
 };
 
+declare var AppIcons: { svg(name: string, className?: string): string; apply(root?: Document | Element): void }; 
 declare var XLSX: any;
 declare var TemplateDPU: any;
 declare var TemplateMutasiMasuk: any;
