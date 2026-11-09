@@ -287,6 +287,28 @@ const UI = (() => {
     }, 30000); // update setiap 30 detik
   }
 
+  /* ── Tab KOP hanya tersedia untuk template yang membutuhkannya ── */
+  function _templateUsesKop() {
+    const templateId = State.getActiveTemplate();
+    return !templateId || TemplateRegistry.get(templateId)?.meta?.usesKop !== false;
+  }
+
+  function _syncKopTabVisibility() {
+    const hideKop = !_templateUsesKop();
+    const kopTab = document.getElementById('tab-btn-kop');
+    const kopPanel = document.getElementById('tab-kop');
+
+    if (kopTab) {
+      kopTab.hidden = hideKop;
+      kopTab.classList.toggle('hidden', hideKop);
+    }
+    if (kopPanel) {
+      kopPanel.hidden = hideKop;
+      kopPanel.classList.toggle('hidden', hideKop);
+    }
+    if (hideKop && State.getUi().activeTab === 'kop') switchTab('form');
+  }
+
   /* ── Tab navigation ── */
   function initTabs() {
     const tabs    = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.editor-tab'));
@@ -301,7 +323,7 @@ const UI = (() => {
 
       // Navigasi tab berbasis keyboard sesuai pola tablist ARIA.
       tab.addEventListener('keydown', (e) => {
-        const list = Array.from(tabs);
+        const list = Array.from(tabs).filter(item => !item.hidden);
         const current = list.indexOf(tab);
         if (current === -1) return;
 
@@ -318,9 +340,15 @@ const UI = (() => {
         next.focus();
       });
     });
+
+    State.on('template:change', _syncKopTabVisibility);
+    State.on('state:restore', _syncKopTabVisibility);
+    State.on('state:reset', _syncKopTabVisibility);
+    _syncKopTabVisibility();
   }
 
   function switchTab(tabId, tabs, contents) {
+    if (tabId === 'kop' && !_templateUsesKop()) tabId = 'form';
     const allTabs     = tabs     || document.querySelectorAll('.editor-tab');
     const allContents = contents || document.querySelectorAll('.editor-tab-content');
 
