@@ -105,12 +105,12 @@ const TemplateRegistry = (() => {
     groups.forEach((group, groupIndex) => {
       const hasActive = group.templates.some(tpl => tpl.TEMPLATE_ID === activeTemplateId);
       const details = document.createElement('details');
-      details.className = `template-group${hasActive ? ' has-active' : ''}`;
+      details.className = `template-group collapse collapse-arrow${hasActive ? ' has-active' : ''}`;
       details.dataset.groupId = group.id;
       details.open = hasActive || (!activeTemplateId && groupIndex === 0);
 
       const summary = document.createElement('summary');
-      summary.className = 'template-group__heading';
+      summary.className = 'template-group__heading collapse-title';
       summary.innerHTML = `
         <span class="template-group__icon" aria-hidden="true">${Utils.escapeHtml(group.icon)}</span>
         <span class="template-group__title">${Utils.escapeHtml(group.title)}</span>
@@ -119,11 +119,11 @@ const TemplateRegistry = (() => {
       details.appendChild(summary);
 
       const items = document.createElement('div');
-      items.className = 'template-group__items';
+      items.className = 'template-group__items collapse-content';
       group.templates.forEach(tpl => {
         const isActive = tpl.TEMPLATE_ID === activeTemplateId;
         const card = document.createElement('div');
-        card.className = `template-card${isActive ? ' active' : ''}`;
+        card.className = `template-card card${isActive ? ' active' : ''}`;
         card.setAttribute('role', 'button');
         card.setAttribute('tabindex', '0');
         card.setAttribute('aria-pressed', isActive ? 'true' : 'false');
