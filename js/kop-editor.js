@@ -230,7 +230,7 @@ const KopEditor = (() => {
       <div class="kop-logo-upload${hasImage ? ' hidden' : ''}" id="logo-upload-${side}">
         <input type="file" accept="image/*" class="kop-logo-upload__input"
           id="logo-file-${side}" aria-label="Pilih logo ${side}" />
-        <div class="kop-logo-upload__icon">🖼️</div>
+        <div class="kop-logo-upload__icon"><span data-tabler-icon="photo"></span></div>
         <div class="kop-logo-upload__text">Klik untuk upload</div>
       </div>
 
