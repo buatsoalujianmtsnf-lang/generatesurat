@@ -1,0 +1,13 @@
+/* Official Tabler Icons via same-origin SVG symbol sprite. */
+.ti-icon {display:inline-block;width:1.1em;height:1.1em;min-width:1.1em;flex:none;vertical-align:-.16em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.ti-icon use {pointer-events:none}
+button .ti-icon, .btn .ti-icon {width:1.1rem;height:1.1rem;min-width:1.1rem}
+.lp__feature-icon .ti-icon,.lp__paper-icon .ti-icon {width:1.55rem;height:1.55rem}
+.settings-card__icon .ti-icon,.template-card__icon .ti-icon,.template-group__icon .ti-icon,.lp-group__icon .ti-icon,.lp-template__icon .ti-icon {width:1.3rem;height:1.3rem}
+.lp__proof-check .ti-icon,.lp__preview-badge .ti-icon {width:1rem;height:1rem}
+.toast__icon .ti-icon,.expired-banner__icon .ti-icon,.about-highlight__icon .ti-icon {width:1.35rem;height:1.35rem}
+.signature-modal__icon .ti-icon {width:1.5rem;height:1.5rem}
+.form-section__toggle.ti-icon,.row-entry__chevron.ti-icon,.kop-row-item__chevron.ti-icon {width:1rem;height:1rem}
+.form-section__toggle.ti-icon.collapsed {transform:rotate(-90deg)}
+.lp .ti-icon {color:inherit}
+@media print {.ti-icon {display:none!important}}
