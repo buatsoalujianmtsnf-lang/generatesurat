@@ -430,15 +430,28 @@ const ExcelImport = (() => {
       return;
     }
 
-    const allowed = /\.(xlsx|xls|csv)$/i.test(file.name);
+    const allowed = templateId === 'rekap-nilai'
+      ? /\.xlsx$/i.test(file.name)
+      : /\.(xlsx|xls|csv)$/i.test(file.name);
     if (!allowed) {
-      UI.toast('Format file tidak didukung. Gunakan file .xlsx, .xls, atau .csv.', 'error');
+      UI.toast(templateId === 'rekap-nilai'
+        ? 'Gunakan file Excel dengan ekstensi .xlsx.'
+        : 'Format file tidak didukung. Gunakan file .xlsx, .xls, atau .csv.', 'error');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      UI.toast('Ukuran file maksimal 5 MB.', 'error');
       return;
     }
 
     try {
       const buffer = await file.arrayBuffer();
       const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
+      if (templateId === 'rekap-nilai') {
+        importRekapWorkbook(workbook);
+        return;
+      }
       const sheetName = workbook.SheetNames.find(name => normalize(name) === 'data siswa') || workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
 
@@ -542,6 +555,133 @@ const ExcelImport = (() => {
       console.error('[ExcelImport] Gagal membaca file:', err);
       UI.toast(err?.message || 'File Excel tidak dapat diproses. Pastikan menggunakan template yang sesuai.', 'error', 6000);
     }
+  }
+
+
+  /* Rekap Nilai menggunakan kolom dinamis sesuai mode, BAB, TP dan LM
+     yang tercatat pada sheet Petunjuk. Tidak boleh menghapus nilai lama
+     sebelum file dan semua baris selesai divalidasi. */
+  function parseRekapWorkbook(workbook) {
+    const ws = workbook?.Sheets?.['Data Murid'];
+    if (!ws) throw new Error('Sheet "Data Murid" tidak ditemukan. Gunakan template unduhan aplikasi.');
+    const rawRows = XLSX.utils.sheet_to_json(ws, {
+      defval: '', raw: true, blankrows: false,
+    });
+    if (!rawRows.length) throw new Error('Sheet "Data Murid" belum berisi data.');
+    if (rawRows.length > 1000) throw new Error('Maksimal 1.000 murid per impor.');
+
+    const instructions = workbook.Sheets['Petunjuk'];
+    const pairs = instructions
+      ? XLSX.utils.sheet_to_json(instructions, { header: 1, defval: '' })
+      : [];
+    const metadata = new Map(pairs.map(row => [normalize(row[0]), row[1]]));
+    const source = State.getFormData('rekap-nilai') || TemplateRekapNilai.createDefaultData();
+    const dataHeaders = Object.keys(rawRows[0]);
+    const normalizedHeaders = new Set(dataHeaders.map(normalize));
+    const hasScores = dataHeaders.some(header => {
+      const key = normalize(header);
+      return key !== 'no' && key !== 'nama murid';
+    });
+    const metadataMode = String(metadata.get('mode pengisian') || '').toLowerCase().trim();
+    if (metadataMode && !['format', 'lengkap'].includes(metadataMode)) {
+      throw new Error('Mode Pengisian pada sheet Petunjuk tidak dikenali.');
+    }
+    const mode = metadataMode || (hasScores ? 'lengkap' : 'format');
+    if (mode === 'format' && hasScores) {
+      throw new Error('Kolom nilai ditemukan pada file Format Saja. Gunakan template sesuai mode.');
+    }
+
+    const updatedHeader = { ...source.header, modePengisian: mode };
+    if (mode === 'lengkap') {
+      for (const [metadataKey, stateKey, max] of [
+        ['jumlah bab', 'jumlahBab', 5],
+        ['jumlah tp per bab', 'jumlahTpBab', 4],
+        ['jumlah lm', 'jumlahLm', 4],
+      ]) {
+        const raw = metadata.get(metadataKey);
+        if (raw === undefined || String(raw).trim() === '') continue;
+        const count = Number(raw);
+        if (!Number.isInteger(count) || count < 1 || count > max) {
+          throw new Error('Konfigurasi ' + metadataKey + ' pada sheet Petunjuk tidak valid.');
+        }
+        updatedHeader[stateKey] = count;
+      }
+    }
+
+    const cfg = getRekapConfig(mode, { ...source, header: updatedHeader });
+    const headerMap = buildHeaderMap(rawRows[0], cfg);
+    const missing = cfg.columns.filter(col => !headerMap.has(col.key));
+    if (missing.length) {
+      throw new Error('Kolom Excel belum lengkap: ' + missing.map(col => col.header).join(', ') + '.');
+    }
+    const expectedNames = new Set(cfg.columns.map(col => normalize(col.header)));
+    const extra = dataHeaders.filter(header => !expectedNames.has(normalize(header)));
+    if (extra.length) {
+      throw new Error('Kolom tidak dikenal: ' + extra.join(', ') + '. Gunakan template unduhan aplikasi.');
+    }
+
+    const items = [];
+    const seenNumbers = new Set();
+    rawRows.forEach((row, index) => {
+      if (isEmptyRow(row)) return;
+      const line = index + 2;
+      const name = String(row[headerMap.get('namaMurid')] ?? '').trim();
+      if (!name || name.length > 200) {
+        throw new Error('Baris ' + line + ': Nama Murid wajib diisi (maksimal 200 karakter).');
+      }
+      const rawNo = row[headerMap.get('no')];
+      const no = String(rawNo ?? '').trim() === '' ? items.length + 1 : Number(rawNo);
+      if (!Number.isSafeInteger(no) || no < 1 || no > 99999 || seenNumbers.has(no)) {
+        throw new Error('Baris ' + line + ': No. harus unik dan berupa bilangan bulat positif.');
+      }
+      seenNumbers.add(no);
+      const item = TemplateRekapNilai.createItem(no);
+      item.no = no;
+      item.namaMurid = name;
+      if (mode === 'lengkap') {
+        cfg.columns.filter(col => col.type === 'score').forEach(col => {
+          const value = row[headerMap.get(col.key)];
+          const raw = String(value ?? '').trim();
+          if (!raw) {
+            item[col.key] = '';
+            return;
+          }
+          const numeric = Number(raw);
+          if (!Number.isFinite(numeric) || numeric < 0 || numeric > 100) {
+            throw new Error('Baris ' + line + ': ' + col.header + ' harus berupa angka 0–100.');
+          }
+          item[col.key] = numeric;
+        });
+      }
+      items.push(item);
+    });
+    if (!items.length) throw new Error('Tidak ada data murid yang dapat diimpor.');
+    return { items, mode, header: updatedHeader };
+  }
+
+  function importRekapWorkbook(workbook) {
+    const result = parseRekapWorkbook(workbook);
+    const current = State.getFormData('rekap-nilai') || {};
+    const existing = Array.isArray(current.murid)
+      ? current.murid.filter(item => String(item?.namaMurid || '').trim()).length : 0;
+    const label = result.mode === 'format' ? 'Format Saja' : 'Lengkap';
+    const info = existing
+      ? 'Daftar ' + existing + ' murid yang telah terisi akan diganti. '
+      : '';
+    UI.confirm(
+      'Konfirmasi Impor Rekapitulasi Nilai',
+      'Ditemukan ' + result.items.length + ' murid pada mode ' + label + '. '
+        + info + 'Semua data daftar murid saat ini (termasuk nilai) akan diganti. Lanjutkan?',
+      () => {
+        if (State.getActiveTemplate() !== 'rekap-nilai') {
+          UI.toast('Template aktif telah berubah. Impor dibatalkan.', 'warning');
+          return;
+        }
+        State.setFormData('rekap-nilai', { header: result.header, murid: result.items });
+        FormRenderer.render('rekap-nilai');
+        UI.toast(result.items.length + ' data murid berhasil diimpor (mode ' + label + ').', 'success');
+      }
+    );
   }
 
   function buildHeaderMap(firstRow, cfg) {
@@ -711,6 +851,9 @@ const ExcelImport = (() => {
     showRekapDownloadModal,
     buildToolbar,
     downloadTemplate,
+    parseRekapWorkbook,
+    importRekapWorkbook,
+    importFile,
   };
 
 })();
