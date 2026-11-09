@@ -41,16 +41,17 @@ describe('Tabler Icons: standardized local icon system', () => {
 
   it('hydrates icon placeholders only once while retaining app DOM hooks', () => {
     const api = iconApi();
+    const attrs = new Map([['data-tabler-icon', 'printer']]);
     const el = {
       innerHTML: '',
-      dataset: {},
-      getAttribute: vi.fn(() => 'printer'),
+      getAttribute: vi.fn(key => attrs.get(key) ?? null),
+      setAttribute: vi.fn((key, value) => attrs.set(key, value)),
     };
     api.apply({ querySelectorAll: () => [el] });
     expect(el.innerHTML).toContain('ti-printer');
-    expect(el.dataset.tablerRendered).toBe('true');
+    expect(attrs.get('data-tabler-rendered')).toBe('true');
     api.apply({ querySelectorAll: () => [el] });
-    expect(el.getAttribute).toHaveBeenCalledTimes(1);
+    expect(el.setAttribute).toHaveBeenCalledTimes(1);
   });
 
   it('loads icon module before templates and registers icons in offline cache', () => {
