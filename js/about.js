@@ -136,13 +136,13 @@ const About = (() => {
                 <div class="about-support-card__footer">
                   <span class="about-support-card__note">Detail tujuan/nomor donasi diberikan melalui WhatsApp.</span>
                   <a class="about-support-cta" href="${WA_URL}" target="_blank" rel="noopener noreferrer">
-                    Hubungi pengembang <span aria-hidden="true">→</span>
+                    Hubungi pengembang <span aria-hidden="true"><span data-tabler-icon="chevron-right"></span></span>
                   </a>
                 </div>
               </div>
             </section>
             <section class="about-support-card about-template-request-card" aria-labelledby="about-template-request-title">
-              <div class="about-support-card__icon about-support-card__icon--template" aria-hidden="true">▦</div>
+              <div class="about-support-card__icon about-support-card__icon--template" aria-hidden="true"><span data-tabler-icon="file-text"></span></div>
               <div class="about-support-card__main">
                 <div class="about-support-card__eyebrow">KONTRIBUSI PENGGUNA</div>
                 <strong id="about-template-request-title" class="about-support-card__title">Request Template Surat</strong>
