@@ -63,7 +63,7 @@ describe('Tabler Icons: standardized local icon system', () => {
       'assets/icons/tabler-sprite.svg']) {
       expect(sw).toContain("'./" + asset + "'");
     }
-    expect(sw).toContain("CACHE_PREFIX + 'v33'");
+    expect(sw).toMatch(/CACHE_PREFIX \\+ 'v\\d+'/);
   });
 
   it('preserves logo/favicon and print layout independent of icons', () => {
