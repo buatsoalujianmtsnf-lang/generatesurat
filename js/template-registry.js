@@ -47,22 +47,22 @@ const TemplateRegistry = (() => {
   /* ── Kelompok template (urutan mengikuti alur administrasi surat) ── */
   const TEMPLATE_GROUPS = [
     {
-      id: 'registrasi-dpu', title: 'Registrasi dan DPU', icon: '📚',
+      id: 'registrasi-dpu', title: 'Registrasi dan DPU', icon: 'books',
       ids: ['dpu', 'mutasi-masuk', 'siswa-baru'],
     },
     {
-      id: 'ijop', title: 'IJOP (Izin Operasional)', icon: '📑',
+      id: 'ijop', title: 'IJOP (Izin Operasional)', icon: 'file-description',
       ids: [
         'ijop-permohonan', 'ijop-sptjm-satpen', 'ijop-rekomendasi-pengawas',
         'ijop-rekomendasi-kankemenag', 'ijop-sptjm-kankemenag',
       ],
     },
     {
-      id: 'pengolahan-nilai', title: 'Pengolahan Nilai', icon: '📊',
+      id: 'pengolahan-nilai', title: 'Pengolahan Nilai', icon: 'chart-bar',
       ids: ['rekap-nilai'],
     },
     {
-      id: 'surat-menyurat-siswa', title: 'Surat Menyurat Siswa', icon: '✉️',
+      id: 'surat-menyurat-siswa', title: 'Surat Menyurat Siswa', icon: 'mail',
       ids: ['surat-izin'],
     },
   ];
@@ -80,7 +80,7 @@ const TemplateRegistry = (() => {
     const uncategorized = registered.filter(template => !included.has(template.TEMPLATE_ID));
     if (uncategorized.length) {
       groups.push({
-        id: 'template-lainnya', title: 'Template Lainnya', icon: '📄',
+        id: 'template-lainnya', title: 'Template Lainnya', icon: 'file-text',
         templates: uncategorized,
       });
     }
