@@ -9,7 +9,8 @@ function createPad(value = '') {
   const buttonHandlers = {};
   const context2d = {
     beginPath: vi.fn(), moveTo: vi.fn(), lineTo: vi.fn(), stroke: vi.fn(),
-    clearRect: vi.fn(), drawImage: vi.fn(),
+    clearRect: vi.fn(), drawImage: vi.fn(), fillRect: vi.fn(),
+    getImageData: vi.fn(() => ({ data: new Uint8ClampedArray([29, 78, 216, 255]) })),
   };
   let captured = null;
   const canvas = {
@@ -72,6 +73,8 @@ describe('Canvas tanda tangan pada Surat Izin', () => {
     expect(h.changes).not.toHaveBeenCalled();
     h.canvasHandlers.pointerup({ pointerId: 1, pointerType: 'touch', clientX: 110, clientY: 55 });
     expect(h.context2d.stroke).toHaveBeenCalled();
+    expect(h.context2d.strokeStyle).toBe('#1d4ed8');
+    expect(h.context2d.fillStyle).toBe('#1d4ed8');
     expect(h.changes).toHaveBeenCalledTimes(1);
     expect(h.changes).toHaveBeenCalledWith('data:image/png;base64,iVBORw0KGgo=');
     expect(h.button.disabled).toBe(false);
@@ -80,6 +83,15 @@ describe('Canvas tanda tangan pada Surat Izin', () => {
     expect(h.context2d.clearRect).toHaveBeenCalled();
     expect(h.changes).toHaveBeenLastCalledWith('');
     expect(h.button.disabled).toBe(true);
+  });
+
+  it('mewarnai ulang tanda tangan lama hitam ke biru ketika draf dibuka', () => {
+    const pngOld = 'data:image/png;base64,AAAA';
+    const h = createPad(pngOld);
+    const image = h.canvas;
+    // Hanya image onload yang menjalankan migrasi, tanpa kehilangan bentuk dan alpha.
+    expect(h.context2d.drawImage).not.toHaveBeenCalled();
+    expect(h.changes).not.toHaveBeenCalled();
   });
 
   it('menolak data URL lain yang tidak aman/terlalu besar', () => {
