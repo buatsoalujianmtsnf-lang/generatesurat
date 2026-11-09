@@ -4,18 +4,31 @@ import { describe, expect, it, vi } from 'vitest';
 
 const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 
-function createRoutes(pathname = '/') {
+function createRoutes(pathname = '/', { hostname = 'generatesuratku.vercel.app', search = '' } = {}) {
   const listeners = {};
-  const location = { pathname, assign: vi.fn(next => { location.pathname = next; }) };
+  const location = {
+    pathname, hostname, search,
+    assign: vi.fn(next => {
+      const [nextPath, nextQuery = ''] = next.split('?');
+      location.pathname = nextPath;
+      location.search = nextQuery ? '?' + nextQuery : '';
+    }),
+  };
+  const moveTo = path => {
+    const [nextPath, nextQuery = ''] = path.split('?');
+    location.pathname = nextPath;
+    location.search = nextQuery ? '?' + nextQuery : '';
+  };
   const history = {
-    pushState: vi.fn((state, title, path) => { location.pathname = path; }),
-    replaceState: vi.fn((state, title, path) => { location.pathname = path; }),
+    pushState: vi.fn((state, title, path) => moveTo(path)),
+    replaceState: vi.fn((state, title, path) => moveTo(path)),
     state: null,
   };
   const document = { documentElement: { dataset: {} }, title: '', getElementById: vi.fn() };
   const ctx = {
     window: { location, addEventListener: (name, fn) => { listeners[name] = fn; } },
     document, history,
+    URLSearchParams,
     console,
   };
   runInNewContext(read('js/routes.js'), ctx);
@@ -112,6 +125,55 @@ describe('Friendly routes and landing page', () => {
     expect(html.indexOf('js/routes.js')).toBeLessThan(html.indexOf('js/template-registry.js'));
     expect(html.indexOf('js/template-registry.js')).toBeLessThan(html.indexOf('js/landing.js'));
     expect(html.indexOf('js/landing.js')).toBeLessThan(html.indexOf('js/app.js'));
+  });
+
+  it('mengalihkan link statis localhost ke query route tanpa mengubah URL Vercel', () => {
+    const h = createRoutes('/', { hostname: 'localhost', search: '' });
+    expect(h.routes.isLocal()).toBe(true);
+    expect(h.routes.href('/editor')).toBe('/?route=%2Feditor');
+    expect(h.routes.href('/surat/izin-tidak-masuk')).toBe('/?route=%2Fsurat%2Fizin-tidak-masuk');
+    expect(h.routes.href('/kategori/ijop')).toBe('/?route=%2Fkategori%2Fijop');
+    expect(h.routes.href('/')).toBe('/');
+
+    const prod = createRoutes('/', { hostname: 'generatesuratku.vercel.app' });
+    expect(prod.routes.isLocal()).toBe(false);
+    expect(prod.routes.href('/editor')).toBe('/editor');
+    expect(prod.routes.href('/surat/izin-tidak-masuk')).toBe('/surat/izin-tidak-masuk');
+  });
+
+  it('memuat editor langsung dari localhost melalui query, lalu mendukung template dan Back', () => {
+    const h = createRoutes('/', { hostname: '127.0.0.1', search: '?route=%2Fsurat%2Fizin-tidak-masuk' });
+    expect(h.routes.isLanding()).toBe(false);
+    expect(h.document.documentElement.dataset.routePage).toBe('editor');
+    expect(h.routes.currentPath()).toBe('/surat/izin-tidak-masuk');
+    const selected = vi.fn();
+    const activeCard = { querySelectorAll: () => [] };
+    h.document.getElementById.mockReturnValue(activeCard);
+    const handlers = {};
+    h.ctx.State = {
+      on: (event, callback) => { handlers[event] = callback; },
+      getActiveTemplate: () => 'surat-izin',
+    };
+    h.ctx.TemplateRegistry = {
+      get: id => ({ meta: { name: id } }),
+      updateActiveCard: vi.fn(), openGroup: vi.fn(),
+    };
+    h.ctx.UI = { switchTab: vi.fn() };
+    h.routes.initEditor(selected);
+    expect(selected).toHaveBeenCalledWith('surat-izin');
+    h.routes.onSelected('dpu');
+    expect(h.location.search).toBe('?route=%2Fsurat%2Fdaftar-peserta-ujian');
+    expect(h.location.pathname).toBe('/');
+    h.location.search = '?route=%2Fkategori%2Fijop';
+    h.listeners.popstate();
+    expect(h.ctx.TemplateRegistry.openGroup).toHaveBeenCalledWith(activeCard, 'ijop');
+  });
+
+  it('tetap menggunakan index.html sebagai entry bila server lokal dibuka dengan path itu', () => {
+    const h = createRoutes('/index.html', { hostname: 'localhost', search: '?route=%2Feditor' });
+    expect(h.routes.isLanding()).toBe(false);
+    expect(h.routes.href('/surat/izin-tidak-masuk'))
+      .toBe('/index.html?route=%2Fsurat%2Fizin-tidak-masuk');
   });
 
   it('Vercel rewrites deep links and cache includes landing assets', () => {

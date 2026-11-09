@@ -50,7 +50,7 @@ const Landing = (() => {
       const cards = element('div', 'lp-group__templates');
       for (const template of group.templates) {
         const link = element('a', 'lp-template');
-        link.setAttribute('href', Routes.templateUrl(template.TEMPLATE_ID) || '/editor');
+        link.setAttribute('href', Routes.href(Routes.templateUrl(template.TEMPLATE_ID) || '/editor'));
         const glyph = element('span', 'lp-template__icon', template.meta.icon || '📄');
         glyph.setAttribute('aria-hidden', 'true');
         const details = element('span', 'lp-template__details');
@@ -70,7 +70,7 @@ const Landing = (() => {
       }
       section.appendChild(cards);
       const footer = element('a', 'lp-group__link', 'Buka semua template kelompok ini');
-      footer.setAttribute('href', Routes.categoryUrl(group.id));
+      footer.setAttribute('href', Routes.href(Routes.categoryUrl(group.id)));
       section.appendChild(footer);
       groupRoot.appendChild(section);
     }

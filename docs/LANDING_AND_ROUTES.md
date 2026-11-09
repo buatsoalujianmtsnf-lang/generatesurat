@@ -40,6 +40,7 @@ Aplikasi tetap menggunakan HTML/JS statis dan Vercel; tidak perlu menambahkan fr
 - `js/landing.js` menyusun kategori dan kartu landing page dari `TemplateRegistry.getGroupedTemplates()`, supaya daftar tidak diduplikasi secara manual.
 - `js/app.js` mempertahankan alur editor; saat template dipilih, `history.pushState` memperbarui URL tanpa reload, sedangkan `popstate` memulihkan pilihan pada navigasi browser.
 - `vercel.json` me-rewrite rute editor, template, kategori, dan alias lama ke `/index` (tanpa ekstensi `.html` karena `cleanUrls: true`).
+- Server statis localhost (misalnya VS Code Live Server atau `python -m http.server`) tidak menjalankan rewrite Vercel. `Routes.href()` otomatis mengubah navigasi localhost ke `/?route=%2Feditor` dan `/?route=%2Fsurat%2F...`, tanpa mengubah URL kanonis produksi. Query ini diproses oleh `Routes.currentPath()` ketika halaman dimuat atau di-refresh.
 - Tag `<base href="/">` memastikan asset CSS/JS/ikon tidak dicari dari subpath `/surat` atau `/kategori`.
 - `css/landing.css` hanya berlaku untuk landing; sistem stylesheet editor tetap digunakan.
 - Service worker meng-cache modul dan gaya baru untuk instalasi PWA/offline.
