@@ -21,7 +21,7 @@ const EditorDrawer = (() => {
     editor.inert = !next;
     editor.setAttribute('aria-hidden', String(!next));
     document.documentElement.classList.toggle('editor-drawer-open', compact && next);
-    for (const id of ['editor-drawer-button', 'editor-drawer-preview-open']) {
+    for (const id of ['editor-drawer-button', 'editor-drawer-preview-open', 'btn-editor-panel-mobile']) {
       const trigger = document.getElementById(id);
       if (!trigger) continue;
       trigger.setAttribute('aria-expanded', String(next));
@@ -58,7 +58,7 @@ const EditorDrawer = (() => {
     initialized = true;
     media = window.matchMedia?.(QUERY) || null;
     setOpen(!isCompact(), { focus: false });
-    for (const id of ['editor-drawer-button', 'editor-drawer-preview-open']) {
+    for (const id of ['editor-drawer-button', 'editor-drawer-preview-open', 'btn-editor-panel-mobile']) {
       document.getElementById(id)?.addEventListener('click', toggleDrawer);
     }
     for (const id of ['editor-drawer-close', 'editor-drawer-preview']) {
