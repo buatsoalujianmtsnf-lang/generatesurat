@@ -3,7 +3,7 @@
    ============================================================= */
 
 const CACHE_PREFIX = 'generator-surat-platform-';
-const CACHE_NAME = CACHE_PREFIX + 'v36';
+const CACHE_NAME = CACHE_PREFIX + 'v37';
 const APP_SHELL = [
   './',
   './index.html',
@@ -25,6 +25,7 @@ const APP_SHELL = [
   './css/daisyui-adapter.css',
   './css/tabler-icons.css',
   './css/editor-drawer.css',
+  './css/form-accordion-spacing.css',
   './css/platform.css',
   './css/document-viewer.css',
   './css/print.css',
