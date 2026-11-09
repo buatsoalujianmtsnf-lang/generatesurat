@@ -259,8 +259,12 @@ const SignaturePad = (() => {
       activePointer = null;
       canvas.classList.remove('is-drawing');
       if (canvas.hasPointerCapture?.(pointer)) canvas.releasePointerCapture(pointer);
-      if (canceled) restore(snapshot());
-      else completeStroke();
+      if (canceled) {
+        interacted = false;
+        restore(snapshot());
+      } else {
+        completeStroke();
+      }
     }
 
     canvas.addEventListener('pointerdown', event => {
