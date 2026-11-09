@@ -2951,3 +2951,107 @@
 .excel-mode-picker__option small { color: var(--color-text-secondary); font-size: 12px; line-height: 1.55; }
 @media (max-width: 480px) { .excel-mode-picker__option { padding: 12px; } }
 @media (prefers-reduced-motion: reduce) { .excel-mode-picker__option { transition: none; } }
+
+
+/* Ringkasan konfigurasi penilaian pada modal unduh template Rekap Nilai. */
+.excel-mode-picker__current {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  padding: 15px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface-2);
+  min-width: 0;
+}
+.excel-mode-picker__current-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--color-text);
+  font-size: 13px;
+}
+.excel-mode-picker__current-head small { color: var(--color-text-secondary); }
+.excel-mode-picker__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.excel-mode-picker__stat {
+  min-width: 0;
+  padding: 11px 7px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+}
+.excel-mode-picker__stat span {
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  line-height: 1.35;
+}
+.excel-mode-picker__stat strong {
+  color: var(--color-primary);
+  font-size: 21px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.excel-mode-picker__breakdown,
+.excel-mode-picker__existing {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+}
+.excel-mode-picker__context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 15px;
+  overflow-wrap: anywhere;
+}
+.excel-mode-picker__context-item {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+.excel-mode-picker__context-item strong,
+.excel-mode-picker__breakdown strong,
+.excel-mode-picker__existing strong { color: var(--color-text); }
+.excel-mode-picker__legend {
+  padding: 0 0 7px;
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+.excel-mode-picker__column-count {
+  display: inline-block;
+  padding: 2px 6px;
+  margin-left: 5px;
+  border-radius: 6px;
+  color: var(--color-primary);
+  background: var(--color-surface-2);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.excel-mode-picker__guidance {
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+.excel-mode-picker__guidance > strong { color: var(--color-text); }
+.excel-mode-picker__guidance ul { padding-left: 18px; margin: 7px 0 0; }
+.excel-mode-picker__guidance li + li { margin-top: 5px; }
+@media (max-width: 430px) {
+  .excel-mode-picker__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .excel-mode-picker__current { padding: 12px; }
+}

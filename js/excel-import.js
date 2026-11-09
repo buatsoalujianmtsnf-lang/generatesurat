@@ -297,30 +297,87 @@ const ExcelImport = (() => {
   }
 
   function showRekapDownloadModal() {
-    const selected = State.getFormData('rekap-nilai')?.header?.modePengisian === 'format'
-      ? 'format' : 'lengkap';
+    // Ambil ulang konfigurasi setiap modal dibuka: nilai pada ringkasan
+    // harus sama dengan kolom yang benar-benar dibuat untuk mode Lengkap.
     const source = State.getFormData('rekap-nilai') || TemplateRekapNilai.createDefaultData();
+    const header = source.header || {};
+    const selected = header.modePengisian === 'format' ? 'format' : 'lengkap';
+    const layout = TemplateRekapNilai.getTableLayout(source);
     const allColumns = getRekapConfig('lengkap', source).columns;
+    const totalTp = allColumns.filter(col => /^bab\d+_tp\d+$/.test(col.key)).length;
+    const totalLm = allColumns.filter(col => /^lm\d+$/.test(col.key)).length;
+    const totalNilai = allColumns.length - 2;
+    const existingStudents = Array.isArray(source.murid)
+      ? source.murid.filter(item => String(item?.namaMurid || '').trim()).length : 0;
+    const esc = value => Utils.escapeHtml(String(value ?? ''));
+    const contextFields = [
+      ['Kelas', header.namaKelas],
+      ['Mata Pelajaran', header.mataPelajaran],
+      ['Tahun Pelajaran', header.tahunPelajaran],
+    ].filter(([, value]) => String(value ?? '').trim())
+      .map(([label, value]) =>
+        '<span class="excel-mode-picker__context-item"><strong>' + esc(label)
+        + ':</strong> ' + esc(value) + '</span>'
+      ).join('');
+
     UI.showModal({
       title: 'Pilih Mode Template Excel',
       body: '<div class="excel-mode-picker">'
-        + '<p class="excel-mode-picker__intro">Pilih jenis template Excel yang akan diunduh. '
-        + 'Kolom pada file mengikuti mode yang Anda pilih.</p>'
-        + '<fieldset class="excel-mode-picker__choices"><legend class="sr-only">Mode Pengisian</legend>'
+        + '<p class="excel-mode-picker__intro">Periksa konfigurasi penilaian yang aktif '
+        + 'sebelum memilih template Excel. Kolom unduhan mengikuti pengaturan editor saat ini.</p>'
+        + '<section class="excel-mode-picker__current" aria-label="Konfigurasi penilaian aktif">'
+        + '<div class="excel-mode-picker__current-head"><strong>Konfigurasi aktif saat ini</strong>'
+        + '<small>Dibaca dari Informasi Dokumen</small></div>'
+        + '<div class="excel-mode-picker__stats">'
+        + '<div class="excel-mode-picker__stat"><span>Jumlah BAB</span><strong>'
+        + layout.jumlahBab + '</strong></div>'
+        + '<div class="excel-mode-picker__stat"><span>TP per BAB</span><strong>'
+        + layout.jumlahTpBab + '</strong></div>'
+        + '<div class="excel-mode-picker__stat"><span>Total TP aktif</span><strong>'
+        + totalTp + '</strong></div>'
+        + '<div class="excel-mode-picker__stat"><span>Jumlah LM</span><strong>'
+        + totalLm + '</strong></div>'
+        + '</div>'
+        + '<p class="excel-mode-picker__breakdown">'
+        + 'Mode Lengkap memuat <strong>BAB 1–' + layout.jumlahBab + '</strong>'
+        + ' (TP 1–' + layout.jumlahTpBab + ' per BAB), '
+        + '<strong>LM1–LM' + totalLm + '</strong>, serta 4 kolom tetap: '
+        + 'STS, SAS, Praktik, dan Nilai Akhir.</p>'
+        + (contextFields ? '<div class="excel-mode-picker__context">' + contextFields + '</div>' : '')
+        + '<p class="excel-mode-picker__existing">Murid yang sudah terisi di editor: '
+        + '<strong>' + existingStudents + '</strong> · Mode editor: <strong>'
+        + (selected === 'format' ? 'Format Saja' : 'Lengkap') + '</strong>.</p>'
+        + '</section>'
+        + '<fieldset class="excel-mode-picker__choices">'
+        + '<legend class="excel-mode-picker__legend">Pilih template yang akan diunduh</legend>'
         + '<label class="excel-mode-picker__option">'
         + '<input type="radio" name="excel-rekap-mode" value="format" '
         + (selected === 'format' ? 'checked' : '') + '>'
-        + '<span><strong>Format Saja</strong><small>Hanya kolom No. dan Nama Murid. '
-        + 'Kolom nilai tidak disertakan.</small></span></label>'
+        + '<span><strong>Format Saja <em class="excel-mode-picker__column-count">'
+        + '2 kolom</em></strong><small>Hanya No. dan Nama Murid. '
+        + 'Jumlah BAB, TP, dan LM di atas tidak menambah kolom pada mode ini.</small>'
+        + '</span></label>'
         + '<label class="excel-mode-picker__option">'
         + '<input type="radio" name="excel-rekap-mode" value="lengkap" '
         + (selected === 'lengkap' ? 'checked' : '') + '>'
-        + '<span><strong>Lengkap</strong><small>' + allColumns.length
-        + ' kolom (No., Nama Murid, BAB/TP, LM, STS, SAS, Praktik, Nilai Akhir), '
-        + 'mengikuti pengaturan dokumen saat ini.</small></span></label>'
+        + '<span><strong>Lengkap <em class="excel-mode-picker__column-count">'
+        + allColumns.length + ' kolom</em></strong><small>'
+        + '2 kolom identitas + ' + totalTp + ' kolom TP + ' + totalLm
+        + ' kolom LM + 4 kolom nilai tetap = <b>' + allColumns.length
+        + ' kolom</b> (termasuk ' + totalNilai + ' kolom nilai).</small>'
+        + '</span></label>'
         + '</fieldset>'
-        + '<p class="excel-mode-picker__note">Pilihan ini hanya menentukan isi file '
-        + 'yang diunduh dan tidak mengubah mode dokumen.</p></div>',
+        + '<div class="excel-mode-picker__guidance">'
+        + '<strong>Informasi penting</strong>'
+        + '<ul><li>File berformat <b>.xlsx</b> dengan sheet <b>Data Murid</b> dan <b>Petunjuk</b>.</li>'
+        + '<li>Pada mode Lengkap, isi nilai dengan angka <b>0–100</b> atau kosongkan sel.</li>'
+        + '<li>Jangan ubah nama kolom. Jika jumlah BAB, TP, atau LM di editor berubah, '
+        + 'unduh ulang template agar kolomnya sesuai.</li>'
+        + '<li>Impor akan meminta konfirmasi sebelum mengganti daftar murid yang sudah ada.</li>'
+        + '</ul></div>'
+        + '<p class="excel-mode-picker__note">Pilihan mode di sini hanya menentukan file '
+        + 'yang diunduh; mode pengisian dan data dokumen tidak ikut berubah.</p>'
+        + '</div>',
       initialFocusSelector: 'input[name="excel-rekap-mode"]:checked',
       footer: [
         { label: 'Batal', class: 'btn--secondary' },
