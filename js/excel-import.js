@@ -5,6 +5,15 @@
 const ExcelImport = (() => {
 
   const CONFIGS = {
+    'rekap-nilai': {
+      sectionId: 'murid',
+      title: 'Rekapitulasi Nilai',
+      fileName: 'Template_Import_Rekap_Nilai.xlsx',
+      columns: [
+        { key: 'no', header: 'No.', type: 'number', aliases: ['no', 'nomor', 'nomor urut'] },
+        { key: 'namaMurid', header: 'Nama Murid', required: true, aliases: ['nama siswa', 'nama', 'nama lengkap'] },
+      ],
+    },
     dpu: {
       sectionId: 'peserta',
       title: 'Daftar Peserta Ujian (DPU)',
@@ -80,14 +89,41 @@ const ExcelImport = (() => {
     desember: 12, des: 12, dec: 12,
   };
 
+  function getRekapConfig(mode = 'lengkap', formData = null) {
+    const base = CONFIGS['rekap-nilai'];
+    const source = formData || State.getFormData('rekap-nilai')
+      || TemplateRekapNilai.createDefaultData();
+    const selectedMode = mode === 'format' ? 'format' : 'lengkap';
+    const visible = selectedMode === 'format'
+      ? base.columns
+      : TemplateRekapNilai.getTableLayout(source).columns.map(col => {
+        const baseColumn = base.columns.find(c => c.key === col.key);
+        if (baseColumn) return baseColumn;
+        return { key: col.key, header: col.header, type: 'score', aliases: [col.key] };
+      });
+    return {
+      ...base,
+      mode: selectedMode,
+      columns: visible,
+      fileName: 'Template_Import_Rekap_Nilai_'
+        + (selectedMode === 'format' ? 'Format_Saja' : 'Lengkap') + '.xlsx',
+    };
+  }
+
   function getConfig(templateId, sectionId) {
     const cfg = CONFIGS[templateId];
-    return cfg && cfg.sectionId === sectionId ? cfg : null;
+    if (!cfg || cfg.sectionId !== sectionId) return null;
+    if (templateId === 'rekap-nilai') {
+      const mode = State.getFormData(templateId)?.header?.modePengisian;
+      return getRekapConfig(mode);
+    }
+    return cfg;
   }
 
   function buildToolbar(templateId, sectionId) {
     const cfg = getConfig(templateId, sectionId);
     if (!cfg) return null;
+    const isRekap = templateId === 'rekap-nilai';
 
     const toolbar = document.createElement('div');
     toolbar.className = 'excel-import-toolbar';
@@ -101,7 +137,7 @@ const ExcelImport = (() => {
             </svg>
           </span>
           <div>
-            <div class="excel-import-toolbar__title">Import Data Siswa</div>
+            <div class="excel-import-toolbar__title">Import Data ${isRekap ? 'Murid' : 'Siswa'}</div>
             <div class="excel-import-toolbar__desc">${Utils.escapeHtml(cfg.title)} · input massal dari Excel</div>
           </div>
         </div>
@@ -116,7 +152,7 @@ const ExcelImport = (() => {
         <span class="excel-import-step__line" aria-hidden="true"></span>
         <div class="excel-import-step">
           <span class="excel-import-step__number">2</span>
-          <span><strong>Isi data siswa</strong><small>Jangan ubah nama kolom.</small></span>
+          <span><strong>Isi data ${isRekap ? 'murid' : 'siswa'}</strong><small>Jangan ubah nama kolom.</small></span>
         </div>
         <span class="excel-import-step__line" aria-hidden="true"></span>
         <div class="excel-import-step">
@@ -136,7 +172,7 @@ const ExcelImport = (() => {
           <strong>Seret file Excel ke sini</strong>
           <span>atau klik untuk memilih file dari perangkat</span>
         </span>
-        <span class="excel-import-toolbar__formats">.XLSX · .XLS · .CSV</span>
+        <span class="excel-import-toolbar__formats">${isRekap ? '.XLSX' : '.XLSX · .XLS · .CSV'}</span>
       </div>
 
       <div class="excel-import-toolbar__file hidden" aria-live="polite">
@@ -165,7 +201,9 @@ const ExcelImport = (() => {
           </span>
           Pilih File Excel
         </button>
-        <input type="file" class="excel-file-input" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" hidden />
+        <input type="file" class="excel-file-input" accept="${isRekap
+            ? '.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            : '.xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv'}" hidden />
       </div>
 
       <div class="excel-import-toolbar__hint">
@@ -237,7 +275,10 @@ const ExcelImport = (() => {
     });
 
     toolbar.querySelector('.excel-import-btn').addEventListener('click', () => dropzone.click());
-    toolbar.querySelector('.excel-template-btn').addEventListener('click', () => downloadTemplate(templateId));
+    toolbar.querySelector('.excel-template-btn').addEventListener('click', () => {
+      if (isRekap) showRekapDownloadModal();
+      else downloadTemplate(templateId);
+    });
 
     toolbar.querySelector('.excel-import-clear').addEventListener('click', () => {
       fileInput.value = '';
@@ -254,8 +295,58 @@ const ExcelImport = (() => {
 
     return toolbar;
   }
-  function downloadTemplate(templateId) {
-    const cfg = CONFIGS[templateId];
+
+  function showRekapDownloadModal() {
+    const selected = State.getFormData('rekap-nilai')?.header?.modePengisian === 'format'
+      ? 'format' : 'lengkap';
+    const source = State.getFormData('rekap-nilai') || TemplateRekapNilai.createDefaultData();
+    const allColumns = getRekapConfig('lengkap', source).columns;
+    UI.showModal({
+      title: 'Pilih Mode Template Excel',
+      body: '<div class="excel-mode-picker">'
+        + '<p class="excel-mode-picker__intro">Pilih jenis template Excel yang akan diunduh. '
+        + 'Kolom pada file mengikuti mode yang Anda pilih.</p>'
+        + '<fieldset class="excel-mode-picker__choices"><legend class="sr-only">Mode Pengisian</legend>'
+        + '<label class="excel-mode-picker__option">'
+        + '<input type="radio" name="excel-rekap-mode" value="format" '
+        + (selected === 'format' ? 'checked' : '') + '>'
+        + '<span><strong>Format Saja</strong><small>Hanya kolom No. dan Nama Murid. '
+        + 'Kolom nilai tidak disertakan.</small></span></label>'
+        + '<label class="excel-mode-picker__option">'
+        + '<input type="radio" name="excel-rekap-mode" value="lengkap" '
+        + (selected === 'lengkap' ? 'checked' : '') + '>'
+        + '<span><strong>Lengkap</strong><small>' + allColumns.length
+        + ' kolom (No., Nama Murid, BAB/TP, LM, STS, SAS, Praktik, Nilai Akhir), '
+        + 'mengikuti pengaturan dokumen saat ini.</small></span></label>'
+        + '</fieldset>'
+        + '<p class="excel-mode-picker__note">Pilihan ini hanya menentukan isi file '
+        + 'yang diunduh dan tidak mengubah mode dokumen.</p></div>',
+      initialFocusSelector: 'input[name="excel-rekap-mode"]:checked',
+      footer: [
+        { label: 'Batal', class: 'btn--secondary' },
+        {
+          label: 'Unduh Template XLSX', class: 'btn--primary',
+          closeOnClick: false,
+          onClick: () => {
+            const mode = /** @type {HTMLInputElement|null} */ (
+              document.querySelector('#modal-body input[name="excel-rekap-mode"]:checked')
+            )?.value;
+            if (mode !== 'format' && mode !== 'lengkap') {
+              UI.toast('Pilih mode pengisian terlebih dahulu.', 'warning');
+              return;
+            }
+            UI.hideModal();
+            downloadTemplate('rekap-nilai', mode);
+          },
+        },
+      ],
+    });
+  }
+
+  function downloadTemplate(templateId, mode = null) {
+    const cfg = templateId === 'rekap-nilai'
+      ? getRekapConfig(mode)
+      : CONFIGS[templateId];
     if (!cfg) return;
 
     if (typeof window.XLSX === 'undefined') {
@@ -265,13 +356,29 @@ const ExcelImport = (() => {
 
     try {
       const headers = cfg.columns.map(col => col.header);
+      const rekap = templateId === 'rekap-nilai';
+      const source = rekap ? (State.getFormData(templateId) || TemplateRekapNilai.createDefaultData()) : null;
+      const countConfig = rekap ? TemplateRekapNilai.getTableLayout(source) : null;
+      const sheetLabel = rekap ? 'Data Murid' : 'Data Siswa';
       const instructionRows = [
         ['PETUNJUK IMPORT DATA SISWA'],
         ['Template', cfg.title],
-        ['Petunjuk', 'Isi data siswa mulai dari baris kedua pada sheet "Data Siswa". Jangan mengubah nama header kolom.'],
+        ['Petunjuk', 'Isi data mulai dari baris kedua pada sheet "' + sheetLabel + '". Jangan mengubah header.'],
         ['Tanggal Lahir', 'Gunakan format tanggal yang mudah dikenali Excel, misalnya 31/12/2012 atau 2012-12-31.'],
         ['L/P', 'Isi L untuk laki-laki atau P untuk perempuan. Variasi "Laki-laki" dan "Perempuan" juga didukung.'],
       ];
+      if (rekap) {
+        instructionRows.push(
+          ['Mode Pengisian', cfg.mode],
+          ['Jumlah BAB', countConfig.jumlahBab],
+          ['Jumlah TP per BAB', countConfig.jumlahTpBab],
+          ['Jumlah LM', countConfig.jumlahLm],
+          ['Keterangan', cfg.mode === 'format'
+            ? 'Hanya No. dan Nama Murid, tanpa nilai.'
+            : 'Nilai harus 0–100, dapat dikosongkan.'],
+          ['Validasi', 'Jangan ubah nama kolom/sheet. Data lama diganti hanya setelah konfirmasi.']
+        );
+      }
       if (templateId === 'mutasi-masuk') {
         instructionRows.push(['Kelas Tujuan', 'Gunakan angka Romawi I sampai XII. Contoh: VII, VIII, IX. Angka 7-12 juga dapat dikenali otomatis.']);
       }
@@ -298,7 +405,7 @@ const ExcelImport = (() => {
         });
       }
 
-      XLSX.utils.book_append_sheet(wb, ws, 'Data Siswa');
+      XLSX.utils.book_append_sheet(wb, ws, sheetLabel);
       XLSX.utils.book_append_sheet(wb, infoWs, 'Petunjuk');
       XLSX.writeFile(wb, cfg.fileName, { compression: true });
 
@@ -323,15 +430,28 @@ const ExcelImport = (() => {
       return;
     }
 
-    const allowed = /\.(xlsx|xls|csv)$/i.test(file.name);
+    const allowed = templateId === 'rekap-nilai'
+      ? /\.xlsx$/i.test(file.name)
+      : /\.(xlsx|xls|csv)$/i.test(file.name);
     if (!allowed) {
-      UI.toast('Format file tidak didukung. Gunakan file .xlsx, .xls, atau .csv.', 'error');
+      UI.toast(templateId === 'rekap-nilai'
+        ? 'Gunakan file Excel dengan ekstensi .xlsx.'
+        : 'Format file tidak didukung. Gunakan file .xlsx, .xls, atau .csv.', 'error');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      UI.toast('Ukuran file maksimal 5 MB.', 'error');
       return;
     }
 
     try {
       const buffer = await file.arrayBuffer();
       const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
+      if (templateId === 'rekap-nilai') {
+        importRekapWorkbook(workbook);
+        return;
+      }
       const sheetName = workbook.SheetNames.find(name => normalize(name) === 'data siswa') || workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
 
@@ -435,6 +555,133 @@ const ExcelImport = (() => {
       console.error('[ExcelImport] Gagal membaca file:', err);
       UI.toast(err?.message || 'File Excel tidak dapat diproses. Pastikan menggunakan template yang sesuai.', 'error', 6000);
     }
+  }
+
+
+  /* Rekap Nilai menggunakan kolom dinamis sesuai mode, BAB, TP dan LM
+     yang tercatat pada sheet Petunjuk. Tidak boleh menghapus nilai lama
+     sebelum file dan semua baris selesai divalidasi. */
+  function parseRekapWorkbook(workbook) {
+    const ws = workbook?.Sheets?.['Data Murid'];
+    if (!ws) throw new Error('Sheet "Data Murid" tidak ditemukan. Gunakan template unduhan aplikasi.');
+    const rawRows = XLSX.utils.sheet_to_json(ws, {
+      defval: '', raw: true, blankrows: false,
+    });
+    if (!rawRows.length) throw new Error('Sheet "Data Murid" belum berisi data.');
+    if (rawRows.length > 1000) throw new Error('Maksimal 1.000 murid per impor.');
+
+    const instructions = workbook.Sheets['Petunjuk'];
+    const pairs = instructions
+      ? XLSX.utils.sheet_to_json(instructions, { header: 1, defval: '' })
+      : [];
+    const metadata = new Map(pairs.map(row => [normalize(row[0]), row[1]]));
+    const source = State.getFormData('rekap-nilai') || TemplateRekapNilai.createDefaultData();
+    const dataHeaders = Object.keys(rawRows[0]);
+    const normalizedHeaders = new Set(dataHeaders.map(normalize));
+    const hasScores = dataHeaders.some(header => {
+      const key = normalize(header);
+      return key !== 'no' && key !== 'nama murid';
+    });
+    const metadataMode = String(metadata.get('mode pengisian') || '').toLowerCase().trim();
+    if (metadataMode && !['format', 'lengkap'].includes(metadataMode)) {
+      throw new Error('Mode Pengisian pada sheet Petunjuk tidak dikenali.');
+    }
+    const mode = metadataMode || (hasScores ? 'lengkap' : 'format');
+    if (mode === 'format' && hasScores) {
+      throw new Error('Kolom nilai ditemukan pada file Format Saja. Gunakan template sesuai mode.');
+    }
+
+    const updatedHeader = { ...source.header, modePengisian: mode };
+    if (mode === 'lengkap') {
+      for (const [metadataKey, stateKey, max] of [
+        ['jumlah bab', 'jumlahBab', 5],
+        ['jumlah tp per bab', 'jumlahTpBab', 4],
+        ['jumlah lm', 'jumlahLm', 4],
+      ]) {
+        const raw = metadata.get(metadataKey);
+        if (raw === undefined || String(raw).trim() === '') continue;
+        const count = Number(raw);
+        if (!Number.isInteger(count) || count < 1 || count > Number(max)) {
+          throw new Error('Konfigurasi ' + metadataKey + ' pada sheet Petunjuk tidak valid.');
+        }
+        updatedHeader[stateKey] = count;
+      }
+    }
+
+    const cfg = getRekapConfig(mode, { ...source, header: updatedHeader });
+    const headerMap = buildHeaderMap(rawRows[0], cfg);
+    const missing = cfg.columns.filter(col => !headerMap.has(col.key));
+    if (missing.length) {
+      throw new Error('Kolom Excel belum lengkap: ' + missing.map(col => col.header).join(', ') + '.');
+    }
+    const expectedNames = new Set(cfg.columns.map(col => normalize(col.header)));
+    const extra = dataHeaders.filter(header => !expectedNames.has(normalize(header)));
+    if (extra.length) {
+      throw new Error('Kolom tidak dikenal: ' + extra.join(', ') + '. Gunakan template unduhan aplikasi.');
+    }
+
+    const items = [];
+    const seenNumbers = new Set();
+    rawRows.forEach((row, index) => {
+      if (isEmptyRow(row)) return;
+      const line = index + 2;
+      const name = String(row[headerMap.get('namaMurid')] ?? '').trim();
+      if (!name || name.length > 200) {
+        throw new Error('Baris ' + line + ': Nama Murid wajib diisi (maksimal 200 karakter).');
+      }
+      const rawNo = row[headerMap.get('no')];
+      const no = String(rawNo ?? '').trim() === '' ? items.length + 1 : Number(rawNo);
+      if (!Number.isSafeInteger(no) || no < 1 || no > 99999 || seenNumbers.has(no)) {
+        throw new Error('Baris ' + line + ': No. harus unik dan berupa bilangan bulat positif.');
+      }
+      seenNumbers.add(no);
+      const item = TemplateRekapNilai.createItem(no);
+      item.no = no;
+      item.namaMurid = name;
+      if (mode === 'lengkap') {
+        cfg.columns.filter(col => col.type === 'score').forEach(col => {
+          const value = row[headerMap.get(col.key)];
+          const raw = String(value ?? '').trim();
+          if (!raw) {
+            item[col.key] = '';
+            return;
+          }
+          const numeric = Number(raw);
+          if (!Number.isFinite(numeric) || numeric < 0 || numeric > 100) {
+            throw new Error('Baris ' + line + ': ' + col.header + ' harus berupa angka 0–100.');
+          }
+          item[col.key] = numeric;
+        });
+      }
+      items.push(item);
+    });
+    if (!items.length) throw new Error('Tidak ada data murid yang dapat diimpor.');
+    return { items, mode, header: updatedHeader };
+  }
+
+  function importRekapWorkbook(workbook) {
+    const result = parseRekapWorkbook(workbook);
+    const current = State.getFormData('rekap-nilai') || {};
+    const existing = Array.isArray(current.murid)
+      ? current.murid.filter(item => String(item?.namaMurid || '').trim()).length : 0;
+    const label = result.mode === 'format' ? 'Format Saja' : 'Lengkap';
+    const info = existing
+      ? 'Daftar ' + existing + ' murid yang telah terisi akan diganti. '
+      : '';
+    UI.confirm(
+      'Konfirmasi Impor Rekapitulasi Nilai',
+      'Ditemukan ' + result.items.length + ' murid pada mode ' + label + '. '
+        + info + 'Semua data daftar murid saat ini (termasuk nilai) akan diganti. Lanjutkan?',
+      () => {
+        if (State.getActiveTemplate() !== 'rekap-nilai') {
+          UI.toast('Template aktif telah berubah. Impor dibatalkan.', 'warning');
+          return;
+        }
+        State.setFormData('rekap-nilai', { header: result.header, murid: result.items });
+        FormRenderer.render('rekap-nilai');
+        UI.toast(result.items.length + ' data murid berhasil diimpor (mode ' + label + ').', 'success');
+      }
+    );
   }
 
   function buildHeaderMap(firstRow, cfg) {
@@ -584,7 +831,8 @@ const ExcelImport = (() => {
       .trim()
       .toLowerCase()
       .replace(/[._/\\-]+/g, ' ')
-      .replace(/\s+/g, ' ');
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
   function columnLetter(n) {
@@ -600,8 +848,13 @@ const ExcelImport = (() => {
 
   return {
     getConfig,
+    getRekapConfig,
+    showRekapDownloadModal,
     buildToolbar,
     downloadTemplate,
+    parseRekapWorkbook,
+    importRekapWorkbook,
+    importFile,
   };
 
 })();
