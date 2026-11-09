@@ -70,7 +70,7 @@ describe('Canvas tanda tangan pada Surat Izin', () => {
   it('memiliki area gambar dan tombol hapus', () => {
     const h = createPad();
     expect(h.group.innerHTML).toContain('signature-pad__canvas');
-    expect(h.group.innerHTML).toContain('Hapus tanda tangan');
+    expect(h.group.innerHTML).toContain('aria-label="Hapus seluruh tanda tangan"');
     expect(h.button.disabled).toBe(true);
     expect(h.status.textContent).toContain('Belum');
   });
@@ -86,7 +86,7 @@ describe('Canvas tanda tangan pada Surat Izin', () => {
       preventDefault: vi.fn(),
     });
     expect(h.changes).not.toHaveBeenCalled();
-    h.canvasHandlers.pointerup({ pointerId: 1, pointerType: 'touch', clientX: 110, clientY: 55 });
+    h.canvasHandlers.pointerup({ type: 'pointerup', pointerId: 1, pointerType: 'touch', clientX: 110, clientY: 55 });
     expect(h.context2d.stroke).toHaveBeenCalled();
     expect(h.context2d.strokeStyle).toBe('#1d4ed8');
     expect(h.context2d.fillStyle).toBe('#1d4ed8');
@@ -125,7 +125,7 @@ describe('Canvas tanda tangan pada Surat Izin', () => {
       pointerId: 1, pointerType: 'touch', clientX: 20, clientY: 30,
       preventDefault: vi.fn(),
     });
-    h.canvasHandlers.pointerup({ pointerId: 1, pointerType: 'touch', clientX: 25, clientY: 35 });
+    h.canvasHandlers.pointerup({ type: 'pointerup', pointerId: 1, pointerType: 'touch', clientX: 25, clientY: 35 });
     const before = h.changes.mock.calls.length;
     h.images[0].onload();
     expect(h.context2d.drawImage).not.toHaveBeenCalled();
@@ -139,7 +139,7 @@ describe('Canvas tanda tangan pada Surat Izin', () => {
       pointerId: 1, pointerType: 'touch', clientX: 30, clientY: 40,
       preventDefault: vi.fn(),
     });
-    h.canvasHandlers.pointerup({
+    h.canvasHandlers.pointerup({ type: 'pointerup',
       pointerId: 1, pointerType: 'touch', clientX: 45, clientY: 48,
     });
     const signature = 'data:image/png;base64,iVBORw0KGgo=';
@@ -156,7 +156,7 @@ describe('Canvas tanda tangan pada Surat Izin', () => {
       pointerId: 5, pointerType: 'mouse', button: 0,
       clientX: 50, clientY: 45, preventDefault: vi.fn(),
     });
-    h.canvasHandlers.pointerup({ pointerId: 5, pointerType: 'mouse', clientX: 60, clientY: 45 });
+    h.canvasHandlers.pointerup({ type: 'pointerup', pointerId: 5, pointerType: 'mouse', clientX: 60, clientY: 45 });
     h.controller.clear();
     expect(h.changes).toHaveBeenLastCalledWith('');
     h.controller.undo();
@@ -191,7 +191,7 @@ describe('Canvas tanda tangan pada Surat Izin', () => {
     h.canvasHandlers.pointerdown({
       pointerId: 7, pointerType: 'touch', clientX: 30, clientY: 40, preventDefault: vi.fn(),
     });
-    h.canvasHandlers.pointerup({ pointerId: 7, pointerType: 'touch', clientX: 45, clientY: 48 });
+    h.canvasHandlers.pointerup({ type: 'pointerup', pointerId: 7, pointerType: 'touch', clientX: 45, clientY: 48 });
     expect(h.changes).toHaveBeenLastCalledWith(png);
     expect(h.previewImage.getAttribute('src')).toBe(png);
     expect(h.previewImage.hidden).toBe(false);
@@ -225,7 +225,7 @@ describe('Canvas tanda tangan pada Surat Izin', () => {
       pointerId: 1, pointerType: 'mouse', button: 0, clientX: 50, clientY: 50,
       preventDefault: vi.fn(),
     });
-    h.canvasHandlers.pointerup({ pointerId: 1, pointerType: 'mouse', clientX: 60, clientY: 55 });
+    h.canvasHandlers.pointerup({ type: 'pointerup', pointerId: 1, pointerType: 'mouse', clientX: 60, clientY: 55 });
     expect(h.previewImage.getAttribute('src')).toBe(png);
     h.controller.clear();
     expect(h.changes).toHaveBeenLastCalledWith('');
