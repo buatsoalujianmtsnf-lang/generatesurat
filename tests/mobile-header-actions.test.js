@@ -22,7 +22,7 @@ describe('Mobile editor navbar actions', () => {
   it('keeps all remaining actions inside the single overflow group', () => {
     expect(menu).toBeTruthy();
     for (const id of [
-      'btn-editor-panel-mobile', 'btn-install-app', 'btn-update-app',
+      'editor-drawer-button', 'btn-install-app', 'btn-update-app',
       'btn-about', 'btn-theme-toggle', 'btn-undo', 'btn-redo',
       'btn-save', 'btn-export-data', 'btn-import-data', 'btn-reset',
     ]) expect(menu).toContain('id="' + id + '"');
@@ -32,8 +32,8 @@ describe('Mobile editor navbar actions', () => {
 
   it('uses mobile-only dropdown instead of horizontal scroll, preserving desktop controls', () => {
     const css = read('css/header-scroll.css');
-    expect(css).toContain('@media screen and (min-width: 768px)');
-    expect(css).toContain('display: none !important;');
+    expect(css).toContain('@media screen and (max-width: 767px)');
+    expect(css).toContain('.app-header__actions #header-overflow-group');
     expect(css).toContain('.app-header__actions > #btn-header-more');
     expect(css).toContain('.app-header__actions #header-overflow-group.is-open');
     expect(css).toContain('overflow: visible;');
@@ -42,10 +42,10 @@ describe('Mobile editor navbar actions', () => {
     expect(js).toContain("document.getElementById('btn-header-more')");
     expect(js).toContain("e.key === 'Escape'");
     const drawer = read('js/editor-drawer.js');
-    expect(drawer.match(/'btn-editor-panel-mobile'/g)).toHaveLength(2);
+    expect(drawer).toContain("const TRIGGER_ID = 'editor-drawer-button'");
   });
 
   it('refreshes the offline PWA shell for the navbar change', () => {
-    expect(read('sw.js')).toContain("CACHE_PREFIX + 'v35'");
+    expect(read('sw.js')).toContain("CACHE_PREFIX + 'v36'");
   });
 });

@@ -12,7 +12,7 @@ describe('Navbar editor desktop dan mobile', () => {
     const header = html.slice(start, end);
     expect(header).toContain('role="group" aria-label="Tindakan editor"');
     for (const id of [
-      'btn-export-pdf', 'btn-print', 'btn-header-more', 'btn-editor-panel-mobile',
+      'btn-export-pdf', 'btn-print', 'btn-header-more', 'editor-drawer-button',
       'btn-install-app', 'btn-update-app', 'btn-about', 'btn-theme-toggle',
       'btn-undo', 'btn-redo', 'btn-save', 'btn-export-data',
       'btn-import-data', 'btn-reset',

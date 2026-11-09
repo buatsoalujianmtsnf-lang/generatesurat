@@ -116,19 +116,7 @@
   }
 }
 
-/* Tombol buka editor kedua hanya digunakan di menu mobile. */
-@media screen and (min-width: 768px) {
-  .app-header__actions #btn-editor-panel-mobile {
-    display: none !important;
-  }
-}
-
 @media screen and (max-width: 767px) {
-  /* Sidebar dapat dibuka melalui menu Lainnya, bukan tombol tersendiri. */
-  .app-header > #editor-drawer-button {
-    display: none;
-  }
-
   .app-header {
     gap: 6px;
     overflow: visible;

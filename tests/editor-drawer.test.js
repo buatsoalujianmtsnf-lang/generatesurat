@@ -30,8 +30,11 @@ describe('DaisyUI editor drawer sidebar', () => {
       'workflow-actions','surat-preview','preview-viewport',
       'btn-export-pdf','btn-print','viewer-page-first',
     ]) expect(html).toContain('id="' + id + '"');
-    for (const id of ['editor-drawer-button','editor-drawer-preview-open',
-      'editor-drawer-close','editor-drawer-preview']) expect(html).toContain('id="'+id+'"');
+    expect(html.match(/id="editor-drawer-button"/g)).toHaveLength(1);
+    for (const id of ['editor-drawer-preview-open','editor-drawer-close',
+      'editor-drawer-preview','btn-editor-panel-mobile']) {
+      expect(html).not.toContain('id="'+id+'"');
+    }
   });
 
   it('loads local drawer styles and script in order; PWA caches both', () => {
@@ -77,8 +80,7 @@ describe('DaisyUI editor drawer sidebar', () => {
       nodes.set(id,node);return node;
     };
     for(const id of ['editor-drawer','editor-drawer-toggle','editor-panel',
-      'editor-drawer-button','editor-drawer-preview-open',
-      'editor-drawer-close','editor-drawer-preview']) create(id);
+      'editor-drawer-button']) create(id);
     const listeners = {};
     const compact = {matches:true,addEventListener:(k,fn)=>listeners.media=fn};
     const doc = {
@@ -107,4 +109,71 @@ describe('DaisyUI editor drawer sidebar', () => {
     expect(nodes.get('editor-drawer-toggle').checked).toBe(true);
     expect(nodes.get('editor-panel').inert).toBe(false);
   });
+
+  it('uses the same visible action to open and close at compact sizes', () => {
+    const elements = new Map();
+    const create = id => {
+      const events = {};
+      const attrs = {};
+      const el = {
+        id, checked: true, dataset: {}, inert: false, events, attrs, style: { setProperty: vi.fn() },
+        classList: { toggle: vi.fn() }, focus: vi.fn(), title: '',
+        setAttribute: (key, value) => { attrs[key] = String(value); },
+        getAttribute: key => attrs[key] || null,
+        addEventListener: (key, fn) => { events[key] = fn; },
+        querySelector: selector => selector === '.editor-drawer__toggle-label' ? label : null,
+        querySelectorAll: () => [], closest: () => null,
+      };
+      elements.set(id, el);
+      return el;
+    };
+    const label = { textContent: '' };
+    for (const id of ['editor-drawer','editor-drawer-toggle','editor-panel',
+      'editor-drawer-button','btn-header-more']) create(id);
+    const media = { matches: true, addEventListener: vi.fn() };
+    const ctx = {
+      console, HTMLElement: class {},
+      window: { matchMedia: query => query.includes('767') ? { matches: true } : media,
+        addEventListener: vi.fn() },
+      document: {
+        documentElement: { classList: { toggle: vi.fn() } },
+        getElementById: id => elements.get(id) || null,
+        addEventListener: vi.fn(),
+        activeElement: null,
+      },
+    };
+    runInNewContext(read('js/editor-drawer.js'), ctx);
+    const api = runInNewContext('EditorDrawer', ctx);
+    api.init();
+    const root = elements.get('editor-drawer');
+    const trigger = elements.get('editor-drawer-button');
+    expect(root.dataset.open).toBe('false');
+    expect(trigger.attrs['aria-expanded']).toBe('false');
+    expect(label.textContent).toBe('Buka Editor');
+    expect(typeof trigger.events.click).toBe('function');
+    trigger.events.click();
+    expect(root.dataset.open).toBe('true');
+    expect(trigger.attrs['aria-expanded']).toBe('true');
+    expect(label.textContent).toBe('Tutup Editor');
+    trigger.events.click();
+    expect(root.dataset.open).toBe('false');
+    expect(trigger.attrs['aria-expanded']).toBe('false');
+    expect(label.textContent).toBe('Buka Editor');
+    expect(elements.get('btn-header-more').focus).toHaveBeenCalled();
+  });
+
+  it('does not install click-close listeners on overlay or secondary buttons', () => {
+    const js = read('js/editor-drawer.js');
+    expect(js).toContain("const TRIGGER_ID = 'editor-drawer-button'");
+    expect(js).toContain("trigger.addEventListener('click', toggleDrawer)");
+    expect(js).not.toContain("querySelector('.editor-drawer__overlay')?.addEventListener");
+    for (const id of ['editor-drawer-preview-open', 'editor-drawer-close',
+      'editor-drawer-preview', 'btn-editor-panel-mobile']) {
+      expect(js).not.toContain("'"+id+"'");
+    }
+    const css = read('css/editor-drawer.css');
+    expect(css).toContain('--drawer-header-offset');
+    expect(css).toContain('z-index: 36');
+  });
+
 });

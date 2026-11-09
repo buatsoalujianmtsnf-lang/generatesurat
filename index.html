@@ -193,12 +193,6 @@
 
     <!-- HEADER -->
     <header class="app-header navbar">
-      <button type="button" id="editor-drawer-button"
-        class="btn btn-ghost btn-square drawer-button editor-drawer__open"
-        aria-controls="editor-panel" aria-expanded="true"
-        aria-label="Tutup panel editor" title="Tampilkan atau sembunyikan editor">
-        <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-layout-sidebar"></use></svg>
-      </button>
       <a class="app-header__brand" href="/" title="Kembali ke beranda" aria-label="Kembali ke beranda Generator Surat">
         <img
           src="assets/icons/logo.svg"
@@ -241,11 +235,11 @@
 
         <!-- Satu menu aksi pada mobile; desktop mempertahankan deretan tombol lama. -->
         <div class="header-overflow-group" id="header-overflow-group" role="group" aria-label="Aksi lainnya">
-          <button type="button" id="btn-editor-panel-mobile"
-            class="btn btn--sm btn--secondary btn-sm btn-outline header-mobile-editor-btn"
+          <button type="button" id="editor-drawer-button"
+            class="btn btn--sm btn--secondary btn-sm btn-outline editor-drawer__toggle"
             title="Buka panel editor" aria-label="Buka panel editor" aria-controls="editor-panel" aria-expanded="false">
             <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-layout-sidebar"></use></svg>
-            <span class="btn-label">Buka Editor</span>
+            <span class="btn-label editor-drawer__toggle-label">Buka Editor</span>
           </button>
           <button id="btn-install-app" class="btn btn--sm btn--secondary platform-action btn-sm btn-outline" title="Pasang aplikasi" aria-label="Pasang Generator Surat sebagai aplikasi" hidden aria-hidden="true">
             <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-download"></use></svg>
@@ -312,12 +306,6 @@
       <main class="preview-panel" id="preview-panel">
         <div class="preview-toolbar">
           <div class="preview-toolbar__identity">
-            <button type="button" id="editor-drawer-preview-open"
-              class="btn btn-ghost btn-square btn-sm drawer-button editor-drawer__preview-open"
-              aria-controls="editor-panel" aria-expanded="true" aria-label="Buka panel editor"
-              title="Buka panel editor">
-              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-layout-sidebar"></use></svg>
-            </button>
             <span class="preview-toolbar__label">Preview Surat</span>
             <span id="viewer-template-label" class="viewer-template-label">Belum ada dokumen</span>
 
@@ -391,18 +379,13 @@
       </main>
       </div>
       <div class="drawer-side editor-drawer__side">
-        <label for="editor-drawer-toggle" class="drawer-overlay editor-drawer__overlay"
-          aria-label="Tutup panel editor"></label>
+        <div class="drawer-overlay editor-drawer__overlay" aria-hidden="true"></div>
       <aside class="editor-panel" id="editor-panel" tabindex="-1" aria-label="Panel editor surat">
         <div class="editor-drawer__heading">
           <div class="editor-drawer__heading-label">
             <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-writing"></use></svg>
             <strong>Editor Surat</strong>
           </div>
-          <button type="button" id="editor-drawer-close" class="btn btn-ghost btn-square btn-sm"
-            aria-label="Tutup panel editor" title="Tutup panel editor">
-            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-chevron-left"></use></svg>
-          </button>
         </div>
 
         <!-- Tab Navigation -->
@@ -488,15 +471,6 @@
 
         <!-- Phase 2: contextual workflow actions -->
         <div id="workflow-actions" class="workflow-actions" aria-label="Navigasi alur pembuatan surat"></div>
-
-        <!-- Preview selalu tersedia di area utama; tombol ini menutup drawer. -->
-        <div class="editor-drawer__footer">
-          <button id="editor-drawer-preview" type="button" class="btn btn-outline btn-sm"
-            aria-controls="preview-panel" title="Tutup editor dan lihat pratinjau surat">
-            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-eye"></use></svg>
-            Lihat Pratinjau
-          </button>
-        </div>
 
             </aside>
       </div>
