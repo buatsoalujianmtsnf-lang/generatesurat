@@ -24,10 +24,10 @@ const TableConfigUI = (() => {
 
   /* ── Label dan ikon ── */
   const H_ALIGN_OPTIONS = [
-    { value: 'left',    label: 'Kiri',    icon: '⬅' },
-    { value: 'center',  label: 'Tengah',  icon: '↔' },
-    { value: 'right',   label: 'Kanan',   icon: '➡' },
-    { value: 'justify', label: 'Justify', icon: '☰' },
+    { value: 'left',    label: 'Kiri',    icon: 'chevron-left' },
+    { value: 'center',  label: 'Tengah',  icon: 'arrows-horizontal' },
+    { value: 'right',   label: 'Kanan',   icon: 'chevron-right' },
+    { value: 'justify', label: 'Justify', icon: 'list-check' },
   ];
 
   const V_ALIGN_OPTIONS = [
@@ -473,7 +473,7 @@ const TableConfigUI = (() => {
     const sectionKey   = `${tableId}-${section}`;
     const isOpen       = _openSections[sectionKey] !== false;
     const sectionLabel = section === 'header' ? 'Header Tabel' : 'Isi Tabel';
-    const sectionIcon  = section === 'header' ? '📌' : '📝';
+    const sectionIcon  = section === 'header' ? 'pinned' : 'writing';
     const sectionId    = `tbl-sec-${_esc(tableId)}-${section}`;
 
     const columnsHtml = columns.map((col, position) => {
@@ -503,7 +503,7 @@ const TableConfigUI = (() => {
           aria-expanded="${isOpen}"
           aria-controls="${sectionId}"
           data-section-key="${_esc(sectionKey)}">
-          <span class="tbl-cfg__section-icon" aria-hidden="true">${sectionIcon}</span>
+          <span class="tbl-cfg__section-icon" aria-hidden="true"><span data-tabler-icon="${sectionIcon}"></span></span>
           <span class="tbl-cfg__section-title">${_esc(sectionLabel)}</span>
           <span class="tbl-cfg__section-chevron" aria-hidden="true">
             <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-chevron-down"></use></svg>
@@ -548,7 +548,7 @@ const TableConfigUI = (() => {
         title="Horizontal: ${opt.label}"
         aria-label="Horizontal alignment: ${opt.label}"
         aria-pressed="${hAlign === opt.value}"
-      >${opt.icon}</button>`).join('');
+      ><span data-tabler-icon="${opt.icon}"></span></button>`).join('');
 
     const vAlignOptions = V_ALIGN_OPTIONS.map(opt =>
       `<option value="${opt.value}"${vAlign === opt.value ? ' selected' : ''}>${opt.label}</option>`
