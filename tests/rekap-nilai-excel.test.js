@@ -130,7 +130,7 @@ describe('Excel Rekap Nilai: mode dan kolom dinamis', () => {
     expect(content).toContain('Murid yang sudah terisi di editor:');
     expect(content).toContain('<strong>1</strong>');
     expect(content).toContain('VIII A');
-    expect(content).toContain('file berformat');
+    expect(content).toContain('File berformat');
     expect(content).toContain('0–100');
     expect(h.written).not.toHaveBeenCalled();
   });
