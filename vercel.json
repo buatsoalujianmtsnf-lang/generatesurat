@@ -85,19 +85,19 @@
   "rewrites": [
     {
       "source": "/editor",
-      "destination": "/index.html"
+      "destination": "/index"
     },
     {
       "source": "/surat/:slug",
-      "destination": "/index.html"
+      "destination": "/index"
     },
     {
       "source": "/kategori/:slug",
-      "destination": "/index.html"
+      "destination": "/index"
     },
     {
       "source": "/DPUdanRegis",
-      "destination": "/index.html"
+      "destination": "/index"
     }
   ]
 }

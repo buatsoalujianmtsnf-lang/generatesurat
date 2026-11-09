@@ -46,6 +46,7 @@ describe('Friendly routes and landing page', () => {
     const { routes } = createRoutes();
     expect(routes.resolve('/').kind).toBe('landing');
     expect(routes.resolve('/index.html').kind).toBe('landing');
+    expect(routes.resolve('/index').kind).toBe('landing');
     expect(routes.resolve('/editor').kind).toBe('editor');
     expect(routes.resolve('/DPUdanRegis')).toMatchObject({
       kind: 'category', groupId: 'registrasi-dpu', legacy: true,
@@ -117,8 +118,15 @@ describe('Friendly routes and landing page', () => {
     const config = JSON.parse(read('vercel.json'));
     const rewriteFor = source => config.rewrites.find(item => item.source === source)?.destination;
     for (const route of ['/editor', '/surat/:slug', '/kategori/:slug', '/DPUdanRegis']) {
-      expect(rewriteFor(route)).toBe('/index.html');
+      expect(rewriteFor(route)).toBe('/index');
     }
+    // Vercel tidak mengenali tujuan rewrite dengan ekstensi .html saat
+    // cleanUrls=true. Cegah regresi 404 pada semua deep-link.
+    expect(config.cleanUrls).toBe(true);
+    expect(config.rewrites).toHaveLength(4);
+    expect(config.rewrites.every(route =>
+      route.destination === '/index' && !route.destination.endsWith('.html')
+    )).toBe(true);
     const worker = read('sw.js');
     for (const asset of ['./js/routes.js', './js/landing.js', './css/landing.css']) {
       expect(worker).toContain(asset);
