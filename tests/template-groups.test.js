@@ -29,8 +29,8 @@ function makeElement(tagName) {
       const descendants = [];
       const visit = node => {
         for (const child of node.children) {
-          if ((selector === '.template-card' && child.className.includes('template-card'))
-              || (selector === '.template-group' && child.className.includes('template-group'))) {
+          if ((selector === '.template-card' && child.className.split(/\s+/).includes('template-card'))
+              || (selector === '.template-group' && child.className.split(/\s+/).includes('template-group'))) {
             descendants.push(child);
           }
           visit(child);
