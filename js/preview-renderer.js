@@ -2265,7 +2265,7 @@ const PreviewRenderer = (() => {
         <!-- Data Pengirim -->
         <table style="border-collapse:collapse;margin:0 0 14pt 20pt;">
           <tr>
-            <td style="width:130px;vertical-align:top;padding-bottom:4pt;">Nama Orang Tua/Wali</td>
+            <td style="width:130px;white-space:nowrap;vertical-align:top;padding-bottom:4pt;">Nama Orang Tua/Wali</td>
             <td style="padding:0 8px;vertical-align:top;">:</td>
             <td style="vertical-align:top;padding-bottom:4pt;">${namaOrangTuaWali}</td>
           </tr>
