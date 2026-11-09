@@ -36,7 +36,7 @@ describe('PreviewRenderer pagination policy', () => {
 
     expect(renderer.usesMultiPageLayout('surat-izin')).toBe(true);
     expect(source).toContain("if (id === 'surat-izin')");
-    expect(source).toContain('return _renderSuratIzin(formData, kop, margin, typo)');
+    expect(source).toContain('return _renderSuratIzin(formData, margin, typo)');
     expect(source).toContain('doc-content doc-content--surat-izin');
     expect(source).toContain('await _waitForLayoutAssets(source)');
     expect(source).toContain('_schedulePagination(renderToken, paperWidthPx, paperHeightPx)');
