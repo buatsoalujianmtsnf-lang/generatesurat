@@ -61,6 +61,12 @@ const TemplateSuratIzin = (() => {
     return detail ? `Memiliki keperluan penting, yaitu ${detail.replace(/[.\s]+$/, '')}.` : '';
   }
 
+  /* Izinkan hanya data URL PNG berukuran wajar untuk gambar tanda tangan. */
+  function getSignatureDataUrl(value) {
+    if (typeof value !== 'string' || value.length > 350000) return '';
+    return /^data:image\/png;base64,[A-Za-z0-9+/]+={0,2}$/.test(value) ? value : '';
+  }
+
   /* ── Default form data ── */
   function createDefaultData() {
     return {
@@ -81,6 +87,7 @@ const TemplateSuratIzin = (() => {
       pengirim: {
         namaLokasi:       'Terawas',
         tanggalKeluarSurat: '',  // ISO: YYYY-MM-DD
+        tandaTanganDataUrl: '', // PNG transparan, opsional; disimpan bersama draf
       },
     };
   }
@@ -196,6 +203,13 @@ const TemplateSuratIzin = (() => {
           type: 'date',
           required: false,
         },
+        {
+          key: 'pengirim.tandaTanganDataUrl',
+          label: 'Tanda Tangan Orang Tua/Wali',
+          type: 'signature',
+          required: false,
+          hint: 'Gambar menggunakan jari, stylus, atau mouse. Kosongkan bila ingin menandatangani surat setelah dicetak.',
+        },
       ],
     },
   ];
@@ -210,6 +224,7 @@ const TemplateSuratIzin = (() => {
     formSections,
     ALASAN_PILIHAN,
     getAlasanIzinText,
+    getSignatureDataUrl,
     normalizeLegacyAlasan,
     tableColumns,
   };
