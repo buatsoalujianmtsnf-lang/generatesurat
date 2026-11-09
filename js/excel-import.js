@@ -170,7 +170,7 @@ const ExcelImport = (() => {
       </div>
 
       <div class="excel-import-toolbar__file hidden" aria-live="polite">
-        <span class="excel-import-toolbar__file-icon" aria-hidden="true">✓</span>
+        <span class="excel-import-toolbar__file-icon" aria-hidden="true"><span data-tabler-icon="circle-check"></span></span>
         <span class="excel-import-toolbar__file-meta">
           <strong class="excel-import-toolbar__file-name">Belum ada file</strong>
           <small class="excel-import-toolbar__file-size"></small>
