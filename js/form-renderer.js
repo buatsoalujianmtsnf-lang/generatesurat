@@ -127,10 +127,7 @@ const FormRenderer = (() => {
     if (typeof SignaturePad !== 'undefined') SignaturePad.closeActive?.();
     _containerEl.innerHTML = `
       <div class="form-empty-state card">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14,2 14,8 20,8"/>
-        </svg>
+        <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-file-text"></use></svg>
         <p>Pilih template surat terlebih dahulu.</p>
         <button class="btn btn--sm btn--secondary btn-sm btn-outline" type="button"
           data-action="select-template">
@@ -161,10 +158,7 @@ const FormRenderer = (() => {
         <span class="form-section__title card-title">
           <span>${Utils.escapeHtml(section.icon || '')} ${Utils.escapeHtml(section.title)}</span>
         </span>
-        <svg class="form-section__toggle" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2">
-          <polyline points="6 9 12 15 18 9"/>
-        </svg>
+        <svg class="ti-icon form-section__toggle" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-chevron-down"></use></svg>
       </div>
       <div class="form-section__body card-body" id="section-body-${section.id}"></div>`;
 
@@ -236,10 +230,7 @@ const FormRenderer = (() => {
     addBtn.type = 'button';
     addBtn.className = 'add-row-btn btn btn-outline';
     addBtn.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/>
-        <line x1="8" y1="12" x2="16" y2="12"/>
-      </svg>
+      <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-plus"></use></svg>
       Tambah ${Utils.escapeHtml(section.itemLabel || 'Item')}`;
 
     addBtn.addEventListener('click', () => {
@@ -290,18 +281,10 @@ const FormRenderer = (() => {
         <span class="row-entry__label">${Utils.escapeHtml(labelText)}</span>
         <div class="row-entry__actions">
           <button type="button" class="btn-icon entry-delete-btn btn btn-square btn-ghost btn-sm" title="Hapus" aria-label="Hapus">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-              <path d="M10 11v6M14 11v6"/>
-              <path d="M9 6V4h6v2"/>
-            </svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-trash"></use></svg>
           </button>
         </div>
-        <svg class="row-entry__chevron" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2">
-          <polyline points="6 9 12 15 18 9"/>
-        </svg>
+        <svg class="ti-icon row-entry__chevron" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-chevron-down"></use></svg>
       </div>
       <div class="row-entry__body"></div>`;
 
