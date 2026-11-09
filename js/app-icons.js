@@ -6,7 +6,7 @@ const AppIcons = (() => {
     '📄':'file-text','📋':'clipboard-list','📑':'file-description','📚':'books',
     '📊':'chart-bar','✉️':'mail','✉':'mail','📝':'writing',
     '🏛️':'building-bank','🏫':'school','👥':'users','👤':'user',
-    '✅':'circle-check','✓':'check','🖋️':'signature','🖊️':'signature','✍️':'signature','✍':'signature',
+    '✅':'circle-check','✓':'circle-check','🖋️':'signature','🖊️':'signature','✍️':'signature','✍':'signature',
     '🔄':'arrows-exchange','🎓':'school','📅':'calendar','🖼️':'photo',
     '👁️':'eye','👁':'eye','📥':'download','💾':'device-floppy','⚠️':'info-circle',
     '🔒':'shield-check','🖨️':'printer','🧩':'layout-sidebar','📐':'arrows-maximize',
@@ -25,7 +25,8 @@ const AppIcons = (() => {
   function apply(root = document) {
     root.querySelectorAll('[data-tabler-icon]').forEach(el => {
       const name = el.getAttribute('data-tabler-icon');
-      if (!name) return;
+      if (!name || el.dataset.tablerRendered === 'true') return;
+      el.dataset.tablerRendered = 'true';
       el.innerHTML = svg(name);
     });
   }
