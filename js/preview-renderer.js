@@ -1543,7 +1543,7 @@ const PreviewRenderer = (() => {
 
         <!-- Tanggal surat sejajar tepi kanan dokumen. -->
         <div style="margin-top:12pt;text-align:right;">
-          ${s.namaKabupatenKota ? _esc(s.namaKabupatenKota) : '………………….'}, ${_formatBulanTahun(s.tanggal)}
+          ${s.namaKabupatenKota ? _esc(s.namaKabupatenKota) : '………………….'}, ${_formatTanggalPanjang(s.tanggal)}
         </div>
 
         <!-- Baris identitas surat menggunakan kolom yang konsisten.
