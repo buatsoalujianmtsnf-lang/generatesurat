@@ -113,8 +113,16 @@ const SignaturePad = (() => {
     function syncPreview() {
       if (preview) {
         preview.hidden = !persisted;
-        if (persisted && preview.getAttribute('src') !== persisted) preview.setAttribute('src', persisted);
-        else preview.removeAttribute('src');
+        if (persisted) {
+          // src yang sudah sama harus dipertahankan. Menghapusnya saat refresh
+          // membuat gambar menghilang setelah modal disimpan atau draf dimuat.
+          if (preview.getAttribute('src') !== persisted) {
+            preview.setAttribute('src', persisted);
+          }
+        } else if (preview.hasAttribute('src')) {
+          // Kosongkan hanya saat tanda tangan memang dihapus.
+          preview.removeAttribute('src');
+        }
       }
       if (previewEmpty) previewEmpty.hidden = Boolean(persisted);
       if (openButton) {
