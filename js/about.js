@@ -36,7 +36,7 @@ const About = (() => {
     return `
       <details class="about-section" ${open ? 'open' : ''}>
         <summary class="about-section__summary">
-          <span class="about-section__icon" aria-hidden="true">${icon}</span>
+          <span class="about-section__icon" aria-hidden="true">${typeof AppIcons !== "undefined" ? AppIcons.svg(icon) : icon}</span>
           <span>${title}</span>
           <span class="about-section__chevron" aria-hidden="true"></span>
         </summary>
