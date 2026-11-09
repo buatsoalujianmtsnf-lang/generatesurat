@@ -32,8 +32,8 @@ describe('Mobile editor navbar actions', () => {
 
   it('uses mobile-only dropdown instead of horizontal scroll, preserving desktop controls', () => {
     const css = read('css/header-scroll.css');
-    expect(css).toContain('@media screen and (min-width: 768px)');
-    expect(css).toContain('display: none !important;');
+    expect(css).toContain('@media screen and (max-width: 767px)');
+    expect(css).toContain('.app-header__actions #header-overflow-group');
     expect(css).toContain('.app-header__actions > #btn-header-more');
     expect(css).toContain('.app-header__actions #header-overflow-group.is-open');
     expect(css).toContain('overflow: visible;');
