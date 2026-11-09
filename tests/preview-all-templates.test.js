@@ -210,6 +210,24 @@ describe('GS-005: pagination integration across all runtime templates', () => {
     expect(h.preview.dataset.pageCount).toBe('1');
   });
 
+  it('renders the full selected reason text, including custom other reasons, without KOP', () => {
+    const h = createPreviewHarness([120]);
+    const tpl = h.registry.get('surat-izin');
+    const data = tpl.createDefaultData();
+    data.izin.alasanIzin = 'sakit';
+    h.renderer.render(tpl, data, {});
+    expect(h.preview.innerHTML).toContain('Sedang sakit dan membutuhkan waktu untuk beristirahat');
+    expect(h.preview.innerHTML).not.toContain('class="doc-kop"');
+
+    data.izin.alasanIzin = 'lainnya';
+    data.izin.alasanIzinLainnya = 'menghadiri urusan mendesak';
+    h.renderer.render(tpl, data, {});
+    expect(h.preview.innerHTML).toContain('Memiliki keperluan penting, yaitu menghadiri urusan mendesak.');
+    data.izin.alasanIzinLainnya = '<script>alert(1)</script>';
+    h.renderer.render(tpl, data, {});
+    expect(h.preview.innerHTML).not.toContain('<script>alert(1)</script>');
+  });
+
   it('keeps short content on one physical page without introducing a blank page', async () => {
     const h = createPreviewHarness([120]);
     const template = h.registry.get('surat-izin');
