@@ -2027,7 +2027,6 @@ const PreviewRenderer = (() => {
     const judulHtml = `
       <div class="doc-title-block">
         <h1 class="doc-title">REKAPITULASI NILAI</h1>
-        ${isModeFormat ? '<p style="font-size:0.78em;color:#666;margin:0 0 4pt;font-style:italic;">(Format \u2014 kolom nilai dikosongkan, siap cetak)</p>' : ''}
       </div>`;
 
     /* ── Bangun header tabel multi-row ──
