@@ -24,7 +24,7 @@ const Landing = (() => {
     const groupRoot = document.getElementById('lp-template-groups');
     const count = document.getElementById('lp-template-count');
     const groupCount = document.getElementById('lp-group-count');
-    const search = document.getElementById('lp-template-search');
+    const search = /** @type {HTMLInputElement|null} */ (document.getElementById('lp-template-search'));
     const searchResults = document.getElementById('lp-search-results');
     if (!groupRoot || !search) return;
 
@@ -50,7 +50,7 @@ const Landing = (() => {
       const cards = element('div', 'lp-group__templates');
       for (const template of group.templates) {
         const link = element('a', 'lp-template');
-        link.href = Routes.templateUrl(template.TEMPLATE_ID) || '/editor';
+        link.setAttribute('href', Routes.templateUrl(template.TEMPLATE_ID) || '/editor');
         const glyph = element('span', 'lp-template__icon', template.meta.icon || '📄');
         glyph.setAttribute('aria-hidden', 'true');
         const details = element('span', 'lp-template__details');
@@ -70,7 +70,7 @@ const Landing = (() => {
       }
       section.appendChild(cards);
       const footer = element('a', 'lp-group__link', 'Buka semua template kelompok ini');
-      footer.href = Routes.categoryUrl(group.id);
+      footer.setAttribute('href', Routes.categoryUrl(group.id));
       section.appendChild(footer);
       groupRoot.appendChild(section);
     }
@@ -90,7 +90,7 @@ const Landing = (() => {
       groupRoot.querySelectorAll('.lp-group').forEach(group => {
         const visibleCards = Array.from(group.querySelectorAll('.lp-template'))
           .some(link => !link.hidden);
-        group.hidden = !visibleCards;
+        group.toggleAttribute('hidden', !visibleCards);
       });
       empty.hidden = visibleCount > 0;
       if (searchResults) {
