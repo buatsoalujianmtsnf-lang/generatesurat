@@ -32,11 +32,11 @@ const SignaturePad = (() => {
         <small class="form-helper signature-pad__help" id="${id}-help">${hint}</small>
       </div>`;
 
-    const canvas = group.querySelector('canvas');
-    const clearButton = group.querySelector('.signature-pad__clear');
-    const status = group.querySelector('.signature-pad__status');
+    const canvas = /** @type {HTMLCanvasElement|null} */ (group.querySelector('canvas'));
+    const clearButton = /** @type {HTMLButtonElement|null} */ (group.querySelector('.signature-pad__clear'));
+    const status = /** @type {HTMLElement|null} */ (group.querySelector('.signature-pad__status'));
     const ctx = canvas?.getContext?.('2d');
-    if (!canvas || !clearButton || !ctx) {
+    if (!canvas || !clearButton || !status || !ctx) {
       group.innerHTML += '<span class="form-helper signature-pad__fallback">Peramban tidak mendukung area tanda tangan. Anda tetap dapat menandatangani surat setelah dicetak.</span>';
       return;
     }
@@ -50,6 +50,7 @@ const SignaturePad = (() => {
     let activePointer = null;
     let signed = Boolean(normalize(config.value));
     let changed = false;
+    let interacted = false;
 
     function updateStatus() {
       clearButton.disabled = !signed;
@@ -106,6 +107,7 @@ const SignaturePad = (() => {
       event.preventDefault();
       activePointer = event.pointerId;
       changed = true;
+      interacted = true;
       canvas.classList.add('is-drawing');
       canvas.setPointerCapture?.(event.pointerId);
       ctx.beginPath();
@@ -131,6 +133,7 @@ const SignaturePad = (() => {
     clearButton.addEventListener('click', () => {
       activePointer = null;
       changed = false;
+      interacted = true;
       ctx.clearRect(0, 0, WIDTH, HEIGHT);
       signed = false;
       config.onChange('');
@@ -142,11 +145,12 @@ const SignaturePad = (() => {
       const img = new Image();
       img.onload = () => {
         // Hindari goresan baru tertimpa saat gambar lama selesai memuat.
-        if (changed || activePointer !== null || !signed) return;
+        if (interacted || activePointer !== null || !signed) return;
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
         ctx.drawImage(img, 0, 0, WIDTH, HEIGHT);
       };
       img.onerror = () => {
+        if (interacted) return;
         signed = false;
         updateStatus();
       };
