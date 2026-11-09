@@ -674,7 +674,9 @@ const FormRenderer = (() => {
     const section = document.getElementById('section-murid');
     if (!section) return;
     const isFormat = State.getFormData(templateId)?.header?.modePengisian === 'format';
-    section.querySelectorAll('.row-entry__body .form-group').forEach(group => {
+    /** @type {NodeListOf<HTMLElement>} */ (
+      section.querySelectorAll('.row-entry__body .form-group')
+    ).forEach(group => {
       const visible = group.dataset.fieldKey === 'no' || group.dataset.fieldKey === 'namaMurid';
       const hide = isFormat && !visible;
       group.hidden = hide;
