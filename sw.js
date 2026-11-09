@@ -3,7 +3,7 @@
    ============================================================= */
 
 const CACHE_PREFIX = 'generator-surat-platform-';
-const CACHE_NAME = CACHE_PREFIX + 'v12';
+const CACHE_NAME = CACHE_PREFIX + 'v13';
 const APP_SHELL = [
   './',
   './index.html',
@@ -40,6 +40,7 @@ const APP_SHELL = [
   './js/ui.js',
   './js/kop-editor.js',
   './js/excel-import.js',
+  './js/signature-pad.js',
   './js/form-renderer.js',
   './js/table-renderer.js',
   './js/table-config.js',
