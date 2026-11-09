@@ -1,0 +1,215 @@
+/* Modal tanda tangan siswa/orang tua — desktop inline, mobile fullscreen-friendly */
+.signature-pad__mobile-entry { display: none; }
+.signature-pad__tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.signature-pad__tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 7px 12px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background .16s ease, border-color .16s ease;
+}
+.signature-pad__tool:hover:not(:disabled) {
+  background: var(--color-surface-2);
+  border-color: var(--color-primary);
+}
+.signature-pad__tool:disabled { opacity: .45; cursor: not-allowed; }
+.signature-pad__tool:focus-visible,
+.signature-modal button:focus-visible,
+.signature-pad__open:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.signature-pad__tool--danger:not(:disabled) { color: var(--color-danger); }
+.signature-pad__tool > span:first-child { font-size: 20px; line-height: 1; }
+.signature-pad__toolbar { align-items: center; }
+.signature-pad__status { flex: 1 1 auto; text-align: right; }
+.signature-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(12px, env(safe-area-inset-top))
+           max(12px, env(safe-area-inset-right))
+           max(12px, env(safe-area-inset-bottom))
+           max(12px, env(safe-area-inset-left));
+  background: rgba(9, 23, 44, .75);
+  backdrop-filter: blur(6px);
+}
+.signature-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 880px);
+  max-height: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 20px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 30px 90px rgba(0,0,0,.32);
+}
+.signature-modal__header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--color-border);
+}
+.signature-modal__heading { display: flex; align-items: start; gap: 12px; min-width: 0; }
+.signature-modal__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--color-primary-light, var(--color-surface-2));
+  font-size: 24px;
+}
+.signature-modal h2 {
+  margin: 0 0 5px;
+  font-size: clamp(17px, 3.5vw, 21px);
+  line-height: 1.25;
+}
+.signature-modal__heading p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.signature-modal__close {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: 26px;
+  cursor: pointer;
+}
+.signature-modal__content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px 22px;
+}
+.signature-modal__content .signature-pad {
+  max-width: 100%;
+  min-width: 0;
+}
+.signature-modal__content .signature-pad__canvas {
+  width: 100%;
+  aspect-ratio: auto;
+  height: clamp(170px, 32dvh, 300px);
+  border: 2px dashed var(--color-primary);
+  background: #fff;
+}
+.signature-modal__content .signature-pad__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.signature-modal__footer {
+  flex: 0 0 auto;
+  padding: 15px 22px 18px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+.signature-modal__tip {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+.signature-modal__footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.signature-modal__footer-actions .btn { min-height: 44px; }
+.signature-pad__mobile-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 95px;
+  padding: 10px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: 12px;
+  background: var(--color-surface-2);
+}
+.signature-pad__preview-image {
+  display: block;
+  max-width: 100%;
+  max-height: 86px;
+  object-fit: contain;
+}
+.signature-pad__preview-image[hidden],
+.signature-pad__preview-empty[hidden] { display: none !important; }
+.signature-pad__preview-empty { color: var(--color-text-muted); font-size: 13px; }
+.signature-pad__mobile-entry .signature-pad__open {
+  min-height: 44px;
+  width: 100%;
+  margin-top: 10px;
+}
+@media screen and (max-width: 767px) {
+  .form-group > .signature-pad { display: none; }
+  .signature-pad__mobile-entry { display: block; }
+  .signature-modal {
+    width: 100%;
+    border-radius: 18px;
+  }
+  .signature-modal__header { padding: 14px; }
+  .signature-modal__content { padding: 12px 14px; }
+  .signature-modal__footer { padding: 12px 14px max(14px, env(safe-area-inset-bottom)); }
+  .signature-modal__content .signature-pad { display: block; }
+  .signature-modal__content .signature-pad__canvas {
+    height: clamp(180px, 34dvh, 300px);
+    touch-action: none;
+  }
+  .signature-modal__content .signature-pad__tool {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 44px;
+  }
+  .signature-modal__content .signature-pad__tools { flex: 1 1 100%; }
+  .signature-modal__content .signature-pad__status { text-align: left; }
+  .signature-modal__footer-actions .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding-inline: 8px;
+  }
+}
+@media screen and (max-height: 520px) {
+  .signature-modal__header { padding: 9px 12px; }
+  .signature-modal__icon { display: none; }
+  .signature-modal__content { padding: 7px 12px; }
+  .signature-modal__content .signature-pad__canvas { height: clamp(105px, 30dvh, 160px); }
+  .signature-modal__footer { padding: 8px 12px; }
+  .signature-modal__tip { display: none; }
+  .signature-modal__content .signature-pad__help { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .signature-pad__tool { transition: none; }
+}
