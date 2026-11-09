@@ -114,6 +114,12 @@ describe('Application shell integration', () => {
     expect(signature.required).toBe(false);
     expect(izin.createDefaultData().pengirim.tandaTanganDataUrl).toBe('');
     const fields = izin.formSections.find(section => section.id === 'izin').fields;
+    const tanggal = fields.find(field => field.key === 'izin.hariTanggalIzin');
+    const durasi = fields.find(field => field.key === 'izin.durasiIzin');
+    expect(tanggal.type).toBe('date');
+    expect(tanggal.required).toBe(true);
+    expect(durasi.type).toBe('number');
+    expect(durasi).toMatchObject({ min: 1, max: 7, step: 1, integer: true, required: true });
     const alasan = fields.find(field => field.key === 'izin.alasanIzin');
     const detail = fields.find(field => field.key === 'izin.alasanIzinLainnya');
     expect(alasan.type).toBe('select');
@@ -138,8 +144,8 @@ describe('Application shell integration', () => {
     data.murid.namaOrangTuaWali = 'Orang Tua';
     data.murid.namaMurid = 'Siswa';
     data.murid.kelasMurid = 'VII A';
-    data.izin.hariTanggalIzin = 'Senin, 9 November 2026';
-    data.izin.durasiIzin = '1 hari';
+    data.izin.hariTanggalIzin = '2026-11-09';
+    data.izin.durasiIzin = 1;
 
     data.izin.alasanIzin = 'lainnya';
     expect(validation.formTemplate(data, izin).errors.some(error =>
