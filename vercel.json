@@ -81,5 +81,23 @@
     "api/export-pdf.js": {
       "maxDuration": 60
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/editor",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/surat/:slug",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/kategori/:slug",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/DPUdanRegis",
+      "destination": "/index.html"
+    }
+  ]
 }
