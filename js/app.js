@@ -61,9 +61,8 @@ const App = (() => {
     }
 
     /* 4. Init UI components */
+    EditorDrawer.init();
     UI.initTabs();
-    UI.initPanelResizer();
-    UI.initMobilePreviewToggle();
     UI.initHeaderOverflowMenu();
 
     // Beri peringatan saat aplikasi dibuka pada viewport mobile.
