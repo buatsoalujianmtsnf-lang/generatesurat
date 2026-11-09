@@ -41,7 +41,7 @@ const IzinDeclaration = (() => {
       body:
         '<div class="izin-declaration">'
         + '<div class="izin-declaration__intro">'
-        + '<span class="izin-declaration__icon" aria-hidden="true">🛡️</span>'
+        + '<span class="izin-declaration__icon" aria-hidden="true"><span data-tabler-icon="shield-check"></span></span>'
         + '<div><strong>Verifikasi keaslian surat izin</strong><p>Sebelum melanjutkan '
         + Utils.escapeHtml(actionLabel) + ', baca dan setujui pernyataan berikut.</p></div></div>'
         + '<div class="izin-declaration__statement" id="izin-declaration-statement">'
