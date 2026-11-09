@@ -46,7 +46,8 @@ const Routes = (() => {
   }
 
   function rewriteLocalLinks() {
-    if (!isLocal() || typeof document === 'undefined') return;
+    if (!isLocal() || typeof document === 'undefined'
+        || typeof document.querySelectorAll !== 'function') return;
     // CTA/navbar dirender statis dalam HTML; kartu landing menggunakan href()
     // ketika dibuat dari registry.
     document.querySelectorAll('a[href^="/"]').forEach(link => {
