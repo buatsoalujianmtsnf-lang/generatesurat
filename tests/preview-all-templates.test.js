@@ -196,6 +196,20 @@ describe('GS-005: pagination integration across all runtime templates', () => {
     });
   }
 
+  it('renders surat izin without KOP or KOP dividers while retaining the letter body', async () => {
+    const h = createPreviewHarness([120]);
+    const template = h.registry.get('surat-izin');
+    h.state.currentId = template.TEMPLATE_ID;
+    h.state.currentData = template.createDefaultData();
+    h.renderer.render(template, h.state.currentData, {});
+    expect(h.preview.innerHTML).toContain('SURAT PERMOHONAN IZIN TIDAK MASUK SEKOLAH');
+    expect(h.preview.innerHTML).toContain('Orang Tua/Wali Murid');
+    expect(h.preview.innerHTML).not.toContain('class="doc-kop"');
+    expect(h.preview.innerHTML).not.toContain('doc-kop-divider');
+    await h.renderer.waitForReady(30);
+    expect(h.preview.dataset.pageCount).toBe('1');
+  });
+
   it('keeps short content on one physical page without introducing a blank page', async () => {
     const h = createPreviewHarness([120]);
     const template = h.registry.get('surat-izin');

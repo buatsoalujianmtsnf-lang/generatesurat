@@ -100,6 +100,7 @@ describe('Application shell integration', () => {
     expect(rekap.formSections.length).toBeGreaterThan(0);
 
     expect(izin.meta.orientation).toBe('portrait');
+    expect(izin.meta.usesKop).toBe(false);
     expect(izin.createDefaultData().murid).toBeDefined();
     expect(izin.createDefaultData().izin).toBeDefined();
     expect(izin.createDefaultData().pengirim).toBeDefined();

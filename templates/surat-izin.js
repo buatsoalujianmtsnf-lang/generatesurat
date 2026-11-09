@@ -21,6 +21,7 @@ const TemplateSuratIzin = (() => {
     orientation: 'portrait',
     paperSize: 'a4',
     category: 'izin',
+    usesKop: false, // Surat pribadi orang tua/wali, tanpa KOP madrasah
   };
 
   /* ── Default form data ── */

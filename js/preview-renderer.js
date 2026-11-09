@@ -182,7 +182,7 @@ const PreviewRenderer = (() => {
     if (id === 'ijop-rekomendasi-kankemenag') return _renderIjopRekomendasiKankemenag(formData, kop, margin, typo);
     if (id === 'ijop-sptjm-kankemenag')       return _renderIjopSptjmKankemenag(formData, kop, margin, typo);
     if (id === 'rekap-nilai')                 return _renderRekapNilai(formData, kop, margin, typo);
-    if (id === 'surat-izin')                  return _renderSuratIzin(formData, kop, margin, typo);
+    if (id === 'surat-izin')                  return _renderSuratIzin(formData, margin, typo);
     return '<div style="padding:20px;color:#666;">Template tidak dikenali.</div>';
   }
 
@@ -2210,7 +2210,7 @@ const PreviewRenderer = (() => {
   /* ────────────────────────────────────────────────
      RENDERER: SURAT IZIN TIDAK MASUK
   ──────────────────────────────────────────────── */
-  function _renderSuratIzin(data, kop, margin, typo) {
+  function _renderSuratIzin(data, margin, typo) {
     const sk = data?.sekolah  && typeof data.sekolah  === 'object' ? data.sekolah  : {};
     const mu = data?.murid    && typeof data.murid    === 'object' ? data.murid    : {};
     const iz = data?.izin     && typeof data.izin     === 'object' ? data.izin     : {};
@@ -2223,8 +2223,6 @@ const PreviewRenderer = (() => {
       `font-family:'${t.fontFamily}',serif;` +
       `font-size:${t.fontSize}pt;` +
       `line-height:${t.lineHeight};`;
-
-    const kopHtml = _buildKopHtml(kop);
 
     /* Tanggal surat dalam format panjang */
     const tanggalSurat = pg.tanggalKeluarSurat
@@ -2242,12 +2240,9 @@ const PreviewRenderer = (() => {
 
     return `
       <div class="doc-content doc-content--surat-izin" style="${marginStyle}">
-        ${kopHtml}
-        <hr class="doc-kop-divider" />
-        <hr class="doc-kop-divider-thin" />
-
+        <!-- Surat pribadi orang tua/wali tanpa KOP dan garis pemisah -->
         <!-- Judul -->
-        <div style="text-align:center;margin:16pt 0 20pt 0;">
+        <div style="text-align:center;margin:0 0 20pt 0;">
           <p style="margin:0;font-weight:bold;font-size:inherit;text-decoration:underline;">
             SURAT PERMOHONAN IZIN TIDAK MASUK SEKOLAH
           </p>
