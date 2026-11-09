@@ -80,6 +80,8 @@ const FormRenderer = (() => {
       State.initFormData(templateId, tpl.createDefaultData());
     }
 
+    // Pastikan modal penyuntingan sementara ditutup sebelum form dirender ulang.
+    if (typeof SignaturePad !== 'undefined') SignaturePad.closeActive?.();
     _containerEl.innerHTML = '';
 
     let formData = State.getFormData(templateId);
@@ -121,6 +123,7 @@ const FormRenderer = (() => {
   /* ── Tampilkan empty state ── */
   function _showEmpty() {
     if (!_containerEl) return;
+    if (typeof SignaturePad !== 'undefined') SignaturePad.closeActive?.();
     _containerEl.innerHTML = `
       <div class="form-empty-state">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">

@@ -45,14 +45,14 @@ function createPad(value = '', oldInk = false) {
   };
   runInNewContext(source, context);
   const pad = runInNewContext('SignaturePad', context);
-  pad.mount(group, {
+  const controller = pad.mount(group, {
     id: 'field-pengirim-tandaTanganDataUrl',
     label: 'Tanda Tangan Orang Tua/Wali',
     hint: 'Gunakan jari atau mouse',
     value,
     onChange: changes,
   });
-  return { group, canvas, button, status, changes, pad, context2d, canvasHandlers, buttonHandlers, images };
+  return { group, canvas, button, status, changes, pad, controller, context2d, canvasHandlers, buttonHandlers, images };
 }
 
 describe('Canvas tanda tangan pada Surat Izin', () => {
@@ -119,6 +119,59 @@ describe('Canvas tanda tangan pada Surat Izin', () => {
     h.images[0].onload();
     expect(h.context2d.drawImage).not.toHaveBeenCalled();
     expect(h.changes).toHaveBeenCalledTimes(before);
+  });
+
+  it('undo dan redo bekerja berdasarkan riwayat goresan tanpa kehilangan PNG', () => {
+    const h = createPad();
+    expect(h.controller).toBeDefined();
+    h.canvasHandlers.pointerdown({
+      pointerId: 1, pointerType: 'touch', clientX: 30, clientY: 40,
+      preventDefault: vi.fn(),
+    });
+    h.canvasHandlers.pointerup({
+      pointerId: 1, pointerType: 'touch', clientX: 45, clientY: 48,
+    });
+    const signature = 'data:image/png;base64,iVBORw0KGgo=';
+    expect(h.changes).toHaveBeenLastCalledWith(signature);
+    h.controller.undo();
+    expect(h.changes).toHaveBeenLastCalledWith('');
+    h.controller.redo();
+    expect(h.changes).toHaveBeenLastCalledWith(signature);
+  });
+
+  it('hapus seluruh tanda tangan dapat di-undo dan redo', () => {
+    const h = createPad();
+    h.canvasHandlers.pointerdown({
+      pointerId: 5, pointerType: 'mouse', button: 0,
+      clientX: 50, clientY: 45, preventDefault: vi.fn(),
+    });
+    h.canvasHandlers.pointerup({ pointerId: 5, pointerType: 'mouse', clientX: 60, clientY: 45 });
+    h.controller.clear();
+    expect(h.changes).toHaveBeenLastCalledWith('');
+    h.controller.undo();
+    expect(h.changes).toHaveBeenLastCalledWith('data:image/png;base64,iVBORw0KGgo=');
+    h.controller.redo();
+    expect(h.changes).toHaveBeenLastCalledWith('');
+  });
+
+  it('kontrol modal, tooltip dan aturan commit disediakan untuk perangkat mobile', () => {
+    const source = readFileSync(new URL('../js/signature-pad.js', import.meta.url), 'utf8');
+    expect(source).toContain('signature-pad__open');
+    expect(source).toContain('aria-haspopup="dialog"');
+    expect(source).toContain('aria-modal="true"');
+    expect(source).toContain('signature-modal__save');
+    expect(source).toContain('signature-modal__cancel');
+    expect(source).toContain('data-tooltip="Undo"');
+    expect(source).toContain('data-tooltip="Redo"');
+    expect(source).toContain('data-tooltip="Hapus"');
+    expect(source).toContain('if (!modalOpen) setCommitted(snapshot())');
+    expect(source).toContain("closeModal(false)");
+    const css = readFileSync(new URL('../css/signature-modal.css', import.meta.url), 'utf8');
+    expect(css).toContain('.signature-pad__mobile-entry { display: block; }');
+    expect(css).toContain('touch-action: none;');
+    expect(css).toContain('.signature-modal-overlay');
+    expect(css).toContain('max-height: 100%;');
+    expect(css).toContain('env(safe-area-inset-bottom)');
   });
 
   it('menolak data URL lain yang tidak aman/terlalu besar', () => {
