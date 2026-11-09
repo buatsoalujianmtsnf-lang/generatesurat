@@ -108,6 +108,18 @@ describe('Application shell integration', () => {
       'sekolah', 'murid', 'izin', 'pengirim',
     ]);
     expect(izin.tableColumns).toHaveLength(0);
+    const fields = izin.formSections.find(section => section.id === 'izin').fields;
+    const alasan = fields.find(field => field.key === 'izin.alasanIzin');
+    const detail = fields.find(field => field.key === 'izin.alasanIzinLainnya');
+    expect(alasan.type).toBe('select');
+    expect(alasan.required).toBe(true);
+    expect(alasan.options.map(option => option.label)).toEqual([
+      'Pilih alasan izin...', 'Sakit', 'Mengikuti orang tua', 'Urusan keluarga',
+      'Acara keluarga', 'Berobat', 'Musibah keluarga', 'Keperluan lainnya',
+    ]);
+    expect(detail.required).toBe(true);
+    expect(detail.showIf({ izin: { alasanIzin: 'lainnya' } })).toBe(true);
+    expect(detail.showIf({ izin: { alasanIzin: 'sakit' } })).toBe(false);
   });
 
   it('keeps install and update controls hidden until browser support is available', () => {
