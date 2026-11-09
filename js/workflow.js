@@ -60,11 +60,11 @@ const Workflow = (() => {
         <div class="workflow-actions__status" id="workflow-status" aria-live="polite">Pilih template surat untuk memulai.</div>
       </div>
       <div class="workflow-actions__buttons">
-        <button type="button" class="btn btn--secondary btn--sm workflow-actions__back" id="workflow-back">
+        <button type="button" class="btn btn--secondary btn--sm workflow-actions__back btn-outline btn-sm" id="workflow-back">
           <span aria-hidden="true">←</span>
           <span>Kembali</span>
         </button>
-        <button type="button" class="btn btn--primary btn--sm workflow-actions__next" id="workflow-next">
+        <button type="button" class="btn btn--primary btn--sm workflow-actions__next btn-primary btn-sm" id="workflow-next">
           <span id="workflow-next-label">Lanjut</span>
           <span aria-hidden="true">→</span>
         </button>

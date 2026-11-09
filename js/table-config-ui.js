@@ -159,7 +159,7 @@ const TableConfigUI = (() => {
     const hasMultiple = tableDefs.length > 1;
     const resetAllBtn = hasMultiple ? `
       <button type="button"
-        class="btn btn--sm btn--danger-outline tbl-cfg__reset-all"
+        class="btn btn--sm btn--danger-outline tbl-cfg__reset-all btn-sm btn-error btn-outline"
         data-action="reset-all"
         title="Reset semua pengaturan tabel ke default template">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" aria-hidden="true"><path d="M3.51 15a9 9 0 1 0 .49-4.95"/><polyline points="1,4 1,10 7,10"/></svg>
@@ -207,7 +207,7 @@ const TableConfigUI = (() => {
 
     const resetBtn = `
       <button type="button"
-        class="btn btn--sm btn--ghost tbl-cfg__reset-table"
+        class="btn btn--sm btn--ghost tbl-cfg__reset-table btn-sm btn-ghost"
         data-action="reset-table"
         data-table-id="${_esc(tableId)}"
         title="Reset pengaturan tabel ini ke default template">
@@ -264,19 +264,19 @@ const TableConfigUI = (() => {
         '<div class="tbl-cfg__color-row" data-table-id="' + _esc(tableId) + '" data-color-section="header">' +
           '<div class="tbl-cfg__color-label-wrap"><span class="tbl-cfg__color-preview" style="background:' + headerColor + ';"></span><div><span class="tbl-cfg__color-label">Header Tabel</span><span class="tbl-cfg__color-description">Warna latar seluruh header</span></div></div>' +
           '<div class="tbl-cfg__color-input-wrap"><input type="color" class="tbl-cfg__color-picker" data-action="table-color" data-template-id="' + _esc(templateId) + '" data-table-id="' + _esc(tableId) + '" data-color-section="header" value="' + headerColor + '" aria-label="Header Tabel"/>' +
-            '<input type="text" class="form-input tbl-cfg__color-hex" data-action="table-color-hex" data-template-id="' + _esc(templateId) + '" data-table-id="' + _esc(tableId) + '" data-color-section="header" value="' + headerColor + '" maxlength="7" spellcheck="false" aria-label="Kode warna Header Tabel" placeholder="#FFFFFF"/></div>' +
+            '<input type="text" class="form-input tbl-cfg__color-hex input" data-action="table-color-hex" data-template-id="' + _esc(templateId) + '" data-table-id="' + _esc(tableId) + '" data-color-section="header" value="' + headerColor + '" maxlength="7" spellcheck="false" aria-label="Kode warna Header Tabel" placeholder="#FFFFFF"/></div>' +
         '</div>' +
         '<div class="tbl-cfg__color-presets tbl-cfg__color-presets--header"><span class="tbl-cfg__color-presets-label">Pilihan cepat Header</span><div class="tbl-cfg__color-preset-list">' + presets + '</div></div>' +
         '<div class="tbl-cfg__color-row" data-table-id="' + _esc(tableId) + '" data-color-section="body">' +
           '<div class="tbl-cfg__color-label-wrap"><span class="tbl-cfg__color-preview" style="background:' + bodyColor + ';"></span><div><span class="tbl-cfg__color-label">Isi Tabel</span><span class="tbl-cfg__color-description">Warna dasar sebelum aturan khusus</span></div></div>' +
           '<div class="tbl-cfg__color-input-wrap"><input type="color" class="tbl-cfg__color-picker" data-action="table-color" data-template-id="' + _esc(templateId) + '" data-table-id="' + _esc(tableId) + '" data-color-section="body" value="' + bodyColor + '" aria-label="Isi Tabel"/>' +
-            '<input type="text" class="form-input tbl-cfg__color-hex" data-action="table-color-hex" data-template-id="' + _esc(templateId) + '" data-table-id="' + _esc(tableId) + '" data-color-section="body" value="' + bodyColor + '" maxlength="7" spellcheck="false" aria-label="Kode warna Isi Tabel" placeholder="#FFFFFF"/></div>' +
+            '<input type="text" class="form-input tbl-cfg__color-hex input" data-action="table-color-hex" data-template-id="' + _esc(templateId) + '" data-table-id="' + _esc(tableId) + '" data-color-section="body" value="' + bodyColor + '" maxlength="7" spellcheck="false" aria-label="Kode warna Isi Tabel" placeholder="#FFFFFF"/></div>' +
         '</div>' +
         '<div class="tbl-cfg__body-rule-editor">' +
           '<div class="tbl-cfg__body-rule-editor-head"><div><span class="tbl-cfg__body-rule-title">Pewarnaan Isi Tabel</span><span class="tbl-cfg__body-rule-description">Tambahkan satu atau beberapa aturan. Aturan terakhir yang ditambahkan menjadi prioritas.</span></div></div>' +
           '<div class="tbl-cfg__body-rule-form">' +
             '<div class="tbl-cfg__body-rule-field"><label class="tbl-cfg__control-label" for="body-rule-preset-' + _esc(tableId) + '">Preset Pewarnaan</label>' +
-              '<select id="body-rule-preset-' + _esc(tableId) + '" class="form-select" data-action="body-rule-preset" data-table-id="' + _esc(tableId) + '">' +
+              '<select id="body-rule-preset-' + _esc(tableId) + '" class="form-select select" data-action="body-rule-preset" data-table-id="' + _esc(tableId) + '">' +
                 '<option value="manual">Pilih manual</option><option value="all-body">Semua Isi Tabel</option>' +
                 '<option value="odd-row">Warna Setiap Baris Ganjil</option><option value="even-row">Warna Setiap Baris Genap</option>' +
                 '<option value="odd-column">Warna Setiap Kolom Ganjil</option><option value="even-column">Warna Setiap Kolom Genap</option>' +
@@ -285,23 +285,23 @@ const TableConfigUI = (() => {
               '</select></div>' +
             '<div class="tbl-cfg__body-rule-grid">' +
               '<div class="tbl-cfg__body-rule-field"><label class="tbl-cfg__control-label" for="body-rule-rows-' + _esc(tableId) + '">Baris</label>' +
-                '<input type="text" class="form-input" id="body-rule-rows-' + _esc(tableId) + '" data-action="body-rule-rows" data-table-id="' + _esc(tableId) + '" placeholder="1, 3, 5-7" autocomplete="off"/>' +
+                '<input type="text" class="form-input input" id="body-rule-rows-' + _esc(tableId) + '" data-action="body-rule-rows" data-table-id="' + _esc(tableId) + '" placeholder="1, 3, 5-7" autocomplete="off"/>' +
                 '<small>Contoh rentang: 1, 3, 5-7.</small></div>' +
               '<div class="tbl-cfg__body-rule-field"><label class="tbl-cfg__control-label" for="body-rule-cols-' + _esc(tableId) + '">Kolom</label>' +
-                '<input type="text" class="form-input" id="body-rule-cols-' + _esc(tableId) + '" data-action="body-rule-cols" data-table-id="' + _esc(tableId) + '" placeholder="1, 3, 5-7" autocomplete="off"/>' +
+                '<input type="text" class="form-input input" id="body-rule-cols-' + _esc(tableId) + '" data-action="body-rule-cols" data-table-id="' + _esc(tableId) + '" placeholder="1, 3, 5-7" autocomplete="off"/>' +
                 '<small>Nomor kolom dari kiri ke kanan.</small></div>' +
             '</div>' +
             '<div class="tbl-cfg__body-rule-field"><label class="tbl-cfg__control-label">Warna Aturan</label>' +
               '<div class="tbl-cfg__rule-color-wrap"><input type="color" class="tbl-cfg__color-picker" data-action="body-rule-color" data-table-id="' + _esc(tableId) + '" value="' + bodyColor + '" aria-label="Warna aturan"/>' +
-                '<input type="text" class="form-input tbl-cfg__color-hex" data-action="body-rule-color-hex" data-table-id="' + _esc(tableId) + '" value="' + bodyColor + '" maxlength="7" spellcheck="false" placeholder="#FFFFFF" aria-label="Kode warna aturan"/>' +
+                '<input type="text" class="form-input tbl-cfg__color-hex input" data-action="body-rule-color-hex" data-table-id="' + _esc(tableId) + '" value="' + bodyColor + '" maxlength="7" spellcheck="false" placeholder="#FFFFFF" aria-label="Kode warna aturan"/>' +
                 '<div class="tbl-cfg__color-preset-list">' + presets + '</div></div></div>' +
-            '<div class="tbl-cfg__body-rule-actions"><button type="button" class="btn btn--sm btn--primary" data-action="add-body-color-rule" data-table-id="' + _esc(tableId) + '">＋ Tambahkan Aturan</button>' +
-              '<button type="button" class="btn btn--sm btn--ghost" data-action="clear-body-color-rules" data-table-id="' + _esc(tableId) + '">Hapus Semua Aturan</button></div>' +
+            '<div class="tbl-cfg__body-rule-actions"><button type="button" class="btn btn--sm btn--primary btn-sm btn-primary" data-action="add-body-color-rule" data-table-id="' + _esc(tableId) + '">＋ Tambahkan Aturan</button>' +
+              '<button type="button" class="btn btn--sm btn--ghost btn-sm btn-ghost" data-action="clear-body-color-rules" data-table-id="' + _esc(tableId) + '">Hapus Semua Aturan</button></div>' +
           '</div>' +
           '<div class="tbl-cfg__body-rules" data-table-id="' + _esc(tableId) + '">' + _buildBodyColorRulesHtml(rules, tableId) + '</div>' +
         '</div>' +
         '<div class="tbl-cfg__color-reset-row"><span>Reset semua warna tabel dan aturan Isi</span>' +
-          '<button type="button" class="btn btn--sm btn--ghost" data-action="reset-table-colors" data-table-id="' + _esc(tableId) + '">Reset Warna</button></div>' +
+          '<button type="button" class="btn btn--sm btn--ghost btn-sm btn-ghost" data-action="reset-table-colors" data-table-id="' + _esc(tableId) + '">Reset Warna</button></div>' +
       '</div>' +
     '</div>';
   }
@@ -314,7 +314,7 @@ const TableConfigUI = (() => {
       return '<div class="tbl-cfg__body-rule-card">' +
         '<span class="tbl-cfg__body-rule-swatch" style="background:' + _esc(rule.color || '#FFFFFF') + '"></span>' +
         '<div class="tbl-cfg__body-rule-card-copy"><strong>' + _esc(_describeBodyColorRule(rule)) + '</strong><small>Aturan #' + (index + 1) + '</small></div>' +
-        '<button type="button" class="btn-icon" data-action="remove-body-color-rule" data-table-id="' + _esc(tableId) + '" data-rule-index="' + index + '" title="Hapus aturan" aria-label="Hapus aturan #' + (index + 1) + '">×</button>' +
+        '<button type="button" class="btn-icon btn btn-square btn-ghost btn-sm" data-action="remove-body-color-rule" data-table-id="' + _esc(tableId) + '" data-rule-index="' + index + '" title="Hapus aturan" aria-label="Hapus aturan #' + (index + 1) + '">×</button>' +
       '</div>';
     }).join('');
   }
@@ -345,7 +345,7 @@ const TableConfigUI = (() => {
     // Reset lebar kolom button
     const resetWidthBtn = `
       <button type="button"
-        class="btn btn--sm btn--ghost tbl-cfg__width-reset-btn"
+        class="btn btn--sm btn--ghost tbl-cfg__width-reset-btn btn-sm btn-ghost"
         data-action="reset-col-widths"
         data-table-id="${_esc(tableId)}"
         title="Reset semua lebar kolom ke Auto">
@@ -381,13 +381,13 @@ const TableConfigUI = (() => {
               <span class="tbl-cfg__width-hint">Lebar berlaku pada Header &amp; Isi tabel.</span>
               <div class="tbl-cfg__width-bulk-actions" role="group" aria-label="Mode lebar semua kolom">
                 <button type="button"
-                  class="btn btn--sm btn--secondary"
+                  class="btn btn--sm btn--secondary btn-sm btn-outline"
                   data-action="bulk-width-mode"
                   data-table-id="${_esc(tableId)}"
                   data-value="${TableConfigManager.WIDTH_MODE_AUTO}"
                   title="Ubah semua kolom menjadi Auto">Semua Auto</button>
                 <button type="button"
-                  class="btn btn--sm btn--primary"
+                  class="btn btn--sm btn--primary btn-sm btn-primary"
                   data-action="bulk-width-mode"
                   data-table-id="${_esc(tableId)}"
                   data-value="${TableConfigManager.WIDTH_MODE_CUSTOM}"
@@ -442,7 +442,7 @@ const TableConfigUI = (() => {
           <div class="tbl-cfg__width-input-wrap${!isCustom ? ' is-disabled' : ''}">
             <input
               type="number"
-              class="form-input tbl-cfg__width-input"
+              class="form-input tbl-cfg__width-input input"
               data-action="col-width-value"
               ${dataBase}
               data-unit="${_esc(curUnit)}"
@@ -487,7 +487,7 @@ const TableConfigUI = (() => {
     const copyBar = section === 'body' ? `
       <div class="tbl-cfg__copy-bar">
         <button type="button"
-          class="btn btn--sm btn--ghost tbl-cfg__copy-btn"
+          class="btn btn--sm btn--ghost tbl-cfg__copy-btn btn-sm btn-ghost"
           data-action="copy-header-to-body"
           data-table-id="${_esc(tableId)}"
           title="Salin pengaturan Header ke Isi Tabel (bold akan di-off)">
@@ -577,7 +577,7 @@ const TableConfigUI = (() => {
                 for="v-align-${_esc(tableId)}-${section}-${colIdx}">Vertikal</label>
               <select
                 id="v-align-${_esc(tableId)}-${section}-${colIdx}"
-                class="form-select tbl-cfg__v-align-select"
+                class="form-select tbl-cfg__v-align-select select"
                 data-action="v-align"
                 ${dataAttrs}
                 aria-label="Vertical alignment untuk ${_esc(colLabel)}"
@@ -610,7 +610,7 @@ const TableConfigUI = (() => {
               <div class="tbl-cfg__fs-wrap">
                 <input type="number"
                   id="fs-${_esc(tableId)}-${section}-${colIdx}"
-                  class="form-input tbl-cfg__fs-input"
+                  class="form-input tbl-cfg__fs-input input"
                   data-action="font-size"
                   ${dataAttrs}
                   value="${fontSize}"

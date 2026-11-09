@@ -91,6 +91,9 @@ describe('PWA Service Worker', () => {
     expect(new Set(shell).size).toBe(shell.length);
     expect(required.length).toBeGreaterThan(40);
     for (const path of required) {
+      // CSS daisyUI dari CDN adalah enhancement opsional. File CSS aplikasi
+      // tetap di-cache agar editor dan dokumen tetap bisa dipakai offline.
+      if (/^https?:\/\//i.test(path)) continue;
       expect(shell, 'Required offline asset missing from app shell: ' + path).toContain('./' + path);
     }
     expect(shell).toContain('./templates/rekap-nilai.js');

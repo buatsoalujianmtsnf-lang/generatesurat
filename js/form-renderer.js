@@ -126,13 +126,13 @@ const FormRenderer = (() => {
     if (!_containerEl) return;
     if (typeof SignaturePad !== 'undefined') SignaturePad.closeActive?.();
     _containerEl.innerHTML = `
-      <div class="form-empty-state">
+      <div class="form-empty-state card">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
           <polyline points="14,2 14,8 20,8"/>
         </svg>
         <p>Pilih template surat terlebih dahulu.</p>
-        <button class="btn btn--sm btn--secondary" type="button"
+        <button class="btn btn--sm btn--secondary btn-sm btn-outline" type="button"
           data-action="select-template">
           Pilih Template
         </button>
@@ -150,15 +150,15 @@ const FormRenderer = (() => {
   /* ── Build satu section ── */
   function _buildSection(section, formData, templateId) {
     const wrap = document.createElement('div');
-    wrap.className = 'form-section';
+    wrap.className = 'form-section card';
     wrap.id = `section-${section.id}`;
 
     const isRepeatable = section.type === 'repeatable';
 
     wrap.innerHTML = `
-      <div class="form-section__header" role="button" tabindex="0"
+      <div class="form-section__header collapse-title" role="button" tabindex="0"
         aria-expanded="true" data-section="${section.id}">
-        <span class="form-section__title">
+        <span class="form-section__title card-title">
           <span>${Utils.escapeHtml(section.icon || '')} ${Utils.escapeHtml(section.title)}</span>
         </span>
         <svg class="form-section__toggle" viewBox="0 0 24 24" fill="none"
@@ -166,7 +166,7 @@ const FormRenderer = (() => {
           <polyline points="6 9 12 15 18 9"/>
         </svg>
       </div>
-      <div class="form-section__body" id="section-body-${section.id}"></div>`;
+      <div class="form-section__body card-body" id="section-body-${section.id}"></div>`;
 
     const header  = wrap.querySelector('.form-section__header');
     const body    = wrap.querySelector('.form-section__body');
@@ -234,7 +234,7 @@ const FormRenderer = (() => {
     // Tombol tambah
     const addBtn = document.createElement('button');
     addBtn.type = 'button';
-    addBtn.className = 'add-row-btn';
+    addBtn.className = 'add-row-btn btn btn-outline';
     addBtn.innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/>
@@ -279,17 +279,17 @@ const FormRenderer = (() => {
   /* ── Build satu entry repeatable ── */
   function _buildRepeatableEntry(section, item, idx, templateId, listEl) {
     const entry = document.createElement('div');
-    entry.className = 'row-entry';
+    entry.className = 'row-entry card';
     entry.dataset.itemId = item.id;
 
     const labelText = _getItemLabel(section, item, idx);
 
     entry.innerHTML = `
-      <div class="row-entry__header" role="button" tabindex="0" aria-expanded="true">
+      <div class="row-entry__header collapse-title" role="button" tabindex="0" aria-expanded="true">
         <span class="row-entry__num">${idx + 1}</span>
         <span class="row-entry__label">${Utils.escapeHtml(labelText)}</span>
         <div class="row-entry__actions">
-          <button type="button" class="btn-icon entry-delete-btn" title="Hapus" aria-label="Hapus">
+          <button type="button" class="btn-icon entry-delete-btn btn btn-square btn-ghost btn-sm" title="Hapus" aria-label="Hapus">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="3 6 5 6 21 6"/>
               <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
@@ -387,7 +387,7 @@ const FormRenderer = (() => {
     switch (fieldDef.type) {
       case 'text':
         group.innerHTML = labelHtml + `
-          <input type="text" class="form-input"
+          <input type="text" class="form-input input"
             id="${fieldDomId}"
             value="${Utils.escapeHtml(String(value ?? ''))}"
             placeholder="${Utils.escapeHtml(fieldDef.placeholder || '')}"
@@ -399,7 +399,7 @@ const FormRenderer = (() => {
 
       case 'number':
         group.innerHTML = labelHtml + `
-          <input type="number" class="form-input"
+          <input type="number" class="form-input input"
             id="${fieldDomId}"
             value="${Utils.escapeHtml(String(value ?? ''))}"
             min="${fieldDef.min ?? 0}"
@@ -413,7 +413,7 @@ const FormRenderer = (() => {
 
       case 'date':
         group.innerHTML = labelHtml + `
-          <input type="date" class="form-input"
+          <input type="date" class="form-input input"
             id="${fieldDomId}"
             value="${Utils.escapeHtml(String(value ?? ''))}"
             ${fieldDef.required ? 'required' : ''} />`;
@@ -428,7 +428,7 @@ const FormRenderer = (() => {
           return `<option value="${Utils.escapeHtml(opt.value)}" ${value === opt.value ? 'selected' : ''}>${Utils.escapeHtml(opt.label)}</option>`;
         }).join('');
         group.innerHTML = labelHtml + `
-          <select class="form-select" id="${fieldDomId}"
+          <select class="form-select select" id="${fieldDomId}"
             ${fieldDef.required ? 'required' : ''}
             ${fieldDef.inputAlign ? `style="text-align:${Utils.escapeHtml(fieldDef.inputAlign)};"` : ''}>${opts}</select>`;
         const select = group.querySelector('select');
@@ -464,7 +464,7 @@ const FormRenderer = (() => {
 
       case 'textarea':
         group.innerHTML = labelHtml + `
-          <textarea class="form-textarea"
+          <textarea class="form-textarea textarea"
             id="${fieldDomId}"
             placeholder="${Utils.escapeHtml(fieldDef.placeholder || '')}"
             rows="${fieldDef.rows || 3}"
@@ -476,7 +476,7 @@ const FormRenderer = (() => {
         const checked = value === true || value === 'true';
         group.innerHTML = `
           <label class="form-label">${Utils.escapeHtml(fieldDef.label)}</label>
-          <label class="form-check">
+          <label class="form-check checkbox">
             <input type="checkbox" id="${fieldDomId}"
               ${checked ? 'checked' : ''} />
             <span>${checked ? (fieldDef.labelTrue || 'Ya') : (fieldDef.labelFalse || 'Tidak')}</span>

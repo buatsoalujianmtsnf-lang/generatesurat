@@ -11,7 +11,16 @@ const Landing = (() => {
 
   function element(tag, className, value) {
     const node = document.createElement(tag);
-    if (className) node.className = className;
+    if (className) {
+      // Card/badge resmi daisyUI pada daftar template yang dibuat secara dinamis.
+      const variants = {
+        'lp-group': 'card', 'lp-template': 'card',
+        'lp-group__count': 'badge badge-ghost',
+        'lp-group__link': 'link link-primary',
+        'lp-search-empty': 'alert alert-info',
+      };
+      node.className = [className, variants[className] || ''].filter(Boolean).join(' ');
+    }
     if (value !== undefined) node.textContent = value;
     return node;
   }

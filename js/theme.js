@@ -41,6 +41,10 @@ const Theme = (() => {
   /* ── Terapkan tema ke <html> ── */
   function _apply(theme) {
     const html = document.documentElement;
+    // daisyUI theme mengikuti pilihan terang/gelap/otomatis yang sudah tersedia.
+    const isDarkTheme = theme === 'dark'
+      || (theme === 'auto' && window.matchMedia?.('(prefers-color-scheme: dark)').matches === true);
+    html.dataset.theme = isDarkTheme ? 'dark' : 'light';
 
     // Hapus semua class tema sebelumnya
     html.classList.remove('light-mode', 'dark-mode');

@@ -3,7 +3,7 @@
    ============================================================= */
 
 const CACHE_PREFIX = 'generator-surat-platform-';
-const CACHE_NAME = CACHE_PREFIX + 'v31';
+const CACHE_NAME = CACHE_PREFIX + 'v32';
 const APP_SHELL = [
   './',
   './index.html',
@@ -22,6 +22,7 @@ const APP_SHELL = [
   './css/header-scroll.css',
   './css/signature-modal.css',
   './css/izin-declaration.css',
+  './css/daisyui-adapter.css',
   './css/platform.css',
   './css/document-viewer.css',
   './css/print.css',

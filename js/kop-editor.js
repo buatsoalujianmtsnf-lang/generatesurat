@@ -190,7 +190,7 @@ const KopEditor = (() => {
         <div class="kop-logo-editor" id="logo-left-editor">
           <div class="kop-logo-editor__label">
             Logo Kiri
-            <span class="kop-logo-editor__badge badge badge--danger">Wajib</span>
+            <span class="kop-logo-editor__badge badge badge--danger badge-error">Wajib</span>
           </div>
           ${_buildLogoUploadHtml('left', kop.logoLeft)}
         </div>
@@ -199,7 +199,7 @@ const KopEditor = (() => {
         <div class="kop-logo-editor kop-logo-right-content${kop.logoRight && kop.logoRight.enabled ? ' enabled' : ''}" id="logo-right-editor">
           <div class="kop-logo-editor__label">
             Logo Kanan
-            <span class="kop-logo-editor__badge badge badge--neutral">Opsional</span>
+            <span class="kop-logo-editor__badge badge badge--neutral badge-neutral">Opsional</span>
           </div>
           ${_buildLogoUploadHtml('right', kop.logoRight || {})}
         </div>
@@ -241,8 +241,8 @@ const KopEditor = (() => {
             alt="Logo ${side}" style="max-height:60px;" />
         </div>
         <div class="kop-logo-actions">
-          <button class="btn btn--sm btn--secondary" id="logo-change-${side}" title="Ganti logo">Ganti</button>
-          <button class="btn btn--sm btn--danger-outline" id="logo-remove-${side}" title="Hapus logo">Hapus</button>
+          <button class="btn btn--sm btn--secondary btn-sm btn-outline" id="logo-change-${side}" title="Ganti logo">Ganti</button>
+          <button class="btn btn--sm btn--danger-outline btn-sm btn-error btn-outline" id="logo-remove-${side}" title="Hapus logo">Hapus</button>
         </div>
         <!-- Ukuran -->
         <div class="kop-logo-size">

@@ -20,6 +20,10 @@
   <script src="js/theme-init.js"></script>
   <script src="js/routes.js"></script>
 
+  <!-- daisyUI 5: CSS-only distribution for this vanilla JS application.
+       Custom CSS below remains the offline fallback and document-print styling. -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5" />
+
   <!-- CSS -->
   <link rel="stylesheet" href="css/main.css" />
   <link rel="stylesheet" href="css/components.css" />
@@ -38,6 +42,7 @@
   <link rel="stylesheet" href="css/header-scroll.css" />
   <link rel="stylesheet" href="css/signature-modal.css" />
   <link rel="stylesheet" href="css/izin-declaration.css" />
+  <link rel="stylesheet" href="css/daisyui-adapter.css" />
 </head>
 <body>
 
@@ -52,7 +57,7 @@
         <nav class="lp__links" aria-label="Navigasi utama">
           <a href="#koleksi">Koleksi Template</a>
           <a href="#keunggulan">Keunggulan</a>
-          <a class="lp__button lp__button--primary" href="/editor">Buka Editor <span aria-hidden="true">↗</span></a>
+          <a class="lp__button lp__button--primary btn btn-primary" href="/editor">Buka Editor <span aria-hidden="true">↗</span></a>
         </nav>
       </div>
     </header>
@@ -60,12 +65,12 @@
     <section class="lp__hero" aria-labelledby="lp-hero-title">
       <div class="lp__container lp__hero-grid">
         <div>
-          <span class="lp__eyebrow"><span class="lp__eyebrow-dot"></span> Solusi dokumen madrasah</span>
+          <span class="lp__eyebrow badge badge-primary badge-soft"><span class="lp__eyebrow-dot"></span> Solusi dokumen madrasah</span>
           <h1 id="lp-hero-title">Surat madrasah, <em>lebih mudah dibuat.</em></h1>
           <p>Pilih template, lengkapi data, lihat hasilnya secara langsung, lalu cetak atau simpan sebagai PDF. Semua dalam satu tempat yang praktis dan rapi.</p>
           <div class="lp__hero-actions">
-            <a class="lp__button lp__button--primary" href="/editor">Mulai Buat Surat <span aria-hidden="true">→</span></a>
-            <a class="lp__button lp__button--secondary" href="#koleksi">Jelajahi Template</a>
+            <a class="lp__button lp__button--primary btn btn-primary" href="/editor">Mulai Buat Surat <span aria-hidden="true">→</span></a>
+            <a class="lp__button lp__button--secondary btn btn-outline" href="#koleksi">Jelajahi Template</a>
           </div>
           <div class="lp__hero-proof">
             <span class="lp__proof-item"><span class="lp__proof-check">✓</span> Pratinjau sebelum cetak</span>
@@ -73,7 +78,7 @@
             <span class="lp__proof-item"><span class="lp__proof-check">✓</span> Tanda tangan pada surat izin</span>
           </div>
         </div>
-        <div class="lp__preview" aria-hidden="true">
+        <div class="lp__preview card" aria-hidden="true">
           <div class="lp__paper">
             <div class="lp__paper-top">
               <span class="lp__paper-icon">📄</span>
@@ -93,15 +98,15 @@
             <div class="lp__line lp__line--mid"></div>
             <div class="lp__sign"><span class="lp__sign-mark">✍</span><div class="lp__line lp__line--mid"></div></div>
           </div>
-          <div class="lp__preview-badge"><span>✓</span> Dokumen siap dicetak</div>
+          <div class="lp__preview-badge badge badge-success"><span>✓</span> Dokumen siap dicetak</div>
         </div>
       </div>
     </section>
 
     <div class="lp__container lp__stats" aria-label="Ringkasan fitur">
-      <div class="lp__stat"><strong id="lp-template-count">10</strong><span>Template surat</span></div>
-      <div class="lp__stat"><strong id="lp-group-count">4</strong><span>Kelompok dokumen</span></div>
-      <div class="lp__stat"><strong>PDF &amp; Cetak</strong><span>Pilihan hasil dokumen</span></div>
+      <div class="lp__stat stat"><strong id="lp-template-count">10</strong><span>Template surat</span></div>
+      <div class="lp__stat stat"><strong id="lp-group-count">4</strong><span>Kelompok dokumen</span></div>
+      <div class="lp__stat stat"><strong>PDF &amp; Cetak</strong><span>Pilihan hasil dokumen</span></div>
     </div>
 
     <section class="lp__section lp__section--alt" id="koleksi" aria-labelledby="lp-collection-title">
@@ -112,7 +117,7 @@
             <h2 id="lp-collection-title">Temukan template yang Anda butuhkan</h2>
             <p class="lp__section-intro">Template dikelompokkan berdasarkan keperluan administrasi. Buka salah satu surat untuk langsung mulai mengisinya.</p>
           </div>
-          <label class="lp__search">
+          <label class="lp__search input">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m16 16 5 5" /></svg>
             <input id="lp-template-search" type="search" aria-label="Cari template surat" placeholder="Cari template surat..." autocomplete="off" />
           </label>
@@ -130,9 +135,9 @@
         <h2 id="lp-features-title">Dari pengisian hingga dokumen jadi</h2>
         <p class="lp__section-intro" style="margin-bottom:28px">Fitur penting tersedia di editor tanpa perlu berpindah-pindah aplikasi.</p>
         <div class="lp__features">
-          <article class="lp__feature"><span class="lp__feature-icon" aria-hidden="true">🧩</span><h3>Template terstruktur</h3><p>Form yang relevan dengan jenis surat memudahkan pengisian informasi secara konsisten.</p></article>
-          <article class="lp__feature"><span class="lp__feature-icon" aria-hidden="true">👁️</span><h3>Pratinjau langsung</h3><p>Lihat perubahan isi surat saat mengetik dan sesuaikan pengaturan dokumen sebelum dicetak.</p></article>
-          <article class="lp__feature"><span class="lp__feature-icon" aria-hidden="true">📥</span><h3>Cetak dan ekspor PDF</h3><p>Simpan hasil surat sebagai PDF atau cetak langsung dari aplikasi.</p></article>
+          <article class="lp__feature card"><span class="lp__feature-icon" aria-hidden="true">🧩</span><h3>Template terstruktur</h3><p>Form yang relevan dengan jenis surat memudahkan pengisian informasi secara konsisten.</p></article>
+          <article class="lp__feature card"><span class="lp__feature-icon" aria-hidden="true">👁️</span><h3>Pratinjau langsung</h3><p>Lihat perubahan isi surat saat mengetik dan sesuaikan pengaturan dokumen sebelum dicetak.</p></article>
+          <article class="lp__feature card"><span class="lp__feature-icon" aria-hidden="true">📥</span><h3>Cetak dan ekspor PDF</h3><p>Simpan hasil surat sebagai PDF atau cetak langsung dari aplikasi.</p></article>
         </div>
       </div>
     </section>
@@ -141,7 +146,7 @@
       <div class="lp__container">
         <div class="lp__banner">
           <div><h2>Siap membuat surat berikutnya?</h2><p>Mulai dari editor atau pilih template yang sesuai kebutuhan Anda.</p></div>
-          <a class="lp__button lp__button--primary" href="/editor">Buka Editor Surat <span aria-hidden="true">→</span></a>
+          <a class="lp__button lp__button--primary btn btn-primary" href="/editor">Buka Editor Surat <span aria-hidden="true">→</span></a>
         </div>
       </div>
     </section>
@@ -158,14 +163,14 @@
   <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
   <!-- ===== MODAL OVERLAY ===== -->
-  <div id="modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modal-title">
+  <div id="modal-overlay" class="modal-overlay hidden modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modal-title">
     <div class="modal-box">
       <div class="modal-header">
         <h3 id="modal-title" class="modal-title"></h3>
-        <button id="modal-close-btn" class="modal-close-btn" aria-label="Tutup modal">&times;</button>
+        <button id="modal-close-btn" class="modal-close-btn btn btn-ghost btn-circle btn-sm" aria-label="Tutup modal">&times;</button>
       </div>
       <div id="modal-body" class="modal-body"></div>
-      <div id="modal-footer" class="modal-footer"></div>
+      <div id="modal-footer" class="modal-footer modal-action"></div>
     </div>
   </div>
 
@@ -173,19 +178,19 @@
   <div id="app" class="app-container">
 
     <!-- EXPIRED DATA BANNER (inside app container agar layout benar) -->
-    <div id="expired-banner" class="expired-banner hidden" role="alert">
+    <div id="expired-banner" class="expired-banner hidden alert alert-warning" role="alert">
       <span class="expired-banner__icon">⚠️</span>
       <span id="expired-banner-text" class="expired-banner__text">
         Penyimpanan cepat telah kedaluwarsa. Snapshot terakhir masih dapat dipulihkan.
       </span>
-      <button id="expired-banner-restore" class="btn btn--sm btn--secondary expired-banner__restore" type="button" hidden>
+      <button id="expired-banner-restore" class="btn btn--sm btn--secondary expired-banner__restore btn-sm btn-outline" type="button" hidden>
         Pulihkan Snapshot
       </button>
       <button id="expired-banner-close" class="expired-banner__close" aria-label="Tutup notifikasi">&times;</button>
     </div>
 
     <!-- HEADER -->
-    <header class="app-header">
+    <header class="app-header navbar">
       <a class="app-header__brand" href="/" title="Kembali ke beranda" aria-label="Kembali ke beranda Generator Surat">
         <img
           src="assets/icons/logo.svg"
@@ -209,60 +214,60 @@
         </div>
 
         <!-- ── Tombol primer: selalu visible di semua ukuran layar ── -->
-        <button id="btn-export-pdf" class="btn btn--sm btn--secondary header-btn-primary" title="Ekspor surat langsung menjadi PDF" aria-label="Ekspor surat langsung menjadi PDF">
+        <button id="btn-export-pdf" class="btn btn--sm btn--secondary header-btn-primary btn-sm btn-outline" title="Ekspor surat langsung menjadi PDF" aria-label="Ekspor surat langsung menjadi PDF">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 3h9l3 3v15H6z"/><path d="M14 3v4h4M9 13h6M9 17h6"/></svg>
           <span class="btn-label">PDF</span>
         </button>
-        <button id="btn-print" class="btn btn--sm btn--primary header-btn-primary" title="Cetak surat">
+        <button id="btn-print" class="btn btn--sm btn--primary header-btn-primary btn-sm btn-primary" title="Cetak surat">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6,9 6,2 18,2 18,9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           <span class="btn-label">Cetak</span>
         </button>
 
         <!-- ── Aksi lainnya tetap dalam satu deretan dan dapat digeser horizontal ── -->
         <div class="header-overflow-group" id="header-overflow-group" aria-label="Aksi lainnya">
-          <button id="btn-install-app" class="btn btn--sm btn--secondary platform-action" title="Pasang aplikasi" aria-label="Pasang Generator Surat sebagai aplikasi" hidden aria-hidden="true">
+          <button id="btn-install-app" class="btn btn--sm btn--secondary platform-action btn-sm btn-outline" title="Pasang aplikasi" aria-label="Pasang Generator Surat sebagai aplikasi" hidden aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
             <span class="btn-label">Pasang</span>
           </button>
-          <button id="btn-update-app" class="btn btn--sm btn--secondary platform-action platform-update" title="Perbarui aplikasi" aria-label="Muat versi terbaru aplikasi" hidden aria-hidden="true">
+          <button id="btn-update-app" class="btn btn--sm btn--secondary platform-action platform-update btn-sm btn-outline" title="Perbarui aplikasi" aria-label="Muat versi terbaru aplikasi" hidden aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.9-4M4 5v5h5M4 13a8 8 0 0 0 14.9 4M20 19v-5h-5"/></svg>
             <span class="btn-label">Perbarui</span>
           </button>
-          <button id="btn-about" class="btn btn--sm btn--secondary" title="Tentang aplikasi" aria-label="Tentang aplikasi">
+          <button id="btn-about" class="btn btn--sm btn--secondary btn-sm btn-outline" title="Tentang aplikasi" aria-label="Tentang aplikasi">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/></svg>
             <span class="btn-label">Tentang</span>
           </button>
-          <button id="btn-theme-toggle" class="btn btn--sm btn--secondary" data-theme="auto" title="Ganti tema tampilan" aria-label="Ganti tema tampilan">
+          <button id="btn-theme-toggle" class="btn btn--sm btn--secondary btn-sm btn-outline" data-theme="auto" title="Ganti tema tampilan" aria-label="Ganti tema tampilan">
             <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
             <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" aria-hidden="true" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
             <svg class="icon-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" aria-hidden="true" style="display:none"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l4 4"/></svg>
             <span class="btn-label">Tema</span>
           </button>
           <span class="header-overflow-divider" role="separator" aria-hidden="true"></span>
-          <button id="btn-undo" class="btn btn--sm btn--secondary" title="Batalkan perubahan terakhir (Ctrl+Z)" aria-label="Batalkan perubahan terakhir" disabled>
+          <button id="btn-undo" class="btn btn--sm btn--secondary btn-sm btn-outline" title="Batalkan perubahan terakhir (Ctrl+Z)" aria-label="Batalkan perubahan terakhir" disabled>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
             <span class="btn-label">Undo</span>
           </button>
-          <button id="btn-redo" class="btn btn--sm btn--secondary" title="Ulangi perubahan (Ctrl+Y)" aria-label="Ulangi perubahan" disabled>
+          <button id="btn-redo" class="btn btn--sm btn--secondary btn-sm btn-outline" title="Ulangi perubahan (Ctrl+Y)" aria-label="Ulangi perubahan" disabled>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
             <span class="btn-label">Redo</span>
           </button>
-          <button id="btn-save" class="btn btn--sm btn--secondary" title="Simpan data ke penyimpanan lokal">
+          <button id="btn-save" class="btn btn--sm btn--secondary btn-sm btn-outline" title="Simpan data ke penyimpanan lokal">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/></svg>
             <span class="btn-label">Simpan</span>
           </button>
           <span class="header-overflow-divider" role="separator" aria-hidden="true"></span>
-          <button id="btn-export-data" class="btn btn--sm btn--secondary" title="Ekspor semua data ke file JSON" aria-label="Ekspor data ke file JSON">
+          <button id="btn-export-data" class="btn btn--sm btn--secondary btn-sm btn-outline" title="Ekspor semua data ke file JSON" aria-label="Ekspor data ke file JSON">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             <span class="btn-label">Ekspor Data</span>
           </button>
           <!-- Input file tersembunyi untuk impor JSON -->
           <input type="file" id="input-import-data" accept=".json,application/json" style="display:none" aria-hidden="true" />
-          <button id="btn-import-data" class="btn btn--sm btn--secondary" title="Impor data dari file JSON" aria-label="Impor data dari file JSON">
+          <button id="btn-import-data" class="btn btn--sm btn--secondary btn-sm btn-outline" title="Impor data dari file JSON" aria-label="Impor data dari file JSON">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <span class="btn-label">Impor Data</span>
           </button>
-          <button id="btn-reset" class="btn btn--sm btn--danger-outline" title="Reset dan hapus semua data">
+          <button id="btn-reset" class="btn btn--sm btn--danger-outline btn-sm btn-error btn-outline" title="Reset dan hapus semua data">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="1,4 1,10 7,10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
             <span class="btn-label">Reset</span>
           </button>
@@ -284,20 +289,20 @@
       <aside class="editor-panel" id="editor-panel">
 
         <!-- Tab Navigation -->
-        <nav class="editor-tabs" role="tablist" aria-label="Bagian editor">
-          <button class="editor-tab active" role="tab" aria-selected="true" aria-controls="tab-template" id="tab-btn-template" data-tab="template">
+        <nav class="editor-tabs tabs tabs-border" role="tablist" aria-label="Bagian editor">
+          <button class="editor-tab active tab" role="tab" aria-selected="true" aria-controls="tab-template" id="tab-btn-template" data-tab="template">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
             Template
           </button>
-          <button class="editor-tab" role="tab" aria-selected="false" aria-controls="tab-kop" id="tab-btn-kop" data-tab="kop">
+          <button class="editor-tab tab" role="tab" aria-selected="false" aria-controls="tab-kop" id="tab-btn-kop" data-tab="kop">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M2 12h20M2 17h20"/></svg>
             KOP Surat
           </button>
-          <button class="editor-tab" role="tab" aria-selected="false" aria-controls="tab-form" id="tab-btn-form" data-tab="form">
+          <button class="editor-tab tab" role="tab" aria-selected="false" aria-controls="tab-form" id="tab-btn-form" data-tab="form">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Isi Surat
           </button>
-          <button class="editor-tab" role="tab" aria-selected="false" aria-controls="tab-settings" id="tab-btn-settings" data-tab="settings">
+          <button class="editor-tab tab" role="tab" aria-selected="false" aria-controls="tab-settings" id="tab-btn-settings" data-tab="settings">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             Pengaturan
           </button>
@@ -313,21 +318,21 @@
             <!-- Skeleton saat template belum dimuat -->
             <div id="template-list-skeleton" aria-hidden="true">
               <div class="template-card-skeleton">
-                <div class="skeleton-block template-card-skeleton__icon"></div>
-                <div class="skeleton-block template-card-skeleton__title"></div>
-                <div class="skeleton-block template-card-skeleton__desc"></div>
-                <div class="skeleton-block template-card-skeleton__desc-2"></div>
+                <div class="skeleton-block template-card-skeleton__icon skeleton"></div>
+                <div class="skeleton-block template-card-skeleton__title skeleton"></div>
+                <div class="skeleton-block template-card-skeleton__desc skeleton"></div>
+                <div class="skeleton-block template-card-skeleton__desc-2 skeleton"></div>
               </div>
               <div class="template-card-skeleton">
-                <div class="skeleton-block template-card-skeleton__icon"></div>
-                <div class="skeleton-block template-card-skeleton__title"></div>
-                <div class="skeleton-block template-card-skeleton__desc"></div>
-                <div class="skeleton-block template-card-skeleton__desc-2"></div>
+                <div class="skeleton-block template-card-skeleton__icon skeleton"></div>
+                <div class="skeleton-block template-card-skeleton__title skeleton"></div>
+                <div class="skeleton-block template-card-skeleton__desc skeleton"></div>
+                <div class="skeleton-block template-card-skeleton__desc-2 skeleton"></div>
               </div>
               <div class="template-card-skeleton">
-                <div class="skeleton-block template-card-skeleton__icon"></div>
-                <div class="skeleton-block template-card-skeleton__title"></div>
-                <div class="skeleton-block template-card-skeleton__desc"></div>
+                <div class="skeleton-block template-card-skeleton__icon skeleton"></div>
+                <div class="skeleton-block template-card-skeleton__title skeleton"></div>
+                <div class="skeleton-block template-card-skeleton__desc skeleton"></div>
               </div>
             </div>
             <!-- Diisi oleh template-registry.js -->
@@ -347,10 +352,10 @@
         <!-- Tab: Isi Surat -->
         <div class="editor-tab-content" id="tab-form" role="tabpanel" aria-labelledby="tab-btn-form">
           <div id="form-container">
-            <div class="form-empty-state" id="form-empty-state">
+            <div class="form-empty-state card" id="form-empty-state">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
               <p>Pilih template surat terlebih dahulu.</p>
-              <button class="btn btn--sm btn--secondary" type="button" data-action="select-template">Pilih Template</button>
+              <button class="btn btn--sm btn--secondary btn-sm btn-outline" type="button" data-action="select-template">Pilih Template</button>
             </div>
           </div>
         </div>
@@ -398,10 +403,10 @@
             <span id="viewer-template-label" class="viewer-template-label">Belum ada dokumen</span>
 
             <div class="viewer-page-nav" role="group" aria-label="Navigasi halaman">
-              <button type="button" id="viewer-page-first" class="btn-icon viewer-document-control" title="Halaman pertama" aria-label="Halaman pertama">
+              <button type="button" id="viewer-page-first" class="btn-icon viewer-document-control btn btn-ghost btn-square btn-sm" title="Halaman pertama" aria-label="Halaman pertama">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 6l-6 6 6 6M19 6l-6 6 6 6M5 6v12"/></svg>
               </button>
-              <button type="button" id="viewer-page-prev" class="btn-icon viewer-document-control" title="Halaman sebelumnya" aria-label="Halaman sebelumnya">
+              <button type="button" id="viewer-page-prev" class="btn-icon viewer-document-control btn btn-ghost btn-square btn-sm" title="Halaman sebelumnya" aria-label="Halaman sebelumnya">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
               </button>
               <label class="viewer-page-input-wrap">
@@ -409,10 +414,10 @@
                 <span aria-hidden="true">/</span>
                 <span id="viewer-page-total">—</span>
               </label>
-              <button type="button" id="viewer-page-next" class="btn-icon viewer-document-control" title="Halaman berikutnya" aria-label="Halaman berikutnya">
+              <button type="button" id="viewer-page-next" class="btn-icon viewer-document-control btn btn-ghost btn-square btn-sm" title="Halaman berikutnya" aria-label="Halaman berikutnya">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
               </button>
-              <button type="button" id="viewer-page-last" class="btn-icon viewer-document-control" title="Halaman terakhir" aria-label="Halaman terakhir">
+              <button type="button" id="viewer-page-last" class="btn-icon viewer-document-control btn btn-ghost btn-square btn-sm" title="Halaman terakhir" aria-label="Halaman terakhir">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M13 6l6 6-6 6M5 6l6 6-6 6M19 6v12"/></svg>
               </button>
             </div>
@@ -421,25 +426,25 @@
             <span id="preview-page-info" class="preview-page-info" aria-live="polite">1 halaman</span>
           </div>
           <div class="preview-toolbar__actions">
-            <button id="btn-fit-page" class="btn-icon" title="Sesuaikan ke halaman" aria-label="Sesuaikan preview ke halaman">
+            <button id="btn-fit-page" class="btn-icon btn btn-ghost btn-square btn-sm" title="Sesuaikan ke halaman" aria-label="Sesuaikan preview ke halaman">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v4H4M16 4v4h4M4 16h4v4M20 16h-4v4"/></svg>
             </button>
-            <button id="btn-fit-width" class="btn-icon" title="Sesuaikan ke lebar" aria-label="Sesuaikan preview ke lebar">
+            <button id="btn-fit-width" class="btn-icon btn btn-ghost btn-square btn-sm" title="Sesuaikan ke lebar" aria-label="Sesuaikan preview ke lebar">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M4 12h16"/></svg>
             </button>
             <span class="preview-toolbar__divider" aria-hidden="true"></span>
-            <button id="btn-zoom-out" class="btn-icon" title="Perkecil tampilan" aria-label="Perkecil tampilan">
+            <button id="btn-zoom-out" class="btn-icon btn btn-ghost btn-square btn-sm" title="Perkecil tampilan" aria-label="Perkecil tampilan">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
             </button>
             <span id="zoom-level-text" class="zoom-level-text">100%</span>
-            <button id="btn-zoom-in" class="btn-icon" title="Perbesar tampilan" aria-label="Perbesar tampilan">
+            <button id="btn-zoom-in" class="btn-icon btn btn-ghost btn-square btn-sm" title="Perbesar tampilan" aria-label="Perbesar tampilan">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
             </button>
-            <button id="btn-zoom-reset" class="btn-icon" title="Reset zoom" aria-label="Reset zoom">
+            <button id="btn-zoom-reset" class="btn-icon btn btn-ghost btn-square btn-sm" title="Reset zoom" aria-label="Reset zoom">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3.51 15a9 9 0 1 0 .49-4.95"/><polyline points="1,4 1,10 7,10"/></svg>
             </button>
             <span class="preview-toolbar__divider" aria-hidden="true"></span>
-            <button id="viewer-focus-toggle" class="btn-icon viewer-focus-toggle" title="Mode fokus preview" aria-label="Buka preview dalam mode fokus" aria-pressed="false">
+            <button id="viewer-focus-toggle" class="btn-icon viewer-focus-toggle btn btn-ghost btn-square btn-sm" title="Mode fokus preview" aria-label="Buka preview dalam mode fokus" aria-pressed="false">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
               <span class="viewer-focus-label">Fokus</span>
             </button>
@@ -453,7 +458,7 @@
               <div class="preview-placeholder" id="preview-placeholder">
                 <!-- Skeleton loading — tampil saat aplikasi baru boot / template belum dipilih -->
                 <div class="preview-skeleton" aria-hidden="true" id="preview-skeleton">
-                  <div class="skeleton-block preview-skeleton__page"></div>
+                  <div class="skeleton-block preview-skeleton__page skeleton"></div>
                 </div>
                 <!-- Pesan statis setelah skeleton (tersembunyi hingga JS siap) -->
                 <div id="preview-empty-msg" style="display:none; text-align:center; color: var(--color-text-muted); padding: var(--space-8);">

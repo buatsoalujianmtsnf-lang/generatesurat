@@ -8,6 +8,10 @@
 (function initializeThemeClass() {
   try {
     const theme = localStorage.getItem('ui-theme');
+    // Sinkronkan tema daisyUI dengan tema aplikasi sebelum stylesheet dimuat.
+    const darkSystem = window.matchMedia?.('(prefers-color-scheme: dark)').matches === true;
+    document.documentElement.dataset.theme = theme === 'dark' || (theme !== 'light' && darkSystem)
+      ? 'dark' : 'light';
     if (theme === 'dark') {
       document.documentElement.classList.add('dark-mode');
     } else if (theme === 'light') {
