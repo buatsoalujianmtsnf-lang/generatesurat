@@ -80,8 +80,16 @@ const Routes = (() => {
             history.replaceState(history.state, '', categoryUrl(route.groupId));
           }
         } else if (route.kind === 'editor') {
-          UI.switchTab('template');
-          setEditorTitle(null);
+          // Draft yang dipulihkan tetap memiliki template aktif dan URL kanonisnya.
+          const activeId = State.getActiveTemplate();
+          const activeUrl = templateUrl(activeId);
+          if (activeUrl) {
+            history.replaceState({ templateId: activeId }, '', activeUrl);
+            setEditorTitle(activeId);
+          } else {
+            UI.switchTab('template');
+            setEditorTitle(null);
+          }
         } else if (route.kind === 'landing') {
           window.location.assign('/');
         } else {
