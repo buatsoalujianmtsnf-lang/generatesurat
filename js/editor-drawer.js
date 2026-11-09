@@ -1,6 +1,8 @@
-/* DaisyUI drawer state and accessibility; no changes to letter content. */
+/* DaisyUI drawer state and accessibility; one shared navbar trigger. */
 const EditorDrawer = (() => {
   const QUERY = '(max-width: 1023px)';
+  const MOBILE_QUERY = '(max-width: 767px)';
+  const TRIGGER_ID = 'editor-drawer-button';
   let root = null;
   let toggle = null;
   let editor = null;
@@ -12,26 +14,49 @@ const EditorDrawer = (() => {
     return media ? media.matches : window.matchMedia?.(QUERY).matches === true;
   }
 
+  function isMobile() {
+    return window.matchMedia?.(MOBILE_QUERY).matches === true;
+  }
+
+  // Offset the compact drawer below the actual header (including safe-area insets).
+  function syncHeaderOffset() {
+    const header = document.querySelector?.('.app-header');
+    const rect = header?.getBoundingClientRect?.();
+    if (rect && Number.isFinite(rect.bottom)) {
+      root?.style?.setProperty?.('--drawer-header-offset', Math.max(0, Math.round(rect.bottom)) + 'px');
+    }
+  }
+
   function setOpen(open, options = {}) {
     if (!root || !toggle || !editor) return;
     const next = Boolean(open);
     const compact = isCompact();
+    syncHeaderOffset();
     toggle.checked = next;
     root.dataset.open = String(next);
     editor.inert = !next;
     editor.setAttribute('aria-hidden', String(!next));
     document.documentElement.classList.toggle('editor-drawer-open', compact && next);
-    for (const id of ['editor-drawer-button', 'editor-drawer-preview-open', 'btn-editor-panel-mobile']) {
-      const trigger = document.getElementById(id);
-      if (!trigger) continue;
+
+    // Only ONE control exists: desktop inline action; mobile inside Lainnya.
+    const trigger = document.getElementById(TRIGGER_ID);
+    if (trigger) {
+      const label = next ? 'Tutup Editor' : 'Buka Editor';
       trigger.setAttribute('aria-expanded', String(next));
-      trigger.setAttribute('aria-label', next ? 'Tutup panel editor' : 'Buka panel editor');
+      trigger.setAttribute('aria-label', label);
+      trigger.title = label;
+      const text = trigger.querySelector?.('.editor-drawer__toggle-label');
+      if (text) text.textContent = label;
     }
+
     if (compact && next && options.focus !== false) {
-      editor.querySelector('#editor-drawer-close')?.focus();
+      (editor.querySelector('.editor-tab.active') || editor).focus?.();
     }
-    if (!next && options.returnFocus && restoreFocus?.isConnected) {
-      restoreFocus.focus();
+    if (!next && options.returnFocus) {
+      const anchor = isMobile()
+        ? document.getElementById('btn-header-more')
+        : trigger;
+      (anchor || restoreFocus)?.focus?.();
     }
   }
 
@@ -54,30 +79,26 @@ const EditorDrawer = (() => {
     root = document.getElementById('editor-drawer');
     toggle = /** @type {HTMLInputElement|null} */ (document.getElementById('editor-drawer-toggle'));
     editor = document.getElementById('editor-panel');
-    if (!root || !toggle || !editor) return;
+    const trigger = document.getElementById(TRIGGER_ID);
+    if (!root || !toggle || !editor || !trigger) return;
     initialized = true;
     media = window.matchMedia?.(QUERY) || null;
     setOpen(!isCompact(), { focus: false });
-    for (const id of ['editor-drawer-button', 'editor-drawer-preview-open', 'btn-editor-panel-mobile']) {
-      document.getElementById(id)?.addEventListener('click', toggleDrawer);
-    }
-    for (const id of ['editor-drawer-close', 'editor-drawer-preview']) {
-      document.getElementById(id)?.addEventListener('click', () => close({ returnFocus: true }));
-    }
-    root.querySelector('.editor-drawer__overlay')?.addEventListener('click', () => {
-      close({ returnFocus: true });
-    });
+    trigger.addEventListener('click', toggleDrawer);
     toggle.addEventListener('change', () => setOpen(toggle.checked, { focus: false }));
+
     const onViewport = () => {
-      // Desktop defaults to an expanded sidebar; compact starts as preview-first.
+      // Keep the existing desktop-open / compact-preview-first behavior on breakpoint changes.
       setOpen(!isCompact(), { focus: false });
     };
     if (media?.addEventListener) media.addEventListener('change', onViewport);
     else if (media?.addListener) media.addListener(onViewport);
+    window.addEventListener?.('resize', syncHeaderOffset);
+    window.addEventListener?.('orientationchange', syncHeaderOffset);
 
     document.addEventListener('keydown', event => {
       if (!isCompact() || !toggle.checked) return;
-      // The application's confirmation modal owns focus and Escape when visible.
+      // Existing confirmation modal owns Escape when visible.
       const modal = document.getElementById('modal-overlay');
       if (modal && !modal.classList.contains('hidden')) return;
       if (event.key === 'Escape') {
@@ -90,10 +111,17 @@ const EditorDrawer = (() => {
         'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
       )].filter(el => !el.hidden && !el.closest('[hidden]') && el.getClientRects().length > 0);
       if (!items.length) return;
-      const first = items[0], last = items[items.length-1];
-      if (event.shiftKey && document.activeElement === first) {
+      const first = items[0], last = items[items.length - 1];
+      // The header action remains part of keyboard navigation while the drawer is open.
+      const anchor = isMobile() ? document.getElementById('btn-header-more') : trigger;
+      if (event.shiftKey && document.activeElement === first && anchor) {
+        event.preventDefault(); anchor.focus();
+      } else if (!event.shiftKey && document.activeElement === last && anchor) {
+        event.preventDefault(); anchor.focus();
+      } else if (event.shiftKey && document.activeElement === anchor) {
         event.preventDefault(); last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
+      } else if (!event.shiftKey && document.activeElement === anchor &&
+                 !document.getElementById('header-overflow-group')?.classList.contains('is-open')) {
         event.preventDefault(); first.focus();
       }
     });
