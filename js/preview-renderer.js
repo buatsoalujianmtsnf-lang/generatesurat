@@ -2235,7 +2235,7 @@ const PreviewRenderer = (() => {
     const kelasMurid       = _esc(mu.kelasMurid       || '……………');
     const hariTanggalIzin  = _esc(iz.hariTanggalIzin  || '…………………………………');
     const durasiIzin       = _esc(iz.durasiIzin       || '……………………');
-    const alasanIzin       = _esc(iz.alasanIzin       || '…………………………………');
+    const alasanIzin       = _esc(TemplateSuratIzin.getAlasanIzinText(iz) || '…………………………………');
     const namaLokasi       = _esc(pg.namaLokasi       || '……………………');
 
     return `
