@@ -38,7 +38,9 @@ const TemplateDPU = (() => {
       ],
       tandaTangan: {
         kota: 'Musi Rawas',
-        tahun: '2026',
+        tanggalSurat: '',
+        namaProvinsi: 'Sumsel',
+        namaKabupatenKota: 'Musi Rawas',
         pihak1: {
           label: 'Mengetahui,',
           subjudul: 'a.n. Kepala Kantor Wilayah Kemenag Prov. Sumsel',
@@ -267,10 +269,23 @@ const TemplateDPU = (() => {
           required: false,
         },
         {
-          key: 'tandaTangan.tahun',
-          label: 'Tahun',
+          key: 'tandaTangan.tanggalSurat',
+          label: 'Tanggal Surat',
+          type: 'date',
+          required: false,
+        },
+        {
+          key: 'tandaTangan.namaProvinsi',
+          label: 'Nama Provinsi',
           type: 'text',
-          placeholder: 'Contoh: 2026',
+          placeholder: 'Contoh: Sumatera Selatan',
+          required: false,
+        },
+        {
+          key: 'tandaTangan.namaKabupatenKota',
+          label: 'Nama Kabupaten/Kota',
+          type: 'text',
+          placeholder: 'Contoh: Musi Rawas atau Kota Palembang',
           required: false,
         },
         // Pihak 1
