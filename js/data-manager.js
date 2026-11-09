@@ -57,11 +57,11 @@ const DataManager = (() => {
         <div class="data-manager__summary" id="data-manager-summary" aria-live="polite"></div>
 
         <div class="data-manager__toolbar">
-          <button type="button" class="btn btn--primary btn--sm" id="dm-save-draft">
+          <button type="button" class="btn btn--primary btn--sm btn-sm btn-primary" id="dm-save-draft">
             <span aria-hidden="true">＋</span>
             Simpan Draft
           </button>
-          <button type="button" class="btn btn--secondary btn--sm" id="dm-manage-drafts">
+          <button type="button" class="btn btn--secondary btn--sm btn-sm btn-outline" id="dm-manage-drafts">
             Kelola Draft
           </button>
         </div>
@@ -166,8 +166,8 @@ const DataManager = (() => {
           <span>${Utils.escapeHtml(draft.templateName || 'Tanpa template')} · ${Utils.escapeHtml(Utils.formatDateTime(draft.updatedAt))}</span>
         </div>
         <div class="data-manager-draft__actions">
-          <button type="button" class="btn btn--secondary btn--sm dm-load-preview" data-draft-id="${Utils.escapeHtml(draft.id)}">Buka</button>
-          <button type="button" class="btn-icon dm-delete-preview" data-draft-id="${Utils.escapeHtml(draft.id)}" title="Hapus draft" aria-label="Hapus draft">×</button>
+          <button type="button" class="btn btn--secondary btn--sm dm-load-preview btn-sm btn-outline" data-draft-id="${Utils.escapeHtml(draft.id)}">Buka</button>
+          <button type="button" class="btn-icon dm-delete-preview btn btn-square btn-ghost btn-sm" data-draft-id="${Utils.escapeHtml(draft.id)}" title="Hapus draft" aria-label="Hapus draft">×</button>
         </div>
       </article>`).join('');
 
@@ -255,9 +255,9 @@ const DataManager = (() => {
       body: `
         <div class="data-manager-dialog">
           <label class="settings-label" for="dm-draft-name">Nama Draft</label>
-          <input id="dm-draft-name" class="form-input" type="text" maxlength="80"
+          <input id="dm-draft-name" class="form-input input" type="text" maxlength="80"
             value="${Utils.escapeHtml(suggested)}" placeholder="Contoh: Data Siswa Baru 2026" />
-          <p class="settings-hint">Gunakan nama yang mudah dikenali agar dokumen dapat ditemukan kembali.</p>
+          <p class="settings-hint text-base-content/70">Gunakan nama yang mudah dikenali agar dokumen dapat ditemukan kembali.</p>
         </div>`,
       footer: [
         {
@@ -301,8 +301,8 @@ const DataManager = (() => {
             <small>${_formatBytes(draft.sizeBytes || _jsonSize(draft.data))}</small>
           </div>
           <div class="data-manager-dialog-draft__actions">
-            <button type="button" class="btn btn--secondary btn--sm" data-dm-load="${Utils.escapeHtml(draft.id)}">Buka</button>
-            <button type="button" class="btn btn--danger btn--sm" data-dm-delete="${Utils.escapeHtml(draft.id)}">Hapus</button>
+            <button type="button" class="btn btn--secondary btn--sm btn-sm btn-outline" data-dm-load="${Utils.escapeHtml(draft.id)}">Buka</button>
+            <button type="button" class="btn btn--danger btn--sm btn-sm btn-error" data-dm-delete="${Utils.escapeHtml(draft.id)}">Hapus</button>
           </div>
         </article>`).join('')
       : '<div class="data-manager__empty"><strong>Belum ada draft.</strong><span>Simpan dokumen pertama Anda sebagai draft.</span></div>';
