@@ -432,6 +432,20 @@ const FormRenderer = (() => {
         break;
       }
 
+      case 'signature':
+        if (typeof SignaturePad === 'undefined') {
+          group.innerHTML = labelHtml + '<span class="form-helper">Editor tanda tangan belum tersedia.</span>';
+          break;
+        }
+        SignaturePad.mount(group, {
+          id: fieldDomId,
+          label: fieldDef.label,
+          hint: fieldDef.hint,
+          value,
+          onChange: imageData => _saveFieldValue(fieldDef, imageData, templateId, itemId, sectionId),
+        });
+        break;
+
       case 'textarea':
         group.innerHTML = labelHtml + `
           <textarea class="form-textarea"
