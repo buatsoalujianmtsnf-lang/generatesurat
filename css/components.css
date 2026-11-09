@@ -241,6 +241,59 @@
   font-size: 10px;
 }
 
+/* Tanda tangan langsung, khusus untuk field signature pada Surat Izin */
+.signature-pad {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.signature-pad__canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 800 / 240;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.signature-pad__canvas:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.signature-pad__canvas.is-drawing {
+  border-color: var(--color-primary);
+}
+
+.signature-pad__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.signature-pad__status {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.signature-pad__help {
+  display: block;
+  margin-top: var(--space-2);
+}
+
+.signature-pad__fallback {
+  color: var(--color-danger);
+}
+
 /* Checkbox & Radio */
 .form-check {
   display: flex;

@@ -239,6 +239,29 @@ describe('GS-005: pagination integration across all runtime templates', () => {
     expect(h.preview.innerHTML).not.toContain('<script>alert(1)</script>');
   });
 
+  it('places only validated PNG signatures above the parent name in preview and PDF markup', () => {
+    const h = createPreviewHarness([120]);
+    const tpl = h.registry.get('surat-izin');
+    const data = tpl.createDefaultData();
+    data.murid.namaOrangTuaWali = 'Orang Tua';
+    const png = 'data:image/png;base64,iVBORw0KGgo=';
+    data.pengirim.tandaTanganDataUrl = png;
+    h.renderer.render(tpl, data, {});
+    const image = h.preview.innerHTML.indexOf('src="' + png + '"');
+    const name = h.preview.innerHTML.lastIndexOf('>Orang Tua</p>');
+    expect(image).toBeGreaterThan(-1);
+    expect(name).toBeGreaterThan(image);
+    expect(h.preview.innerHTML).toContain('object-fit:contain');
+
+    data.pengirim.tandaTanganDataUrl = 'data:image/svg+xml,<svg onload="alert(1)"/>';
+    h.renderer.render(tpl, data, {});
+    expect(h.preview.innerHTML).not.toContain('<svg onload=');
+    expect(h.preview.innerHTML).not.toContain('src="data:image/svg+xml');
+    data.pengirim.tandaTanganDataUrl = '';
+    h.renderer.render(tpl, data, {});
+    expect(h.preview.innerHTML).not.toContain('alt="Tanda tangan Orang Tua/Wali"');
+  });
+
   it('keeps short content on one physical page without introducing a blank page', async () => {
     const h = createPreviewHarness([120]);
     const template = h.registry.get('surat-izin');
