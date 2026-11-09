@@ -93,6 +93,15 @@ const FormRenderer = (() => {
       }
     }
 
+    // Normalisasi draf surat izin yang lama (tanggal/durasi teks bebas).
+    if (typeof tpl.normalizeLegacyIzinFields === 'function') {
+      const patch = tpl.normalizeLegacyIzinFields(formData?.izin);
+      if (patch) {
+        State.setFormData(templateId, { izin: patch });
+        formData = State.getFormData(templateId);
+      }
+    }
+
     tpl.formSections.forEach(section => {
       const sectionEl = _buildSection(section, formData, templateId);
       _containerEl.appendChild(sectionEl);
@@ -390,6 +399,8 @@ const FormRenderer = (() => {
             value="${Utils.escapeHtml(String(value ?? ''))}"
             min="${fieldDef.min ?? 0}"
             max="${fieldDef.max ?? 9999}"
+            step="${fieldDef.step ?? 'any'}"
+            ${fieldDef.integer ? 'inputmode="numeric"' : ''}
             ${fieldDef.required ? 'required' : ''}
             ${fieldDef.inputAlign ? `style="text-align:${Utils.escapeHtml(fieldDef.inputAlign)};"` : ''} />`;
         _bindInput(group.querySelector('input'), fieldDef, templateId, itemId, sectionId);
@@ -551,10 +562,24 @@ const FormRenderer = (() => {
 
     inputEl.addEventListener(eventType, (e) => {
       let val = e.target.value;
+      if (fieldDef.type === 'number' && fieldDef.integer) {
+        // Nilai harus berupa bilangan bulat sesuai rentang field.
+        const raw = String(val).trim();
+        const number = Number(raw);
+        const valid = raw !== '' && /^\d+$/.test(raw) && Number.isSafeInteger(number)
+          && number >= (fieldDef.min ?? 0) && number <= (fieldDef.max ?? 9999);
+        if (raw !== '' && !valid) {
+          e.target.value = '';
+          _saveFieldValue(fieldDef, '', templateId, itemId, sectionId);
+          return;
+        }
+        _saveFieldValue(fieldDef, valid ? number : '', templateId, itemId, sectionId);
+        return;
+      }
       if (fieldDef.type === 'number') {
         val = e.target.value === '' ? '' : Utils.safeFloat(val, 0);
       }
-      if (fieldDef.type === 'select' || fieldDef.key === 'izin.alasanIzinLainnya') {
+      if (fieldDef.type === 'select' || fieldDef.type === 'date' || fieldDef.key === 'izin.alasanIzinLainnya') {
         // Dropdown dan detail kondisional langsung tersimpan untuk mencegah
         // nilai yang tertunda muncul kembali setelah pengguna mengganti alasan.
         _saveFieldValue(fieldDef, val, templateId, itemId, sectionId);
