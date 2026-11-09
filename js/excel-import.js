@@ -601,7 +601,7 @@ const ExcelImport = (() => {
         const raw = metadata.get(metadataKey);
         if (raw === undefined || String(raw).trim() === '') continue;
         const count = Number(raw);
-        if (!Number.isInteger(count) || count < 1 || count > max) {
+        if (!Number.isInteger(count) || count < 1 || count > Number(max)) {
           throw new Error('Konfigurasi ' + metadataKey + ' pada sheet Petunjuk tidak valid.');
         }
         updatedHeader[stateKey] = count;
