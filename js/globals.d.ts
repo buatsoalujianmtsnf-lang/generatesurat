@@ -46,6 +46,7 @@ declare var Platform: any;
 declare var PreviewRenderer: any;
 declare var Print: any;
 declare var Settings: any;
+declare var SignaturePad: any;
 declare var State: any;
 declare var Storage: GeneratorStorageApi;
 declare var TableConfigManager: any;
