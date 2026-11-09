@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="css/print.css" />
   <link rel="stylesheet" href="css/dark-mode.css" />
   <link rel="stylesheet" href="css/landing.css" />
+  <link rel="stylesheet" href="css/header-scroll.css" />
 </head>
 <body>
 
@@ -193,7 +194,7 @@
         />
         <span class="app-header__title">Generator Surat Madrasah</span>
       </a>
-      <div class="app-header__actions">
+      <div class="app-header__actions" role="group" tabindex="0" aria-label="Tombol tindakan editor, geser horizontal untuk melihat semua tombol">
         <!-- Storage info (disembunyikan di mobile via CSS) -->
         <div id="storage-info" class="storage-info hidden">
           <span class="storage-info__icon">💾</span>
@@ -215,7 +216,7 @@
           <span class="btn-label">Cetak</span>
         </button>
 
-        <!-- ── Tombol overflow: tampil inline di desktop, masuk ke menu di mobile ── -->
+        <!-- ── Aksi lainnya tetap dalam satu deretan dan dapat digeser horizontal ── -->
         <div class="header-overflow-group" id="header-overflow-group" aria-label="Aksi lainnya">
           <button id="btn-install-app" class="btn btn--sm btn--secondary platform-action" title="Pasang aplikasi" aria-label="Pasang Generator Surat sebagai aplikasi" hidden aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
@@ -271,17 +272,6 @@
           </div>
         </div>
 
-        <!-- ── Tombol "Lainnya" — hanya tampil di mobile ── -->
-        <button
-          id="btn-header-more"
-          class="btn btn--sm btn--secondary header-more-btn"
-          title="Aksi lainnya"
-          aria-label="Buka menu aksi lainnya"
-          aria-expanded="false"
-          aria-controls="header-overflow-group"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="5" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="12" cy="19" r="1.2"/></svg>
-        </button>
       </div>
     </header>
 
