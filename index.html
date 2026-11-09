@@ -209,7 +209,7 @@
         />
         <span class="app-header__title">Generator Surat Madrasah</span>
       </a>
-      <div class="app-header__actions" role="group" tabindex="0" aria-label="Tombol tindakan editor, geser horizontal untuk melihat semua tombol">
+      <div class="app-header__actions" role="group" aria-label="Tindakan editor">
         <!-- Storage info (disembunyikan di mobile via CSS) -->
         <div id="storage-info" class="storage-info hidden">
           <span class="storage-info__icon" data-tabler-icon="device-floppy"></span>
@@ -230,9 +230,23 @@
           <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2" height="8"><use href="assets/icons/tabler-sprite.svg#ti-printer"></use></svg>
           <span class="btn-label">Cetak</span>
         </button>
+        <!-- Hanya tampil di mobile; aksi selain PDF dan Cetak ada di sini. -->
+        <button type="button" id="btn-header-more"
+          class="btn btn--sm btn--secondary btn-sm btn-outline header-more-btn"
+          aria-label="Tampilkan aksi lainnya" aria-controls="header-overflow-group"
+          aria-expanded="false" aria-haspopup="true" title="Aksi lainnya">
+          <span class="btn-label">Lainnya</span>
+          <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-chevron-down"></use></svg>
+        </button>
 
-        <!-- ── Aksi lainnya tetap dalam satu deretan dan dapat digeser horizontal ── -->
-        <div class="header-overflow-group" id="header-overflow-group" aria-label="Aksi lainnya">
+        <!-- Satu menu aksi pada mobile; desktop mempertahankan deretan tombol lama. -->
+        <div class="header-overflow-group" id="header-overflow-group" role="group" aria-label="Aksi lainnya">
+          <button type="button" id="btn-editor-panel-mobile"
+            class="btn btn--sm btn--secondary btn-sm btn-outline header-mobile-editor-btn"
+            title="Buka panel editor" aria-label="Buka panel editor" aria-controls="editor-panel" aria-expanded="false">
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-layout-sidebar"></use></svg>
+            <span class="btn-label">Buka Editor</span>
+          </button>
           <button id="btn-install-app" class="btn btn--sm btn--secondary platform-action btn-sm btn-outline" title="Pasang aplikasi" aria-label="Pasang Generator Surat sebagai aplikasi" hidden aria-hidden="true">
             <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-download"></use></svg>
             <span class="btn-label">Pasang</span>
