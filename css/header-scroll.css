@@ -1,7 +1,7 @@
 /* ===============================================================
-   Header tindakan editor: scroll horizontal, tanpa layout melebar.
-   Dimuat setelah CSS responsif agar aturan menu mobile lama tidak
-   lagi menyembunyikan tombol di balik dropdown.
+   Header editor: deretan tindakan tetap tersedia di desktop.
+   Pada mobile, PDF dan Cetak tetap terlihat, sedangkan tombol lain
+   berpindah ke menu Lainnya (tanpa scroll horizontal).
    =============================================================== */
 @media screen {
   .app-header {
@@ -69,8 +69,7 @@
     flex: 0 0 auto;
   }
 
-  /* Tampilan lama menggunakan dropdown di mobile. Sekarang tombol-tombol
-     tersebut menjadi bagian langsung dari rail horizontal. */
+  /* Tampilan desktop memakai deretan tombol tanpa mengubah aksinya. */
   .app-header__actions .header-overflow-group {
     display: contents;
     position: static;
@@ -117,9 +116,22 @@
   }
 }
 
+/* Tombol buka editor kedua hanya digunakan di menu mobile. */
+@media screen and (min-width: 768px) {
+  .app-header__actions #btn-editor-panel-mobile {
+    display: none !important;
+  }
+}
+
 @media screen and (max-width: 767px) {
+  /* Sidebar dapat dibuka melalui menu Lainnya, bukan tombol tersendiri. */
+  .app-header > #editor-drawer-button {
+    display: none;
+  }
+
   .app-header {
-    gap: 8px;
+    gap: 6px;
+    overflow: visible;
   }
 
   .app-header__brand {
@@ -127,30 +139,119 @@
   }
 
   .app-header__actions {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: none;
+    margin-left: auto;
     padding-block: 4px;
-    scroll-snap-type: x proximity;
+    justify-content: flex-end;
+    overflow: visible;
+    scroll-snap-type: none;
   }
 
-  .app-header__actions > .btn,
-  .app-header__actions .header-overflow-group > .btn {
+  /* Hanya PDF, Cetak, dan Lainnya yang ada di baris utama mobile. */
+  .app-header__actions > .header-btn-primary {
+    min-width: var(--mobile-control-size);
     min-height: var(--mobile-control-size);
-    flex-shrink: 0;
-    scroll-snap-align: start;
+    padding-inline: 8px;
+    flex: 0 0 auto;
   }
 
-  .app-header__actions .header-btn-primary {
-    min-width: 65px;
-    padding-inline: 9px;
+  .app-header__actions > #btn-header-more {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 5px;
+    flex: 0 0 auto;
+    min-height: var(--mobile-control-size);
+    padding-inline: 10px;
+    white-space: nowrap;
+  }
+
+  .app-header__actions > #btn-header-more[aria-expanded="true"] {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  /* Overlay menu berada di bawah header, bukan di dalam scroll rail. */
+  .app-header__actions #header-overflow-group {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    right: max(var(--mobile-side-padding), env(safe-area-inset-right));
+    z-index: calc(var(--z-header) + 1);
+    flex-direction: column;
+    gap: 4px;
+    width: min(280px, calc(100vw - 2 * var(--mobile-side-padding)));
+    min-width: 0;
+    max-width: none;
+    max-height: min(70dvh, calc(100dvh - var(--header-height) - 16px));
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    padding: var(--space-2);
+    animation: headerMenuIn 150ms ease;
+  }
+
+  .app-header__actions #header-overflow-group.is-open {
+    display: flex;
+  }
+
+  .app-header__actions #header-overflow-group > .btn {
+    display: inline-flex;
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 100%;
+    min-height: var(--mobile-control-size);
+    padding: 9px 12px;
+    justify-content: flex-start;
+    gap: 12px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    box-shadow: none;
+    font-size: var(--text-sm);
+    white-space: nowrap;
+    scroll-snap-align: none;
+  }
+
+  .app-header__actions #header-overflow-group > .btn:hover,
+  .app-header__actions #header-overflow-group > .btn:focus-visible {
+    background: var(--color-surface-2);
+  }
+
+  .app-header__actions #header-overflow-group > .btn--danger-outline {
+    color: var(--color-danger);
+    background: var(--color-danger-light);
+  }
+
+  .app-header__actions #header-overflow-group > .btn svg {
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .app-header__actions #header-overflow-group .header-overflow-divider {
+    display: block !important;
+    flex: 0 0 1px;
+    width: 100%;
+    margin-block: 4px;
+  }
+
+  .app-header__actions #header-overflow-group .platform-status--menu {
+    display: flex !important;
   }
 }
 
 @media screen and (max-width: 374px) {
   .app-header__brand {
-    max-width: 92px;
+    max-width: 34px;
   }
 
   .app-header__title {
-    max-width: 66px;
+    display: none;
   }
 }
 
