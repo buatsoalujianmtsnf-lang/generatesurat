@@ -675,7 +675,7 @@ const TableConfigUI = (() => {
               ${da}
               title="Semua kolom ${sectionLabel}: ${opt.label}"
               aria-label="Semua kolom ${sectionLabel}: Horizontal ${opt.label}"
-            >${opt.icon}</button>`).join('')}
+             ><span data-tabler-icon="${opt.icon}"></span></button>`).join('')}
           <button type="button"
             class="tbl-cfg__apply-btn tbl-cfg__apply-btn--bold"
             data-action="apply-all-bold-on"
