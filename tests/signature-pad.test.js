@@ -4,12 +4,14 @@ import { describe, expect, it, vi } from 'vitest';
 
 const source = readFileSync(new URL('../js/signature-pad.js', import.meta.url), 'utf8');
 
-function createPad(value = '') {
+function createPad(value = '', oldInk = false) {
+  const images = [];
   const canvasHandlers = {};
   const buttonHandlers = {};
   const context2d = {
     beginPath: vi.fn(), moveTo: vi.fn(), lineTo: vi.fn(), stroke: vi.fn(),
-    clearRect: vi.fn(), drawImage: vi.fn(),
+    clearRect: vi.fn(), drawImage: vi.fn(), fillRect: vi.fn(),
+    getImageData: vi.fn(() => ({ data: new Uint8ClampedArray(oldInk ? [23, 33, 47, 255] : [29, 78, 216, 255]) })),
   };
   let captured = null;
   const canvas = {
@@ -36,7 +38,10 @@ function createPad(value = '') {
   const changes = vi.fn();
   const context = {
     Utils: { escapeHtml: text => String(text).replaceAll('<', '&lt;').replaceAll('"', '&quot;') },
-    Image: class { set src(next) { this._src = next; } },
+    Image: class {
+      constructor() { images.push(this); }
+      set src(next) { this._src = next; }
+    },
   };
   runInNewContext(source, context);
   const pad = runInNewContext('SignaturePad', context);
@@ -47,7 +52,7 @@ function createPad(value = '') {
     value,
     onChange: changes,
   });
-  return { group, canvas, button, status, changes, pad, context2d, canvasHandlers, buttonHandlers };
+  return { group, canvas, button, status, changes, pad, context2d, canvasHandlers, buttonHandlers, images };
 }
 
 describe('Canvas tanda tangan pada Surat Izin', () => {
@@ -72,6 +77,8 @@ describe('Canvas tanda tangan pada Surat Izin', () => {
     expect(h.changes).not.toHaveBeenCalled();
     h.canvasHandlers.pointerup({ pointerId: 1, pointerType: 'touch', clientX: 110, clientY: 55 });
     expect(h.context2d.stroke).toHaveBeenCalled();
+    expect(h.context2d.strokeStyle).toBe('#1d4ed8');
+    expect(h.context2d.fillStyle).toBe('#1d4ed8');
     expect(h.changes).toHaveBeenCalledTimes(1);
     expect(h.changes).toHaveBeenCalledWith('data:image/png;base64,iVBORw0KGgo=');
     expect(h.button.disabled).toBe(false);
@@ -80,6 +87,38 @@ describe('Canvas tanda tangan pada Surat Izin', () => {
     expect(h.context2d.clearRect).toHaveBeenCalled();
     expect(h.changes).toHaveBeenLastCalledWith('');
     expect(h.button.disabled).toBe(true);
+  });
+
+  it('mewarnai ulang tanda tangan lama hitam ke biru ketika draf dibuka', () => {
+    const pngOld = 'data:image/png;base64,AAAA';
+    const h = createPad(pngOld, true);
+    expect(h.images).toHaveLength(1);
+    h.images[0].onload();
+    expect(h.context2d.drawImage).toHaveBeenCalledTimes(1);
+    expect(h.context2d.globalCompositeOperation).toBe('source-over');
+    expect(h.context2d.fillStyle).toBe('#1d4ed8');
+    expect(h.context2d.fillRect).toHaveBeenCalledWith(0, 0, 800, 240);
+    expect(h.changes).toHaveBeenCalledWith('data:image/png;base64,iVBORw0KGgo=');
+  });
+
+  it('tidak menulis ulang tanda tangan yang sudah biru', () => {
+    const h = createPad('data:image/png;base64,iVBORw0KGgo=');
+    h.images[0].onload();
+    expect(h.context2d.fillRect).not.toHaveBeenCalled();
+    expect(h.changes).not.toHaveBeenCalled();
+  });
+
+  it('tidak menimpa goresan baru bila gambar draf lama terlambat dimuat', () => {
+    const h = createPad('data:image/png;base64,AAAA', true);
+    h.canvasHandlers.pointerdown({
+      pointerId: 1, pointerType: 'touch', clientX: 20, clientY: 30,
+      preventDefault: vi.fn(),
+    });
+    h.canvasHandlers.pointerup({ pointerId: 1, pointerType: 'touch', clientX: 25, clientY: 35 });
+    const before = h.changes.mock.calls.length;
+    h.images[0].onload();
+    expect(h.context2d.drawImage).not.toHaveBeenCalled();
+    expect(h.changes).toHaveBeenCalledTimes(before);
   });
 
   it('menolak data URL lain yang tidak aman/terlalu besar', () => {

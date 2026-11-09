@@ -266,7 +266,7 @@ const TemplateSuratIzin = (() => {
           label: 'Tanda Tangan Orang Tua/Wali',
           type: 'signature',
           required: false,
-          hint: 'Gambar menggunakan jari, stylus, atau mouse. Kosongkan bila ingin menandatangani surat setelah dicetak.',
+          hint: 'Tanda tangan menggunakan tinta biru. Gambar dengan jari, stylus, atau mouse, atau kosongkan untuk tanda tangan manual setelah dicetak.',
         },
       ],
     },

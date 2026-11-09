@@ -7,6 +7,7 @@ const SignaturePad = (() => {
   const WIDTH = 800;
   const HEIGHT = 240;
   const MAX_URL_LENGTH = 350000;
+  const INK_BLUE = '#1d4ed8'; // Biru tinta pena — digunakan pada canvas maupun PNG
 
   function normalize(value) {
     if (typeof value !== 'string' || value.length > MAX_URL_LENGTH) return '';
@@ -41,8 +42,8 @@ const SignaturePad = (() => {
       return;
     }
 
-    ctx.strokeStyle = '#17212f';
-    ctx.fillStyle = '#17212f';
+    ctx.strokeStyle = INK_BLUE;
+    ctx.fillStyle = INK_BLUE;
     ctx.lineWidth = 5;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -148,6 +149,44 @@ const SignaturePad = (() => {
         if (interacted || activePointer !== null || !signed) return;
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
         ctx.drawImage(img, 0, 0, WIDTH, HEIGHT);
+
+        // Draf lama dapat berisi tinta hitam. Recolor dengan mempertahankan
+        // alpha/ketebalan goresan, lalu simpan satu kali bila warnanya berubah.
+        // PNG biru yang sudah sesuai tidak diproses ulang.
+        let mustRecolor = true;
+        try {
+          const pixels = ctx.getImageData(0, 0, WIDTH, HEIGHT).data;
+          const rgb = [29, 78, 216]; // #1d4ed8
+          mustRecolor = false;
+          for (let i = 0; i < pixels.length; i += 4) {
+            if (pixels[i + 3] < 192) continue; // Abaikan pinggiran antialias.
+            if (Math.abs(pixels[i] - rgb[0]) > 5 ||
+                Math.abs(pixels[i + 1] - rgb[1]) > 5 ||
+                Math.abs(pixels[i + 2] - rgb[2]) > 5) {
+              mustRecolor = true;
+              break;
+            }
+          }
+        } catch {
+          // Canvas yang tidak bisa dibaca: masih dapat diganti tintanya.
+        }
+
+        if (mustRecolor) {
+          ctx.globalCompositeOperation = 'source-in';
+          ctx.fillStyle = INK_BLUE;
+          ctx.fillRect(0, 0, WIDTH, HEIGHT);
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.strokeStyle = INK_BLUE;
+          // Simpan ulang PNG hasil recolor agar pratinjau, cetak dan PDF biru.
+          try {
+            const bluePng = normalize(canvas.toDataURL('image/png'));
+            if (!interacted && bluePng && bluePng !== saved) {
+              config.onChange(bluePng);
+            }
+          } catch {
+            // Draf tetap utuh bila ekspor kanvas tidak tersedia.
+          }
+        }
       };
       img.onerror = () => {
         if (interacted) return;
