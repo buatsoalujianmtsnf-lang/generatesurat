@@ -15,7 +15,7 @@ const TemplateIjopPermohonan = (() => {
     id: TEMPLATE_ID,
     name: 'IJOP: Surat Permohonan Lembaga',
     description: 'Surat permohonan perpanjangan izin operasional RA/Madrasah dari lembaga ke Kankemenag.',
-    icon: '📝',
+    icon: 'writing',
     orientation: 'portrait',
     paperSize: 'a4',
     category: 'ijop',
@@ -52,7 +52,7 @@ const TemplateIjopPermohonan = (() => {
     {
       id: 'surat',
       title: 'Identitas Surat',
-      icon: '📋',
+      icon: 'clipboard-list',
       fields: [
         {
           key: 'surat.nomor',
@@ -93,7 +93,7 @@ const TemplateIjopPermohonan = (() => {
     {
       id: 'lembaga',
       title: 'Data RA/Madrasah',
-      icon: '🏫',
+      icon: 'school',
       fields: [
         {
           key: 'lembaga.bentukSatuanPendidikan',
@@ -156,7 +156,7 @@ const TemplateIjopPermohonan = (() => {
     {
       id: 'kepala',
       title: 'Kepala',
-      icon: '✍️',
+      icon: 'signature',
       fields: [
         {
           key: 'kepala.jabatan',
