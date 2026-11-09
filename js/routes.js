@@ -21,7 +21,7 @@ const Routes = (() => {
 
   function resolve(path) {
     const cleaned = String(path || '/').replace(/\/+$/, '') || '/';
-    if (cleaned === '/' || cleaned === '/index.html') return { kind: 'landing' };
+    if (cleaned === '/' || cleaned === '/index' || cleaned === '/index.html') return { kind: 'landing' };
     if (cleaned === '/editor') return { kind: 'editor' };
     if (cleaned.toLowerCase() === '/dpudanregis') {
       return { kind: 'category', groupId: 'registrasi-dpu', legacy: true };
