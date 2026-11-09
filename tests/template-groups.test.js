@@ -12,7 +12,7 @@ function loadRegistry() {
   runInNewContext(read('js/template-registry.js'), ctx);
   const registry = runInNewContext('TemplateRegistry', ctx);
   registry.init();
-  return registry;
+  return { registry, ctx };
 }
 
 function makeElement(tagName) {
@@ -56,7 +56,7 @@ function makeElement(tagName) {
 
 describe('Daftar template dikelompokkan menjadi accordion', () => {
   it('membagi tepat 10 template menjadi 4 kategori dengan urutan yang diminta', () => {
-    const registry = loadRegistry();
+    const { registry } = loadRegistry();
     const groups = registry.getGroupedTemplates();
     expect(groups.map(group => group.title)).toEqual([
       'Registrasi dan DPU',
@@ -75,17 +75,11 @@ describe('Daftar template dikelompokkan menjadi accordion', () => {
   });
 
   it('mempertahankan pilihan aktif, dukungan keyboard, dan buka grup yang aktif', () => {
-    const registry = loadRegistry();
-    const originalDocument = globalThis.document;
-    const mockDocument = { createElement: tag => makeElement(tag) };
+    const { registry, ctx } = loadRegistry();
+    ctx.document = { createElement: tag => makeElement(tag) };
     const container = makeElement('div');
     const onSelect = vi.fn();
-    try {
-      globalThis.document = mockDocument;
-      registry.renderTemplateList(container, 'surat-izin', onSelect);
-    } finally {
-      globalThis.document = originalDocument;
-    }
+    registry.renderTemplateList(container, 'surat-izin', onSelect);
 
     const groups = container.querySelectorAll('.template-group');
     expect(groups).toHaveLength(4);
@@ -112,7 +106,7 @@ describe('Daftar template dikelompokkan menjadi accordion', () => {
   });
 
   it('membuka kelompok pertama secara bawaan dan menampung template baru', () => {
-    const registry = loadRegistry();
+    const { registry, ctx } = loadRegistry();
     registry.register({
       TEMPLATE_ID: 'jenis-baru',
       meta: { name: 'Jenis Baru', description: 'Template baru', orientation: 'portrait' },
@@ -121,14 +115,9 @@ describe('Daftar template dikelompokkan menjadi accordion', () => {
     expect(groups.at(-1).title).toBe('Template Lainnya');
     expect(groups.at(-1).templates[0].TEMPLATE_ID).toBe('jenis-baru');
 
-    const originalDocument = globalThis.document;
     const container = makeElement('div');
-    try {
-      globalThis.document = { createElement: tag => makeElement(tag) };
-      registry.renderTemplateList(container, null, vi.fn());
-    } finally {
-      globalThis.document = originalDocument;
-    }
+    ctx.document = { createElement: tag => makeElement(tag) };
+    registry.renderTemplateList(container, null, vi.fn());
     expect(container.querySelectorAll('.template-group').map(group => group.open)).toEqual([
       true, false, false, false, false,
     ]);
