@@ -154,21 +154,11 @@ const Settings = (() => {
             <label class="settings-label">Orientasi</label>
             <div class="orientation-btns" id="orientation-btns" role="group" aria-label="Orientasi halaman">
               <button type="button" class="orient-btn active" data-orient="portrait" title="Portrait">
-                <svg class="orient-icon" viewBox="0 0 24 32" fill="none">
-                  <rect x="1" y="1" width="22" height="30" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <line x1="5" y1="10" x2="19" y2="10" stroke="currentColor" stroke-width="1.5"/>
-                  <line x1="5" y1="15" x2="16" y2="15" stroke="currentColor" stroke-width="1.5"/>
-                  <line x1="5" y1="20" x2="18" y2="20" stroke="currentColor" stroke-width="1.5"/>
-                </svg>
+                <svg class="ti-icon orient-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-file-description"></use></svg>
                 <span>Portrait</span>
               </button>
               <button type="button" class="orient-btn" data-orient="landscape" title="Landscape">
-                <svg class="orient-icon landscape" viewBox="0 0 32 24" fill="none">
-                  <rect x="1" y="1" width="30" height="22" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <line x1="7" y1="7" x2="25" y2="7" stroke="currentColor" stroke-width="1.5"/>
-                  <line x1="7" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="1.5"/>
-                  <line x1="7" y1="17" x2="24" y2="17" stroke="currentColor" stroke-width="1.5"/>
-                </svg>
+                <svg class="ti-icon orient-icon landscape" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-file-spreadsheet"></use></svg>
                 <span>Landscape</span>
               </button>
             </div>
