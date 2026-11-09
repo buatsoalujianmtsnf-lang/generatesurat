@@ -191,9 +191,11 @@ const App = (() => {
 
   /* ── Handle template dipilih ── */
   function _handleTemplateSelect(templateId) {
+    const selectedTemplate = TemplateRegistry.get(templateId);
+    const firstEditorTab = selectedTemplate?.meta?.usesKop === false ? 'form' : 'kop';
+
     if (State.getActiveTemplate() === templateId) {
-      // Template sudah aktif; tetap arahkan ke langkah KOP.
-      UI.switchTab('kop');
+      UI.switchTab(firstEditorTab);
       return;
     }
 
@@ -206,7 +208,6 @@ const App = (() => {
     // Terapkan orientasi/ukuran bawaan template sebagai titik awal dokumen.
     // DPU secara spesifik mendefinisikan A4 Landscape, sehingga pagination
     // tidak lagi dihitung pada layout portrait default aplikasi.
-    const selectedTemplate = TemplateRegistry.get(templateId);
     const templateOrientation = selectedTemplate?.meta?.orientation;
     const templatePaperSize = selectedTemplate?.meta?.paperSize;
     const settingsPatch = {};
@@ -226,8 +227,8 @@ const App = (() => {
       templateId
     );
 
-    // Setelah memilih template, pengguna melanjutkan ke konfigurasi KOP.
-    UI.switchTab('kop');
+    // Template surat pribadi langsung ke form, template lain tetap ke editor KOP.
+    UI.switchTab(firstEditorTab);
 
     UI.toast(`Template "${TemplateRegistry.get(templateId)?.meta?.name}" dipilih.`, 'info', 2500);
   }
