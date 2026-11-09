@@ -2237,6 +2237,10 @@ const PreviewRenderer = (() => {
     const durasiIzin       = _esc(iz.durasiIzin       || '……………………');
     const alasanIzin       = _esc(TemplateSuratIzin.getAlasanIzinText(iz) || '…………………………………');
     const namaLokasi       = _esc(pg.namaLokasi       || '……………………');
+    const signatureDataUrl = TemplateSuratIzin.getSignatureDataUrl(pg.tandaTanganDataUrl);
+    const signatureHtml = signatureDataUrl
+      ? `<img src="${_esc(signatureDataUrl)}" alt="Tanda tangan Orang Tua/Wali" style="display:block;max-width:100%;width:160px;height:40pt;object-fit:contain;" />`
+      : '';
 
     return `
       <div class="doc-content doc-content--surat-izin" style="${marginStyle}">
@@ -2321,7 +2325,7 @@ const PreviewRenderer = (() => {
             <p style="margin:0;">${namaLokasi}, ${tanggalSurat}</p>
             <p style="margin:4pt 0 0 0;">Hormat kami,</p>
             <p style="margin:0;">Orang Tua/Wali Murid,</p>
-            <div style="height:40pt;"></div>
+            <div style="height:40pt;display:flex;align-items:center;justify-content:center;">${signatureHtml}</div>
             <p style="margin:0;font-weight:bold;text-decoration:underline;">${namaOrangTuaWali}</p>
           </div>
         </div>
