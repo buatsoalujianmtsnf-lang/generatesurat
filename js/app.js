@@ -12,6 +12,8 @@ const App = (() => {
 
   /* ── Boot sequence ── */
   function init() {
+    // Halaman beranda tidak memuat editor, data pemulihan, atau dialog kerja.
+    if (typeof Routes !== 'undefined' && Routes.isLanding()) return;
     if (_initialized) return;
     _initialized = true;
 
@@ -146,6 +148,9 @@ const App = (() => {
       UI.toast('Data sebelumnya berhasil dimuat kembali.', 'success');
     }
 
+    /* 14b. Deep link surat/kategori serta sinkronisasi URL saat template berubah */
+    Routes.initEditor(_handleTemplateSelect);
+
     /* 15. Subscribe state changes untuk auto-save peringatan */
     State.on('state:change', _onStateChange);
 
@@ -196,6 +201,7 @@ const App = (() => {
 
     if (State.getActiveTemplate() === templateId) {
       UI.switchTab(firstEditorTab);
+      Routes.onSelected(templateId);
       return;
     }
 
@@ -229,6 +235,7 @@ const App = (() => {
 
     // Template surat pribadi langsung ke form, template lain tetap ke editor KOP.
     UI.switchTab(firstEditorTab);
+    Routes.onSelected(templateId);
 
     UI.toast(`Template "${TemplateRegistry.get(templateId)?.meta?.name}" dipilih.`, 'info', 2500);
   }

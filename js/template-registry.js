@@ -161,6 +161,18 @@ const TemplateRegistry = (() => {
     });
   }
 
+  /* ── Buka satu kelompok dari URL /kategori/:slug ── */
+  function openGroup(containerEl, groupId) {
+    if (!containerEl || !groupId) return false;
+    let found = false;
+    containerEl.querySelectorAll('.template-group').forEach(group => {
+      const match = group.dataset.groupId === groupId;
+      group.open = match;
+      if (match) found = true;
+    });
+    return found;
+  }
+
   /* ── Update penanda kartu aktif dan buka kelompoknya saat dipilih/restore ── */
   function updateActiveCard(containerEl, activeTemplateId) {
     if (!containerEl) return;
@@ -283,6 +295,7 @@ const TemplateRegistry = (() => {
     get,
     getAll,
     getGroupedTemplates,
+    openGroup,
     count,
     renderTemplateList,
     updateActiveCard,

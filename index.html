@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Generator Surat Madrasah - Buat surat resmi madrasah secara mudah dan cepat" />
-  <title>Generator Surat Madrasah</title>
+  <base href="/" />
+  <meta name="description" content="Generator Surat Madrasah: template dokumen registrasi, DPU, IJOP, pengolahan nilai, dan surat izin siswa. Buat, pratinjau, cetak, dan ekspor PDF." />
+  <title>Generator Surat Madrasah | Buat Surat Lebih Praktis</title>
 
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg" />
@@ -17,6 +18,7 @@
 
   <!-- Theme bootstrap eksternal agar kompatibel dengan Content Security Policy. -->
   <script src="js/theme-init.js"></script>
+  <script src="js/routes.js"></script>
 
   <!-- CSS -->
   <link rel="stylesheet" href="css/main.css" />
@@ -32,8 +34,122 @@
   <link rel="stylesheet" href="css/document-viewer.css" />
   <link rel="stylesheet" href="css/print.css" />
   <link rel="stylesheet" href="css/dark-mode.css" />
+  <link rel="stylesheet" href="css/landing.css" />
 </head>
 <body>
+
+  <!-- LANDING PAGE: home view; editor is available at /editor and /surat/:slug -->
+  <main id="landing-page" class="lp">
+    <header class="lp__header">
+      <div class="lp__container lp__nav">
+        <a class="lp__brand" href="/" aria-label="Generator Surat Madrasah — Beranda">
+          <img src="assets/icons/logo.svg" alt="" width="38" height="38" />
+          <span>Generator Surat Madrasah</span>
+        </a>
+        <nav class="lp__links" aria-label="Navigasi utama">
+          <a href="#koleksi">Koleksi Template</a>
+          <a href="#keunggulan">Keunggulan</a>
+          <a class="lp__button lp__button--primary" href="/editor">Buka Editor <span aria-hidden="true">↗</span></a>
+        </nav>
+      </div>
+    </header>
+
+    <section class="lp__hero" aria-labelledby="lp-hero-title">
+      <div class="lp__container lp__hero-grid">
+        <div>
+          <span class="lp__eyebrow"><span class="lp__eyebrow-dot"></span> Solusi dokumen madrasah</span>
+          <h1 id="lp-hero-title">Surat madrasah, <em>lebih mudah dibuat.</em></h1>
+          <p>Pilih template, lengkapi data, lihat hasilnya secara langsung, lalu cetak atau simpan sebagai PDF. Semua dalam satu tempat yang praktis dan rapi.</p>
+          <div class="lp__hero-actions">
+            <a class="lp__button lp__button--primary" href="/editor">Mulai Buat Surat <span aria-hidden="true">→</span></a>
+            <a class="lp__button lp__button--secondary" href="#koleksi">Jelajahi Template</a>
+          </div>
+          <div class="lp__hero-proof">
+            <span class="lp__proof-item"><span class="lp__proof-check">✓</span> Pratinjau sebelum cetak</span>
+            <span class="lp__proof-item"><span class="lp__proof-check">✓</span> Tersedia ekspor PDF</span>
+            <span class="lp__proof-item"><span class="lp__proof-check">✓</span> Tanda tangan pada surat izin</span>
+          </div>
+        </div>
+        <div class="lp__preview" aria-hidden="true">
+          <div class="lp__paper">
+            <div class="lp__paper-top">
+              <span class="lp__paper-icon">📄</span>
+              <span class="lp__paper-meta"><strong>GENERATOR SURAT</strong><small>Pratinjau dokumen · A4</small></span>
+            </div>
+            <span class="lp__paper-kicker">SURAT KETERANGAN</span>
+            <div class="lp__paper-rule"></div>
+            <div class="lp__line lp__line--mid"></div>
+            <div class="lp__line lp__line--wide"></div>
+            <div class="lp__line lp__line--short"></div>
+            <div class="lp__paper-rows">
+              <div class="lp__paper-row"><span></span><span></span></div>
+              <div class="lp__paper-row"><span></span><span></span></div>
+              <div class="lp__paper-row"><span></span><span></span></div>
+            </div>
+            <div class="lp__line lp__line--wide"></div>
+            <div class="lp__line lp__line--mid"></div>
+            <div class="lp__sign"><span class="lp__sign-mark">✍</span><div class="lp__line lp__line--mid"></div></div>
+          </div>
+          <div class="lp__preview-badge"><span>✓</span> Dokumen siap dicetak</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="lp__container lp__stats" aria-label="Ringkasan fitur">
+      <div class="lp__stat"><strong id="lp-template-count">10</strong><span>Template surat</span></div>
+      <div class="lp__stat"><strong id="lp-group-count">4</strong><span>Kelompok dokumen</span></div>
+      <div class="lp__stat"><strong>PDF &amp; Cetak</strong><span>Pilihan hasil dokumen</span></div>
+    </div>
+
+    <section class="lp__section lp__section--alt" id="koleksi" aria-labelledby="lp-collection-title">
+      <div class="lp__container">
+        <div class="lp__section-top">
+          <div>
+            <span class="lp__section-kicker">Koleksi dokumen</span>
+            <h2 id="lp-collection-title">Temukan template yang Anda butuhkan</h2>
+            <p class="lp__section-intro">Template dikelompokkan berdasarkan keperluan administrasi. Buka salah satu surat untuk langsung mulai mengisinya.</p>
+          </div>
+          <label class="lp__search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m16 16 5 5" /></svg>
+            <input id="lp-template-search" type="search" aria-label="Cari template surat" placeholder="Cari template surat..." autocomplete="off" />
+          </label>
+        </div>
+        <div id="lp-search-results" class="lp__search-status" role="status" aria-live="polite">Pilih template untuk mulai membuat surat</div>
+        <div id="lp-template-groups" class="lp__groups">
+          <noscript>Aktifkan JavaScript untuk menampilkan koleksi template, atau buka <a href="/editor">Editor Surat</a> secara langsung.</noscript>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp__section" id="keunggulan" aria-labelledby="lp-features-title">
+      <div class="lp__container">
+        <span class="lp__section-kicker">Dirancang untuk kebutuhan harian</span>
+        <h2 id="lp-features-title">Dari pengisian hingga dokumen jadi</h2>
+        <p class="lp__section-intro" style="margin-bottom:28px">Fitur penting tersedia di editor tanpa perlu berpindah-pindah aplikasi.</p>
+        <div class="lp__features">
+          <article class="lp__feature"><span class="lp__feature-icon" aria-hidden="true">🧩</span><h3>Template terstruktur</h3><p>Form yang relevan dengan jenis surat memudahkan pengisian informasi secara konsisten.</p></article>
+          <article class="lp__feature"><span class="lp__feature-icon" aria-hidden="true">👁️</span><h3>Pratinjau langsung</h3><p>Lihat perubahan isi surat saat mengetik dan sesuaikan pengaturan dokumen sebelum dicetak.</p></article>
+          <article class="lp__feature"><span class="lp__feature-icon" aria-hidden="true">📥</span><h3>Cetak dan ekspor PDF</h3><p>Simpan hasil surat sebagai PDF atau cetak langsung dari aplikasi.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp__section lp__section--alt">
+      <div class="lp__container">
+        <div class="lp__banner">
+          <div><h2>Siap membuat surat berikutnya?</h2><p>Mulai dari editor atau pilih template yang sesuai kebutuhan Anda.</p></div>
+          <a class="lp__button lp__button--primary" href="/editor">Buka Editor Surat <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="lp__footer">
+      <div class="lp__container lp__footer-inner">
+        <a class="lp__brand" href="/"><img src="assets/icons/logo.svg" alt="" width="32" height="32" />Generator Surat Madrasah</a>
+        <span>Template administrasi madrasah dalam satu aplikasi.</span>
+      </div>
+    </footer>
+  </main>
 
   <!-- ===== TOAST NOTIFICATION ===== -->
   <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
@@ -67,7 +183,7 @@
 
     <!-- HEADER -->
     <header class="app-header">
-      <div class="app-header__brand">
+      <a class="app-header__brand" href="/" title="Kembali ke beranda" aria-label="Kembali ke beranda Generator Surat">
         <img
           src="assets/icons/logo.svg"
           alt="Generator Surat Madrasah"
@@ -76,7 +192,7 @@
           height="28"
         />
         <span class="app-header__title">Generator Surat Madrasah</span>
-      </div>
+      </a>
       <div class="app-header__actions">
         <!-- Storage info (disembunyikan di mobile via CSS) -->
         <div id="storage-info" class="storage-info hidden">
@@ -381,6 +497,7 @@
   <script src="templates/rekap-nilai.js"></script>
   <script src="templates/surat-izin.js"></script>
   <script src="js/template-registry.js"></script>
+  <script src="js/landing.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/kop-editor.js"></script>
   <script src="js/excel-import.js"></script>
