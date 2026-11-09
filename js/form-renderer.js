@@ -156,7 +156,7 @@ const FormRenderer = (() => {
       <div class="form-section__header collapse-title" role="button" tabindex="0"
         aria-expanded="true" data-section="${section.id}">
         <span class="form-section__title card-title">
-          <span>${Utils.escapeHtml(section.icon || '')} ${Utils.escapeHtml(section.title)}</span>
+          <span>${typeof AppIcons !== 'undefined' ? AppIcons.svg(section.icon || 'file-text') : Utils.escapeHtml(section.icon || '')} ${Utils.escapeHtml(section.title)}</span>
         </span>
         <svg class="ti-icon form-section__toggle" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-chevron-down"></use></svg>
       </div>
