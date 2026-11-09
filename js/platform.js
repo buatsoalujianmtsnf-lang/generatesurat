@@ -258,8 +258,8 @@ const Platform = (() => {
         event.preventDefault();
         if (typeof Workflow !== 'undefined' && typeof Workflow.preparePrint === 'function') {
           Workflow.preparePrint();
-        } else if (typeof Print !== 'undefined') {
-          Print.printDocument();
+        } else {
+          UI.toast('Alur konfirmasi cetak belum siap. Muat ulang aplikasi.', 'error');
         }
       }
     });
