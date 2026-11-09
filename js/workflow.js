@@ -14,6 +14,21 @@ const Workflow = (() => {
     { id: 'settings', label: 'Finalisasi', shortLabel: 'Finalisasi', step: 4, previous: 'form' },
   ];
 
+  function _usesKop() {
+    const templateId = State.getActiveTemplate();
+    return !templateId || TemplateRegistry.get(templateId)?.meta?.usesKop !== false;
+  }
+
+  function _getSteps() {
+    const steps = STEPS.filter(step => step.id !== 'kop' || _usesKop());
+    return steps.map((step, index) => ({
+      ...step,
+      step: index + 1,
+      previous: steps[index - 1]?.id || null,
+      next: steps[index + 1]?.id || null,
+    }));
+  }
+
   let _rootEl = null;
   let _initialized = false;
 
@@ -83,8 +98,8 @@ const Workflow = (() => {
 
   function _ensureTabStatus() {
     const tabs = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.editor-tab'));
-    tabs.forEach((tab, index) => {
-      const step = STEPS[index];
+    tabs.forEach(tab => {
+      const step = STEPS.find(item => item.id === tab.dataset.tab);
       if (!step) return;
       tab.dataset.workflowStep = String(step.step);
 
@@ -100,7 +115,8 @@ const Workflow = (() => {
 
   function _getCurrentStep() {
     const activeTab = State.getUi().activeTab || 'template';
-    return STEPS.find(step => step.id === activeTab) || STEPS[0];
+    const steps = _getSteps();
+    return steps.find(step => step.id === activeTab) || steps[0];
   }
 
   function _getFormValidation() {
@@ -132,6 +148,7 @@ const Workflow = (() => {
   }
 
   function _getKopValidation() {
+    if (!_usesKop()) return { valid: true, errors: [] };
     if (typeof Validation === 'undefined' || typeof Validation.kopConfig !== 'function') {
       return { valid: true, errors: [] };
     }
@@ -187,13 +204,16 @@ const Workflow = (() => {
         : `${status.text}. Periksa field yang ditandai sebelum finalisasi.`;
     }
 
-    return 'Sebelum mencetak, aplikasi akan memeriksa KOP dan field wajib.';
+    return _usesKop()
+      ? 'Sebelum mencetak, aplikasi akan memeriksa KOP dan field wajib.'
+      : 'Sebelum mencetak, aplikasi akan memeriksa seluruh field wajib.';
   }
 
   function update() {
     if (!_initialized) return;
 
     const current = _getCurrentStep();
+    const steps = _getSteps();
     const status = _getStatus(current);
 
     const stepLabel = document.getElementById('workflow-step-label');
@@ -202,7 +222,7 @@ const Workflow = (() => {
     const nextBtn = /** @type {HTMLButtonElement|null} */ (document.getElementById('workflow-next'));
     const nextLabel = document.getElementById('workflow-next-label');
 
-    if (stepLabel) stepLabel.textContent = `Langkah ${current.step} dari ${STEPS.length} · ${current.label}`;
+    if (stepLabel) stepLabel.textContent = `Langkah ${current.step} dari ${steps.length} · ${current.label}`;
     if (statusEl) {
       statusEl.textContent = _getFooterStatus(current);
       statusEl.dataset.state = status.state;
@@ -219,7 +239,7 @@ const Workflow = (() => {
       nextBtn.classList.toggle('btn--primary', current.id !== 'settings');
       nextBtn.setAttribute(
         'aria-label',
-        current.id === 'settings' ? 'Periksa data lalu cetak surat' : `Lanjut ke ${STEPS.find(s => s.id === current.next)?.label || 'langkah berikutnya'}`
+        current.id === 'settings' ? 'Periksa data lalu cetak surat' : `Lanjut ke ${steps.find(s => s.id === current.next)?.label || 'langkah berikutnya'}`
       );
     }
 
@@ -227,7 +247,7 @@ const Workflow = (() => {
       if (current.id === 'settings') {
         nextLabel.textContent = 'Periksa & Cetak';
       } else if (current.id === 'template') {
-        nextLabel.textContent = 'Ke KOP Surat';
+        nextLabel.textContent = _usesKop() ? 'Ke KOP Surat' : 'Ke Isi Surat';
       } else if (current.id === 'kop') {
         nextLabel.textContent = 'Ke Isi Surat';
       } else {
@@ -236,9 +256,10 @@ const Workflow = (() => {
     }
 
     const tabs = document.querySelectorAll('.editor-tab');
-    tabs.forEach((tab, index) => {
-      const step = STEPS[index];
+    tabs.forEach(tab => {
+      const step = steps.find(item => item.id === tab.dataset.tab);
       if (!step) return;
+      tab.dataset.workflowStep = String(step.step);
       const tabStatus = _getStatus(step);
       tab.classList.toggle('workflow-complete', tabStatus.state === 'complete');
       tab.classList.toggle('workflow-attention', tabStatus.state === 'attention');
