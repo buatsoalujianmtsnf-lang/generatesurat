@@ -175,7 +175,7 @@ const ExcelImport = (() => {
           <strong class="excel-import-toolbar__file-name">Belum ada file</strong>
           <small class="excel-import-toolbar__file-size"></small>
         </span>
-        <button type="button" class="btn-icon excel-import-clear btn btn-square btn-ghost btn-sm" title="Ganti file" aria-label="Ganti file">↻</button>
+        <button type="button" class="btn-icon excel-import-clear btn btn-square btn-ghost btn-sm" title="Ganti file" aria-label="Ganti file"><span data-tabler-icon="refresh"></span></button>
       </div>
 
       <div class="excel-import-toolbar__actions">
