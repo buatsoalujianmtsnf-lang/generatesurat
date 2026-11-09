@@ -1990,35 +1990,37 @@ const PreviewRenderer = (() => {
     /* ── Header Info Dokumen ── */
     const infoHtml = `
       <div class="doc-meta rekap-nilai-meta">
-        <table>
-          <tr>
-            <td style="width:100px;">Nama Guru</td>
-            <td style="width:8px;">:</td>
-            <td><strong>${_esc(hdr.namaGuru || ttd.namaGuru || '')}</strong></td>
-            <td style="width:20px;"></td>
-            <td style="width:80px;">Semester</td>
-            <td style="width:8px;">:</td>
-            <td>${_esc(hdr.semester || '')}</td>
-          </tr>
-          <tr>
-            <td>Mata Pelajaran</td>
-            <td>:</td>
-            <td>${_esc(hdr.mataPelajaran || '')}</td>
-            <td></td>
-            <td>Tahun Pelajaran</td>
-            <td>:</td>
-            <td>${_esc(hdr.tahunPelajaran || '')}</td>
-          </tr>
-          <tr>
-            <td>Kelas</td>
-            <td>:</td>
-            <td>${_esc(hdr.namaKelas || '')}</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-        </table>
+        <div class="rekap-nilai-meta__grid" style="display:flex;align-items:flex-start;justify-content:space-between;gap:8mm;width:100%;">
+          <table class="rekap-nilai-meta__left" style="width:auto;table-layout:auto;">
+            <tr>
+              <td style="white-space:nowrap;">Nama Guru</td>
+              <td>:</td>
+              <td><strong>${_esc(hdr.namaGuru || ttd.namaGuru || '')}</strong></td>
+            </tr>
+            <tr>
+              <td style="white-space:nowrap;">Mata Pelajaran</td>
+              <td>:</td>
+              <td>${_esc(hdr.mataPelajaran || '')}</td>
+            </tr>
+            <tr>
+              <td style="white-space:nowrap;">Kelas</td>
+              <td>:</td>
+              <td>${_esc(hdr.namaKelas || '')}</td>
+            </tr>
+          </table>
+          <table class="rekap-nilai-meta__right" style="width:auto;table-layout:auto;margin-left:auto;flex-shrink:0;">
+            <tr>
+              <td style="white-space:nowrap;text-align:right;">Semester</td>
+              <td style="white-space:nowrap;">:</td>
+              <td style="white-space:nowrap;text-align:right;">${_esc(hdr.semester || '')}</td>
+            </tr>
+            <tr>
+              <td style="white-space:nowrap;text-align:right;">Tahun Pelajaran</td>
+              <td style="white-space:nowrap;">:</td>
+              <td style="white-space:nowrap;text-align:right;">${_esc(hdr.tahunPelajaran || '')}</td>
+            </tr>
+          </table>
+        </div>
       </div>`;
 
     /* ── Judul ── */
@@ -2182,15 +2184,19 @@ const PreviewRenderer = (() => {
             <p style="margin:0 0 2pt;">Mengetahui,</p>
             <p style="margin:0 0 2pt;">Kepala ${namaSekolah},</p>
             <div style="height:20mm;"></div>
-            <p style="margin:0;font-weight:bold;text-decoration:underline;">${namaKs || '\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026'}</p>
-            <p style="margin:2pt 0 0;">NIP. ${nipKs}</p>
+            <div class="rekap-nilai-ttd__identity" style="display:inline-block;text-align:left;max-width:100%;overflow-wrap:anywhere;">
+              <p style="margin:0;font-weight:bold;text-decoration:underline;">${namaKs || '\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026'}</p>
+              <p style="margin:2pt 0 0;">NIP. ${nipKs}</p>
+            </div>
           </div>
           <div class="doc-ttd-col" style="text-align:center;">
             <p style="margin:0 0 2pt;">${namaKab}, ${tanggalStr}</p>
             <p style="margin:0 0 2pt;">Guru Mata Pelajaran,</p>
             <div style="height:20mm;"></div>
-            <p style="margin:0;font-weight:bold;text-decoration:underline;">${namaGuru || '\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026'}</p>
-            <p style="margin:2pt 0 0;">NIP. ${nipGuru}</p>
+            <div class="rekap-nilai-ttd__identity" style="display:inline-block;text-align:left;max-width:100%;overflow-wrap:anywhere;">
+              <p style="margin:0;font-weight:bold;text-decoration:underline;">${namaGuru || '\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026'}</p>
+              <p style="margin:2pt 0 0;">NIP. ${nipGuru}</p>
+            </div>
           </div>
         </div>
       </div>`;

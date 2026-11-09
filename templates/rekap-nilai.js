@@ -180,11 +180,9 @@ const TemplateRekapNilai = (() => {
           placeholder: 'Nama lengkap murid',
           required: true,
         },
-        /* Nilai-nilai berikut ditampilkan hanya saat mode = 'lengkap'.
-           form-renderer.js mendukung showIf berbasis root-data via konteks,
-           namun untuk kesederhanaan kita render selalu dan sembunyikan via CSS
-           yang dikontrol class di form-container berdasar modePengisian.
-           Alternatifnya: label "(otomatis dikosongkan di mode Format)" pada label. */
+        /* Field nilai berikut hanya terlihat saat mode 'lengkap'.
+           FormRenderer menyembunyikannya saat mode 'format', tanpa menghapus
+           nilai yang sudah tersimpan agar bisa dikembalikan saat mode diganti. */
         {
           key: 'bab1_tp1',
           label: 'BAB 1 – TP1',

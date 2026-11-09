@@ -312,6 +312,39 @@ describe('Rekap Nilai: panel Pengaturan Tabel vs preview', () => {
   const htmlCardCount = (html, className) =>
     (html.match(new RegExp('class="' + className + '"', 'g')) || []).length;
 
+  it('keeps Tahun Pelajaran on one line and aligns Semester/Tahun at the right edge', () => {
+    const h = open();
+    h.state.currentData.header.semester = 'Genap';
+    h.state.currentData.header.tahunPelajaran = '2026/2027';
+    h.renderer.render(h.template, h.state.currentData, {});
+    const html = h.preview.innerHTML;
+    expect(html).toContain('rekap-nilai-meta__grid');
+    expect(html).toContain('justify-content:space-between');
+    expect(html).toContain('rekap-nilai-meta__right');
+    expect(html).toContain('margin-left:auto;flex-shrink:0;');
+    expect(html).toMatch(/<td style="white-space:nowrap;text-align:right;">Semester<\/td>/);
+    expect(html).toMatch(/<td style="white-space:nowrap;text-align:right;">Tahun Pelajaran<\/td>/);
+    expect(html).toContain('>2026/2027</td>');
+    expect(html).toContain('>Genap</td>');
+  });
+
+  it('aligns each NIP with the leftmost letter of the related signatory name', () => {
+    const h = open();
+    h.state.currentData.tandaTangan.namaKepalaSekolah = 'Kepala Madrasah';
+    h.state.currentData.tandaTangan.nipKepalaSekolah = '123456';
+    h.state.currentData.tandaTangan.namaGuru = 'Guru Mata Pelajaran';
+    h.state.currentData.tandaTangan.nipGuru = '789012';
+    h.renderer.render(h.template, h.state.currentData, {});
+    const html = h.preview.innerHTML;
+    const blocks = [...html.matchAll(/<div class="rekap-nilai-ttd__identity" style="([^"]*)">([\s\S]*?)<\/div>/g)];
+    expect(blocks).toHaveLength(2);
+    expect(blocks.every(([, style]) => style.includes('display:inline-block;text-align:left'))).toBe(true);
+    expect(blocks[0][2]).toContain('>Kepala Madrasah</p>');
+    expect(blocks[0][2]).toContain('NIP. 123456</p>');
+    expect(blocks[1][2]).toContain('>Guru Mata Pelajaran</p>');
+    expect(blocks[1][2]).toContain('NIP. 789012</p>');
+  });
+
   it('shows 17 editable width/header/body columns for default layout, not 30', () => {
     const h = open();
     const layout = h.template.getTableLayout(h.state.currentData);
