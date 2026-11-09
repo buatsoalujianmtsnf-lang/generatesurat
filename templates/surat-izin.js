@@ -24,6 +24,43 @@ const TemplateSuratIzin = (() => {
     usesKop: false, // Surat pribadi orang tua/wali, tanpa KOP madrasah
   };
 
+  /* ── Pilihan Alasan Izin sesuai panduan ── */
+  const ALASAN_PILIHAN = [
+    { value: "sakit", label: "Sakit", text: "Sedang sakit dan membutuhkan waktu untuk beristirahat serta memulihkan kondisi kesehatan." },
+    { value: "mengikuti-orang-tua", label: "Mengikuti orang tua", text: "Harus mengikuti orang tua untuk suatu keperluan keluarga yang tidak dapat ditinggalkan." },
+    { value: "urusan-keluarga", label: "Urusan keluarga", text: "Terdapat keperluan keluarga penting yang mengharuskan anak kami tidak masuk sekolah." },
+    { value: "acara-keluarga", label: "Acara keluarga", text: "Menghadiri acara keluarga yang tidak dapat ditinggalkan." },
+    { value: "berobat", label: "Berobat", text: "Menjalani pemeriksaan atau pengobatan kesehatan." },
+    { value: "musibah-keluarga", label: "Musibah keluarga", text: "Mengalami musibah keluarga sehingga belum dapat mengikuti kegiatan pembelajaran." },
+    { value: "lainnya", label: "Keperluan lainnya", text: "Memiliki keperluan penting, yaitu …" },
+  ];
+
+  /* Ubah alasan bebas pada draft lama menjadi pilihan yang bisa diedit. */
+  function normalizeLegacyAlasan(izin) {
+    const raw = typeof izin?.alasanIzin === 'string' ? izin.alasanIzin.trim() : '';
+    if (!raw || ALASAN_PILIHAN.some(pilihan => pilihan.value === raw)) return null;
+    const match = ALASAN_PILIHAN.find(pilihan =>
+      pilihan.label.toLowerCase() === raw.toLowerCase()
+      || pilihan.text.toLowerCase() === raw.toLowerCase());
+    if (match && match.value !== 'lainnya') {
+      return { alasanIzin: match.value, alasanIzinLainnya: '' };
+    }
+    const detail = typeof izin?.alasanIzinLainnya === 'string' && izin.alasanIzinLainnya.trim()
+      ? izin.alasanIzinLainnya
+      : raw;
+    return { alasanIzin: 'lainnya', alasanIzinLainnya: detail };
+  }
+
+  /* Satu sumber redaksi untuk preview, cetak, dan ekspor PDF. */
+  function getAlasanIzinText(izin) {
+    const kode = typeof izin?.alasanIzin === 'string' ? izin.alasanIzin.trim() : '';
+    const pilihan = ALASAN_PILIHAN.find(item => item.value === kode);
+    if (!pilihan) return kode; // Kompatibilitas dokumen lama sebelum normalisasi.
+    if (kode !== 'lainnya') return pilihan.text;
+    const detail = typeof izin?.alasanIzinLainnya === 'string' ? izin.alasanIzinLainnya.trim() : '';
+    return detail ? `Memiliki keperluan penting, yaitu ${detail.replace(/[.\s]+$/, '')}.` : '';
+  }
+
   /* ── Default form data ── */
   function createDefaultData() {
     return {
@@ -39,6 +76,7 @@ const TemplateSuratIzin = (() => {
         hariTanggalIzin: '',   // teks bebas, mis. "Senin, 10 November 2026"
         durasiIzin: '',        // teks bebas, mis. "1 (satu) hari"
         alasanIzin: '',
+        alasanIzinLainnya: '',
       },
       pengirim: {
         namaLokasi:       'Terawas',
@@ -114,9 +152,29 @@ const TemplateSuratIzin = (() => {
         {
           key: 'izin.alasanIzin',
           label: 'Alasan Izin',
-          type: 'text',
-          placeholder: 'Contoh: Sakit / Keperluan keluarga',
+          type: 'select',
           required: true,
+          hint: 'Pilih kondisi yang sesuai. Kalimat alasan akan otomatis dimasukkan ke surat.',
+          options: [
+            { value: '', label: 'Pilih alasan izin...' },
+            ...ALASAN_PILIHAN.map(pilihan => ({
+              value: pilihan.value,
+              label: pilihan.label,
+              description: pilihan.value === 'lainnya'
+                ? 'Tuliskan keperluan lainnya pada kolom yang muncul.'
+                : pilihan.text,
+            })),
+          ],
+          clearDependent: { key: 'izin.alasanIzinLainnya', keepValue: 'lainnya' },
+        },
+        {
+          key: 'izin.alasanIzinLainnya',
+          label: 'Detail Keperluan Lainnya',
+          type: 'text',
+          placeholder: 'Contoh: menghadiri kegiatan keluarga yang mendesak',
+          maxLength: 255,
+          required: true,
+          showIf: data => data?.izin?.alasanIzin === 'lainnya',
         },
       ],
     },
@@ -150,6 +208,9 @@ const TemplateSuratIzin = (() => {
     meta,
     createDefaultData,
     formSections,
+    ALASAN_PILIHAN,
+    getAlasanIzinText,
+    normalizeLegacyAlasan,
     tableColumns,
   };
 
