@@ -65,7 +65,7 @@ const TemplateIjopPermohonan = (() => {
           label: 'Bentuk Pemerintahan',
           type: 'select',
           options: ['Kabupaten', 'Kota'],
-          required: true,
+          required: false,
         },
         {
           key: 'surat.namaKabupatenKota',
@@ -99,7 +99,7 @@ const TemplateIjopPermohonan = (() => {
           label: 'Bentuk Satuan Pendidikan',
           type: 'select',
           options: ['RA', 'Madrasah'],
-          required: true,
+          required: false,
         },
         {
           key: 'lembaga.namaRaMadrasah',
