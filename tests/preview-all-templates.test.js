@@ -288,6 +288,92 @@ describe('GS-005: pagination integration across all runtime templates', () => {
 });
 
 
+
+describe('IJOP Surat Permohonan Lembaga: teks dinamis dan perataan', () => {
+  const open = () => {
+    const h = createPreviewHarness([120]);
+    const template = h.registry.get('ijop-permohonan');
+    const data = template.createDefaultData();
+    h.state.currentId = template.TEMPLATE_ID;
+    h.state.currentData = data;
+    return { h, template, data, render: () => {
+      h.renderer.render(template, data, {});
+      return h.preview.innerHTML;
+    } };
+  };
+
+  it('menampilkan lokasi/tanggal rata kanan, perihal sejajar label dan titik dua, serta akte satu baris', () => {
+    const { data, render } = open();
+    data.surat.tanggal = '2026-11-09';
+    const html = render();
+    expect(html).toMatch(/<div style="margin-top:12pt;text-align:right;">[\s\S]*?Musi Rawas, 9 November 2026/);
+    expect(html).toContain('class="ijop-permohonan__identitas"');
+    expect(html).toMatch(/<tr><td style="white-space:nowrap;vertical-align:top;">Perihal<\/td><td style="text-align:center;vertical-align:top;">:<\/td><td><strong>Permohonan Perpanjangan Izin Operasional Lembaga Pendidikan<\/strong><\/td><\/tr>/);
+    expect(html).toContain('<td style="white-space:nowrap;">Pengesahan Akte Notaris</td>');
+    expect(html).not.toContain('style="width:55%;"');
+  });
+
+  it.each([
+    ['Kabupaten', 'Musi Rawas', 'Kabupaten Musi Rawas'],
+    ['Kota', 'Lubuklinggau', 'Kota Lubuklinggau'],
+    ['Kabupaten', 'Kabupaten Musi Rawas', 'Kabupaten Musi Rawas'],
+    ['Kota', 'Kota Palembang', 'Kota Palembang'],
+  ])('membentuk alamat Kankemenag %s tanpa pengulangan awalan', (jenis, nama, lengkap) => {
+    const { data, render } = open();
+    data.surat.bentukPemerintahan = jenis;
+    data.surat.namaKabupatenKota = nama;
+    const html = render();
+    expect(html).toContain('Yth. Kepala Kantor Kementerian Agama ' + lengkap);
+    expect(html).not.toMatch(/(?:Kota Kota|Kabupaten Kabupaten)/);
+  });
+
+  it.each([
+    ['RA', 'Nama RA', 'pendirian RA'],
+    ['Madrasah', 'Nama Madrasah', 'pendirian Madrasah'],
+  ])('mengubah label dan kalimat sesuai bentuk satuan %s', (jenis, nama, pendirian) => {
+    const { data, render } = open();
+    data.lembaga.bentukSatuanPendidikan = jenis;
+    const html = render();
+    expect(html).toContain('>' + nama + '</td>');
+    expect(html).toContain('operasional/' + pendirian);
+    expect(html).not.toContain('Nama RA/Madrasah');
+    expect(html).not.toContain('pendirian RA/Madrasah');
+    expect(html).not.toContain('Kepala RA/Madrasah');
+    expect(html).toContain('>Kepala</p>');
+  });
+
+  it('menjorokkan lokasi instansi satu tab dan melindungi isian dari HTML berbahaya', () => {
+    const { data, render } = open();
+    data.surat.namaLokasiInstansi = 'Tugu Mulyo <img src=x onerror=alert(1)>';
+    const html = render();
+    expect(html).toContain('margin:0;padding-left:24pt;');
+    expect(html).toContain('Tugu Mulyo &lt;img src=x onerror=alert(1)&gt;');
+    expect(html).not.toContain('<img src=x onerror=alert(1)>');
+  });
+
+  it('mempertahankan rendering draf lama yang belum memiliki field dropdown/lokasi', () => {
+    const { data, render } = open();
+    delete data.surat.bentukPemerintahan;
+    delete data.surat.namaLokasiInstansi;
+    delete data.lembaga.bentukSatuanPendidikan;
+    const html = render();
+    expect(html).toContain('Kementerian Agama Kabupaten Musi Rawas');
+    expect(html).toContain('<strong>Muara Beliti</strong>');
+    expect(html).toContain('Nama Madrasah');
+  });
+
+  it('menyediakan tiga field baru dengan opsi sesuai kebutuhan', () => {
+    const { template } = open();
+    const surat = template.formSections.find(section => section.id === 'surat').fields;
+    const lembaga = template.formSections.find(section => section.id === 'lembaga').fields;
+    expect(surat.find(field => field.key === 'surat.bentukPemerintahan').options)
+      .toEqual(['Kabupaten', 'Kota']);
+    expect(surat.find(field => field.key === 'surat.namaLokasiInstansi').type).toBe('text');
+    expect(lembaga.find(field => field.key === 'lembaga.bentukSatuanPendidikan').options)
+      .toEqual(['RA', 'Madrasah']);
+  });
+});
+
 describe('Rekap Nilai: panel Pengaturan Tabel vs preview', () => {
   const open = () => {
     const h = createPreviewHarness([120], true);
