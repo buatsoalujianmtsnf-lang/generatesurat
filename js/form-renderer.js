@@ -678,7 +678,9 @@ const FormRenderer = (() => {
       const visible = group.dataset.fieldKey === 'no' || group.dataset.fieldKey === 'namaMurid';
       const hide = isFormat && !visible;
       group.hidden = hide;
-      group.querySelectorAll('input, select, textarea').forEach(input => {
+      /** @type {NodeListOf<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>} */ (
+        group.querySelectorAll('input, select, textarea')
+      ).forEach(input => {
         input.disabled = hide;
       });
     });
