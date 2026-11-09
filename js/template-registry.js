@@ -112,10 +112,10 @@ const TemplateRegistry = (() => {
       const summary = document.createElement('summary');
       summary.className = 'template-group__heading collapse-title';
       summary.innerHTML = `
-        <span class="template-group__icon" aria-hidden="true">${Utils.escapeHtml(group.icon)}</span>
+        <span class="template-group__icon" aria-hidden="true">${typeof AppIcons !== "undefined" ? AppIcons.svg(group.icon) : Utils.escapeHtml(group.icon)}</span>
         <span class="template-group__title">${Utils.escapeHtml(group.title)}</span>
         <span class="template-group__count" aria-label="${group.templates.length} template">${group.templates.length}</span>
-        <span class="template-group__chevron" aria-hidden="true">⌄</span>`;
+        <span class="template-group__chevron" aria-hidden="true">${typeof AppIcons !== "undefined" ? AppIcons.svg("chevron-down") : "⌄"}</span>`;
       details.appendChild(summary);
 
       const items = document.createElement('div');
@@ -131,7 +131,7 @@ const TemplateRegistry = (() => {
 
         const orientLabel = tpl.meta.orientation === 'landscape' ? 'A4 Landscape' : 'A4 Portrait';
         card.innerHTML = `
-          <div class="template-card__icon">${Utils.escapeHtml(tpl.meta.icon || '📄')}</div>
+          <div class="template-card__icon">${typeof AppIcons !== 'undefined' ? AppIcons.svg(tpl.meta.icon || 'file-text') : Utils.escapeHtml(tpl.meta.icon || '📄')}</div>
           <div class="template-card__name">${Utils.escapeHtml(tpl.meta.name)}</div>
           <div class="template-card__desc">${Utils.escapeHtml(tpl.meta.description)}</div>
           <span class="template-card__badge badge badge-outline">${orientLabel}</span>
