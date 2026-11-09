@@ -364,7 +364,9 @@ const SignaturePad = (() => {
       }
       if (event.key !== 'Tab' || !overlay) return;
       const focusable = Array.from(
-        overlay.querySelectorAll('button:not([disabled]), [tabindex="0"]')
+        /** @type {NodeListOf<HTMLElement>} */ (
+          overlay.querySelectorAll('button:not([disabled]), [tabindex="0"]')
+        )
       ).filter(node => !node.hidden && node.getAttribute('aria-hidden') !== 'true');
       if (!focusable.length) return;
       const first = focusable[0];
