@@ -61,6 +61,63 @@ const TemplateSuratIzin = (() => {
     return detail ? `Memiliki keperluan penting, yaitu ${detail.replace(/[.\s]+$/, '')}.` : '';
   }
 
+
+  /* Simpan tanggal ISO; format hari dan bulan Indonesia hanya untuk surat. */
+  const BULAN_INDONESIA = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+  ];
+  const HARI_INDONESIA = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  const TERBILANG_HARI = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh'];
+
+  function isValidIzinDate(iso) {
+    if (typeof iso !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return false;
+    const [year, month, day] = iso.split('-').map(Number);
+    if (year < 1000 || month < 1 || month > 12 || day < 1 || day > 31) return false;
+    const date = new Date(Date.UTC(year, month - 1, day));
+    return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1
+      && date.getUTCDate() === day;
+  }
+
+  function formatHariTanggalIzin(value) {
+    if (!isValidIzinDate(value)) return '';
+    const [year, month, day] = value.split('-').map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    return HARI_INDONESIA[date.getUTCDay()] + ', ' + String(day).padStart(2, '0')
+      + ' ' + BULAN_INDONESIA[month - 1] + ' ' + year;
+  }
+
+  function formatLamaIzin(value) {
+    const raw = String(value ?? '').trim();
+    if (!/^[1-7]$/.test(raw)) return '';
+    const number = Number(raw);
+    return number + ' (' + TERBILANG_HARI[number] + ') Hari';
+  }
+
+  /* Normalisasi draf lama yang menggunakan tanggal/durasi sebagai teks bebas.
+     Nilai yang tidak dikenali tidak dibuang agar data terdahulu tetap aman. */
+  function normalizeLegacyIzinFields(izin) {
+    if (!izin || typeof izin !== 'object') return null;
+    const patch = {};
+    const tanggal = typeof izin.hariTanggalIzin === 'string' ? izin.hariTanggalIzin.trim() : '';
+    if (tanggal && !isValidIzinDate(tanggal)) {
+      const found = /^(?:(?:[a-z']+),?\s+)?(\d{1,2})\s+([a-z]+)\s+(\d{4})$/i.exec(tanggal);
+      if (found) {
+        const monthIndex = BULAN_INDONESIA.findIndex(name => name.toLowerCase() === found[2].toLowerCase());
+        if (monthIndex !== -1) {
+          const iso = [found[3], String(monthIndex + 1).padStart(2, '0'), found[1].padStart(2, '0')].join('-');
+          if (isValidIzinDate(iso)) patch.hariTanggalIzin = iso;
+        }
+      }
+    }
+    const durasi = typeof izin.durasiIzin === 'string' ? izin.durasiIzin.trim() : '';
+    if (durasi && !/^[1-7]$/.test(durasi)) {
+      const found = /^([1-7])(?:\s*\([a-z]+\))?(?:\s+hari)?$/i.exec(durasi);
+      if (found) patch.durasiIzin = Number(found[1]);
+    }
+    return Object.keys(patch).length ? patch : null;
+  }
+
   /* Izinkan hanya data URL PNG berukuran wajar untuk gambar tanda tangan. */
   function getSignatureDataUrl(value) {
     if (typeof value !== 'string' || value.length > 350000) return '';
@@ -79,8 +136,8 @@ const TemplateSuratIzin = (() => {
         kelasMurid: '',
       },
       izin: {
-        hariTanggalIzin: '',   // teks bebas, mis. "Senin, 10 November 2026"
-        durasiIzin: '',        // teks bebas, mis. "1 (satu) hari"
+        hariTanggalIzin: '',   // ISO YYYY-MM-DD
+        durasiIzin: '',        // bilangan bulat 1 sampai 7
         alasanIzin: '',
         alasanIzinLainnya: '',
       },
@@ -144,16 +201,17 @@ const TemplateSuratIzin = (() => {
         {
           key: 'izin.hariTanggalIzin',
           label: 'Hari, Tanggal Izin',
-          type: 'text',
-          placeholder: 'Contoh: Senin, 10 November 2026',
+          type: 'date',
           required: true,
-          hint: 'Isi dengan hari dan tanggal lengkap.',
         },
         {
           key: 'izin.durasiIzin',
           label: 'Lama Izin',
-          type: 'text',
-          placeholder: 'Contoh: 1 (satu) hari',
+          type: 'number',
+          min: 1,
+          max: 7,
+          step: 1,
+          integer: true,
           required: true,
         },
         {
@@ -224,6 +282,10 @@ const TemplateSuratIzin = (() => {
     formSections,
     ALASAN_PILIHAN,
     getAlasanIzinText,
+    isValidIzinDate,
+    formatHariTanggalIzin,
+    formatLamaIzin,
+    normalizeLegacyIzinFields,
     getSignatureDataUrl,
     normalizeLegacyAlasan,
     tableColumns,
