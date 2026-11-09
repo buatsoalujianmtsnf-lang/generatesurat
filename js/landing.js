@@ -21,7 +21,11 @@ const Landing = (() => {
       };
       node.className = [className, variants[className] || ''].filter(Boolean).join(' ');
     }
-    if (value !== undefined) node.textContent = value;
+    if (value !== undefined) {
+      if (typeof AppIcons !== 'undefined' && /(?:__icon$|__arrow$)/.test(className)) {
+        node.innerHTML = AppIcons.svg(className.endsWith('__arrow') ? 'chevron-right' : value);
+      } else node.textContent = value;
+    }
     return node;
   }
 
