@@ -22,7 +22,7 @@ describe('Mobile editor navbar actions', () => {
   it('keeps all remaining actions inside the single overflow group', () => {
     expect(menu).toBeTruthy();
     for (const id of [
-      'btn-editor-panel-mobile', 'btn-install-app', 'btn-update-app',
+      'editor-drawer-button', 'btn-install-app', 'btn-update-app',
       'btn-about', 'btn-theme-toggle', 'btn-undo', 'btn-redo',
       'btn-save', 'btn-export-data', 'btn-import-data', 'btn-reset',
     ]) expect(menu).toContain('id="' + id + '"');
@@ -42,10 +42,10 @@ describe('Mobile editor navbar actions', () => {
     expect(js).toContain("document.getElementById('btn-header-more')");
     expect(js).toContain("e.key === 'Escape'");
     const drawer = read('js/editor-drawer.js');
-    expect(drawer.match(/'btn-editor-panel-mobile'/g)).toHaveLength(2);
+    expect(drawer).toContain("const TRIGGER_ID = 'editor-drawer-button'");
   });
 
   it('refreshes the offline PWA shell for the navbar change', () => {
-    expect(read('sw.js')).toContain("CACHE_PREFIX + 'v35'");
+    expect(read('sw.js')).toContain("CACHE_PREFIX + 'v36'");
   });
 });
