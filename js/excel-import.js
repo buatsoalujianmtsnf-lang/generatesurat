@@ -131,10 +131,7 @@ const ExcelImport = (() => {
       <div class="excel-import-toolbar__head">
         <div class="excel-import-toolbar__identity">
           <span class="excel-import-toolbar__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M7 3h8l4 4v14H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/>
-              <path d="M15 3v5h5M8.5 12h7M8.5 16h7"/>
-            </svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-file-spreadsheet"></use></svg>
           </span>
           <div>
             <div class="excel-import-toolbar__title">Import Data ${isRekap ? 'Murid' : 'Siswa'}</div>
@@ -163,10 +160,7 @@ const ExcelImport = (() => {
 
       <div class="excel-import-toolbar__dropzone" role="button" tabindex="0" aria-label="Pilih atau seret file Excel ke sini">
         <span class="excel-import-toolbar__dropzone-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <path d="M12 16V4M8 8l4-4 4 4"/>
-            <path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/>
-          </svg>
+          <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-upload"></use></svg>
         </span>
         <span class="excel-import-toolbar__dropzone-copy">
           <strong>Seret file Excel ke sini</strong>
@@ -187,17 +181,13 @@ const ExcelImport = (() => {
       <div class="excel-import-toolbar__actions">
         <button type="button" class="btn btn--sm btn--secondary excel-template-btn btn-sm btn-outline">
           <span aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>
-            </svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-download"></use></svg>
           </span>
           Download Template
         </button>
         <button type="button" class="btn btn--sm btn--primary excel-import-btn btn-sm btn-primary">
           <span aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M12 15V3M8 7l4-4 4 4M5 13v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/>
-            </svg>
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-upload"></use></svg>
           </span>
           Pilih File Excel
         </button>
