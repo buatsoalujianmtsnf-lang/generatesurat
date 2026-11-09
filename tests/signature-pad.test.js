@@ -26,12 +26,23 @@ function createPad(value = '', oldInk = false) {
   };
   const button = { disabled: false, addEventListener: (ev, cb) => { buttonHandlers[ev] = cb; } };
   const status = { textContent: '' };
+  const imageAttributes = new Map();
+  const previewImage = {
+    hidden: true,
+    getAttribute: vi.fn(name => imageAttributes.get(name) ?? null),
+    hasAttribute: vi.fn(name => imageAttributes.has(name)),
+    setAttribute: vi.fn((name, value) => imageAttributes.set(name, value)),
+    removeAttribute: vi.fn(name => imageAttributes.delete(name)),
+  };
+  const previewEmpty = { hidden: false };
   const group = {
     innerHTML: '',
     querySelector: selector => {
       if (selector === 'canvas') return canvas;
       if (selector === '.signature-pad__clear') return button;
       if (selector === '.signature-pad__status') return status;
+      if (selector === '.signature-pad__preview-image') return previewImage;
+      if (selector === '.signature-pad__preview-empty') return previewEmpty;
       return null;
     },
   };
@@ -52,7 +63,7 @@ function createPad(value = '', oldInk = false) {
     value,
     onChange: changes,
   });
-  return { group, canvas, button, status, changes, pad, controller, context2d, canvasHandlers, buttonHandlers, images };
+  return { group, canvas, button, status, previewImage, previewEmpty, changes, pad, controller, context2d, canvasHandlers, buttonHandlers, images };
 }
 
 describe('Canvas tanda tangan pada Surat Izin', () => {
@@ -172,6 +183,56 @@ describe('Canvas tanda tangan pada Surat Izin', () => {
     expect(css).toContain('.signature-modal-overlay');
     expect(css).toContain('max-height: 100%;');
     expect(css).toContain('env(safe-area-inset-bottom)');
+  });
+
+  it('mempertahankan src gambar pada refresh berulang setelah tanda tangan tersimpan', () => {
+    const h = createPad();
+    const png = 'data:image/png;base64,iVBORw0KGgo=';
+    h.canvasHandlers.pointerdown({
+      pointerId: 7, pointerType: 'touch', clientX: 30, clientY: 40, preventDefault: vi.fn(),
+    });
+    h.canvasHandlers.pointerup({ pointerId: 7, pointerType: 'touch', clientX: 45, clientY: 48 });
+    expect(h.changes).toHaveBeenLastCalledWith(png);
+    expect(h.previewImage.getAttribute('src')).toBe(png);
+    expect(h.previewImage.hidden).toBe(false);
+    expect(h.previewEmpty.hidden).toBe(true);
+
+    // Pada kode lama, refresh berikutnya akan memanggil removeAttribute('src').
+    h.canvasHandlers.pointerdown({
+      pointerId: 8, pointerType: 'touch', clientX: 34, clientY: 46, preventDefault: vi.fn(),
+    });
+    expect(h.previewImage.getAttribute('src')).toBe(png);
+    expect(h.previewImage.removeAttribute).not.toHaveBeenCalled();
+    expect(h.previewImage.setAttribute).toHaveBeenCalledTimes(1);
+  });
+
+  it('mempertahankan gambar tanda tangan dari draf setelah gambar selesai dimuat', () => {
+    const png = 'data:image/png;base64,iVBORw0KGgo=';
+    const h = createPad(png);
+    expect(h.previewImage.hidden).toBe(false);
+    expect(h.previewImage.getAttribute('src')).toBe(png);
+    expect(h.images).toHaveLength(1);
+    h.images[0].onload();
+    expect(h.previewImage.getAttribute('src')).toBe(png);
+    expect(h.previewImage.removeAttribute).not.toHaveBeenCalled();
+    expect(h.previewImage.setAttribute).toHaveBeenCalledTimes(1);
+  });
+
+  it('menghapus gambar editor saat tanda tangan benar-benar dibersihkan', () => {
+    const h = createPad();
+    const png = 'data:image/png;base64,iVBORw0KGgo=';
+    h.canvasHandlers.pointerdown({
+      pointerId: 1, pointerType: 'mouse', button: 0, clientX: 50, clientY: 50,
+      preventDefault: vi.fn(),
+    });
+    h.canvasHandlers.pointerup({ pointerId: 1, pointerType: 'mouse', clientX: 60, clientY: 55 });
+    expect(h.previewImage.getAttribute('src')).toBe(png);
+    h.controller.clear();
+    expect(h.changes).toHaveBeenLastCalledWith('');
+    expect(h.previewImage.hidden).toBe(true);
+    expect(h.previewEmpty.hidden).toBe(false);
+    expect(h.previewImage.getAttribute('src')).toBeNull();
+    expect(h.previewImage.removeAttribute).toHaveBeenCalledWith('src');
   });
 
   it('menolak data URL lain yang tidak aman/terlalu besar', () => {
