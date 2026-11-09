@@ -26,9 +26,12 @@ const TemplateIjopPermohonan = (() => {
       surat: {
         nomor: '',
         namaKabupatenKota: 'Musi Rawas',
+        bentukPemerintahan: 'Kabupaten',
+        namaLokasiInstansi: 'Muara Beliti',
         tanggal: '',          // ISO: YYYY-MM-DD
       },
       lembaga: {
+        bentukSatuanPendidikan: 'Madrasah',
         namaRaMadrasah: 'MTs Nurul Falah',
         nsm: '121216050060',
         npsn: '69963460',
@@ -58,11 +61,25 @@ const TemplateIjopPermohonan = (() => {
           required: false,
         },
         {
+          key: 'surat.bentukPemerintahan',
+          label: 'Bentuk Pemerintahan',
+          type: 'select',
+          options: ['Kabupaten', 'Kota'],
+          required: false,
+        },
+        {
           key: 'surat.namaKabupatenKota',
           label: 'Nama Kabupaten/Kota',
           type: 'text',
-          placeholder: 'Contoh: Musi Rawas',
+          placeholder: 'Contoh: Musi Rawas (tanpa kata Kabupaten/Kota)',
           required: true,
+        },
+        {
+          key: 'surat.namaLokasiInstansi',
+          label: 'Nama Lokasi Instansi',
+          type: 'text',
+          placeholder: 'Contoh: Muara Beliti',
+          required: false,
         },
         {
           key: 'surat.tanggal',
@@ -77,6 +94,13 @@ const TemplateIjopPermohonan = (() => {
       title: 'Data RA/Madrasah',
       icon: '🏫',
       fields: [
+        {
+          key: 'lembaga.bentukSatuanPendidikan',
+          label: 'Bentuk Satuan Pendidikan',
+          type: 'select',
+          options: ['RA', 'Madrasah'],
+          required: false,
+        },
         {
           key: 'lembaga.namaRaMadrasah',
           label: 'Nama RA/Madrasah',
@@ -130,7 +154,7 @@ const TemplateIjopPermohonan = (() => {
     },
     {
       id: 'kepala',
-      title: 'Kepala RA/Madrasah',
+      title: 'Kepala',
       icon: '✍️',
       fields: [
         {
