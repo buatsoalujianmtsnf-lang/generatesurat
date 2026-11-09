@@ -5,6 +5,11 @@ import { describe, expect, it, vi } from 'vitest';
 
 const source = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
 const root = new URL('../', import.meta.url);
+// Read the current PWA cache version instead of hardcoding historical releases.
+const cachePrefix = source.match(/const CACHE_PREFIX = '([^']+)'/)?.[1];
+const cacheVersion = source.match(/const CACHE_NAME = CACHE_PREFIX \+ '([^']+)'/)?.[1];
+if (!cachePrefix || !cacheVersion) throw new Error('Unable to parse service worker cache version');
+const ACTIVE_CACHE = cachePrefix + cacheVersion;
 
 function keyOf(request) {
   return new URL(typeof request === 'string' ? request : request.url, 'https://app.example/').href;
@@ -98,15 +103,15 @@ describe('PWA Service Worker', () => {
     online.handlers.get('install')(installEvent);
     await Promise.all(installWaits);
 
-    const keys = await (await online.caches.open('generator-surat-platform-v9')).keys();
+    const keys = await (await online.caches.open(ACTIVE_CACHE)).keys();
     for (const name of ['rekap-nilai.js', 'surat-izin.js']) {
       expect(keys).toContain('https://app.example/templates/' + name);
     }
 
     const offline = createWorker(vi.fn().mockRejectedValue(new Error('offline')));
     // Share the successfully installed cache with the offline worker to simulate restart.
-    const offlineCache = await offline.caches.open('generator-surat-platform-v9');
-    const installedCache = await online.caches.open('generator-surat-platform-v9');
+    const offlineCache = await offline.caches.open(ACTIVE_CACHE);
+    const installedCache = await online.caches.open(ACTIVE_CACHE);
     for (const name of ['rekap-nilai.js', 'surat-izin.js']) {
       const url = 'https://app.example/templates/' + name;
       await offlineCache.put(url, await installedCache.match(url));
@@ -137,7 +142,7 @@ describe('PWA Service Worker', () => {
     const { event, waits } = lifecycle();
     sw.handlers.get('install')(event);
     await Promise.all(waits);
-    const cache = await sw.caches.open('generator-surat-platform-v9');
+    const cache = await sw.caches.open(ACTIVE_CACHE);
     const keys = await cache.keys();
     expect(keys.length).toBeGreaterThan(45);
     expect(await cache.match('https://app.example/index.html')).toBeInstanceOf(Response);
@@ -146,13 +151,13 @@ describe('PWA Service Worker', () => {
 
   it('removes obsolete app cache versions and claims clients on activation', async () => {
     const sw = createWorker();
-    await sw.caches.open('generator-surat-platform-v8');
-    await sw.caches.open('generator-surat-platform-v9');
+    await sw.caches.open(cachePrefix + 'previous');
+    await sw.caches.open(ACTIVE_CACHE);
     await sw.caches.open('unrelated-cache');
     const { event, waits } = lifecycle();
     sw.handlers.get('activate')(event);
     await Promise.all(waits);
-    expect(await sw.caches.keys()).toEqual(['generator-surat-platform-v9', 'unrelated-cache']);
+    expect(await sw.caches.keys()).toEqual([ACTIVE_CACHE, 'unrelated-cache']);
     expect(sw.self.clients.claim).toHaveBeenCalledOnce();
   });
 
@@ -165,7 +170,7 @@ describe('PWA Service Worker', () => {
 
   it('falls back to the cached app shell when an offline navigation misses cache', async () => {
     const sw = createWorker(vi.fn().mockRejectedValue(new Error('offline')));
-    const cache = await sw.caches.open('generator-surat-platform-v9');
+    const cache = await sw.caches.open(ACTIVE_CACHE);
     await cache.put('https://app.example/index.html', new Response('<main>shell</main>'));
     const { event } = lifecycle({
       request: { method: 'GET', mode: 'navigate', destination: 'document', url: 'https://app.example/forms/new' },
@@ -178,7 +183,7 @@ describe('PWA Service Worker', () => {
     const sw = createWorker(vi.fn().mockResolvedValue(new Response('fresh-css', {
       status: 200, headers: { 'Content-Type': 'text/css' },
     })));
-    const cache = await sw.caches.open('generator-surat-platform-v9');
+    const cache = await sw.caches.open(ACTIVE_CACHE);
     const url = 'https://app.example/css/main.css';
     await cache.put(url, new Response('cached-css'));
     const { event, waits } = lifecycle({
@@ -196,7 +201,7 @@ describe('PWA Service Worker', () => {
     const sw = createWorker(vi.fn().mockResolvedValue(new Response('private', {
       status: 200, headers: { 'Cache-Control': 'private, no-store' },
     })));
-    const cache = await sw.caches.open('generator-surat-platform-v9');
+    const cache = await sw.caches.open(ACTIVE_CACHE);
     const url = 'https://app.example/js/private-config.js';
     await cache.put(url, new Response('previous-public-asset'));
     const { event, waits } = lifecycle({

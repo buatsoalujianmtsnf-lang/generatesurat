@@ -255,7 +255,7 @@ const Workflow = (() => {
       }
     }
 
-    const tabs = document.querySelectorAll('.editor-tab');
+    const tabs = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.editor-tab'));
     tabs.forEach(tab => {
       const step = steps.find(item => item.id === tab.dataset.tab);
       if (!step) return;

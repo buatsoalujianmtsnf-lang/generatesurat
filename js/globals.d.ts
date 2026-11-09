@@ -35,6 +35,8 @@ declare var TemplateRekapNilai: any;
 declare var TemplateSuratIzin: any;
 declare var About: any;
 declare var App: any;
+declare var Routes: any;
+declare var IzinDeclaration: any;
 declare var DataIO: any;
 declare var DataManager: any;
 declare var DocumentViewer: any;

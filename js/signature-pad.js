@@ -447,7 +447,7 @@ const SignaturePad = (() => {
       dismissActiveModal = () => closeModal(false);
       restore(persisted, true);
       refresh();
-      overlay.querySelector('.signature-modal__close')?.focus();
+      /** @type {HTMLElement|null} */ (overlay.querySelector('.signature-modal__close'))?.focus();
     }
 
     openButton?.addEventListener('click', openModal);

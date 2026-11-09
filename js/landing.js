@@ -89,7 +89,7 @@ const Landing = (() => {
       }
       groupRoot.querySelectorAll('.lp-group').forEach(group => {
         const visibleCards = Array.from(group.querySelectorAll('.lp-template'))
-          .some(link => !link.hidden);
+          .some(link => !link.hasAttribute('hidden'));
         group.toggleAttribute('hidden', !visibleCards);
       });
       empty.hidden = visibleCount > 0;
