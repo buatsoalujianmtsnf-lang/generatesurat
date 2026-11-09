@@ -103,24 +103,6 @@
   width: 20px;
   height: 20px;
 }
-.editor-drawer__footer {
-  display: none;
-  padding: 12px max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom));
-  border-top: 1px solid var(--color-border);
-  background: var(--color-surface);
-  flex: 0 0 auto;
-}
-.editor-drawer__footer > .btn {
-  width: 100%;
-  min-height: 44px;
-  gap: 9px;
-}
-.editor-drawer__open { flex: 0 0 auto; }
-.editor-drawer__preview-open {
-  flex: 0 0 auto;
-  margin-right: 2px;
-}
-#editor-drawer[data-open="true"] .editor-drawer__preview-open { display: none; }
 #editor-drawer .editor-tabs { width: 100%; }
 #editor-drawer .editor-tab-content.active { min-height: 0; }
 #editor-drawer .preview-toolbar { min-width: 0; }
@@ -128,14 +110,13 @@
 /* Drawers must never appear in print/PDF document output. */
 @media print {
   .editor-drawer__heading,
-  .editor-drawer__footer,
-  .editor-drawer__open,
-  .editor-drawer__preview-open,
   #editor-drawer > .drawer-side { display: none !important; }
   #editor-drawer { display: block !important; }
   #editor-drawer > .drawer-content { display: block !important; }
 }
 @media (max-width: 1023px) {
+  /* Akses ke satu tombol toggle harus tetap berada di atas drawer, di bawah modal. */
+  .app-header { position: sticky; top: 0; z-index: 36; }
   #editor-drawer,
   #editor-drawer[data-open="false"],
   #editor-drawer[data-open="true"] {
@@ -164,12 +145,12 @@
   #editor-drawer[data-open="false"] > .drawer-side {
     display: flex;
     position: fixed;
-    inset: 0;
+    inset: var(--drawer-header-offset, var(--header-height)) 0 0 0;
     width: 100vw;
-    height: 100dvh;
+    height: calc(100dvh - var(--drawer-header-offset, var(--header-height)));
     min-width: 0;
     min-height: 0;
-    max-height: 100dvh;
+    max-height: calc(100dvh - var(--drawer-header-offset, var(--header-height)));
     z-index: 35;
     overflow: hidden;
     visibility: hidden;
@@ -183,7 +164,7 @@
     inset: 0;
     z-index: 0;
     background: rgba(15,23,42,.50);
-    cursor: pointer;
+    cursor: default; /* backdrop dekoratif; hanya tombol navbar yang menutup drawer */
   }
   #editor-drawer > .drawer-side > .editor-panel {
     position: relative;
@@ -192,8 +173,8 @@
     width: min(92vw, 470px) !important;
     min-width: 0;
     max-width: min(92vw, 470px);
-    height: 100dvh;
-    max-height: 100dvh;
+    height: 100%;
+    max-height: 100%;
     border-right: 1px solid var(--color-border);
     background: var(--color-surface);
     box-shadow: 12px 0 42px rgba(15,23,42,.18);
@@ -208,16 +189,12 @@
   #editor-drawer[data-open="true"] > .drawer-side > .editor-panel {
     transform: translateX(0);
   }
-  #editor-drawer .editor-drawer__footer {
-    display: block;
-  }
   #editor-drawer .editor-tabs { position: relative; top: auto; }
   #editor-drawer .editor-tab-content.active { overflow-y: auto; }
   #editor-drawer .preview-toolbar__identity { min-width: 0; }
   #editor-drawer .preview-viewport { min-height: 0; }
   html.editor-drawer-open,
   html.editor-drawer-open body { overflow: hidden !important; }
-  .editor-drawer__preview-open { display: inline-flex; }
 }
 @media (max-width: 767px) and (orientation: landscape) {
   #editor-drawer,
