@@ -113,7 +113,7 @@ const SignaturePad = (() => {
     function syncPreview() {
       if (preview) {
         preview.hidden = !persisted;
-        if (persisted) preview.setAttribute('src', persisted);
+        if (persisted && preview.getAttribute('src') !== persisted) preview.setAttribute('src', persisted);
         else preview.removeAttribute('src');
       }
       if (previewEmpty) previewEmpty.hidden = Boolean(persisted);
@@ -128,6 +128,8 @@ const SignaturePad = (() => {
       if (undoButton) undoButton.disabled = index <= 0 || restoring;
       if (redoButton) redoButton.disabled = index >= history.length - 1 || restoring;
       clearButton.disabled = !snapshot() || restoring;
+      const saveButton = /** @type {HTMLButtonElement|null} */ (overlay?.querySelector('.signature-modal__save'));
+      if (saveButton) saveButton.disabled = restoring || activePointer !== null;
       status.textContent = lastError || (modalOpen
         ? (snapshot() === persisted ? 'Siap untuk ditandatangani' : 'Perubahan belum disimpan')
         : (persisted ? 'Tanda tangan tersimpan dalam draf' : 'Belum ditandatangani'));
@@ -311,7 +313,7 @@ const SignaturePad = (() => {
 
     function moveHistory(direction) {
       const next = index + direction;
-      if (restoring || activePointer !== null || next < 0 || next >= history.length) return;
+      if (activePointer !== null || next < 0 || next >= history.length) return;
       index = next;
       interacted = false;
       restore(snapshot());
