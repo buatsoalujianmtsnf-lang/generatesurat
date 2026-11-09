@@ -540,8 +540,9 @@ const FormRenderer = (() => {
       if (fieldDef.type === 'number') {
         val = e.target.value === '' ? '' : Utils.safeFloat(val, 0);
       }
-      if (fieldDef.type === 'select') {
-        // Dropdown langsung tersimpan agar field kondisional segera muncul/hilang.
+      if (fieldDef.type === 'select' || fieldDef.key === 'izin.alasanIzinLainnya') {
+        // Dropdown dan detail kondisional langsung tersimpan untuk mencegah
+        // nilai yang tertunda muncul kembali setelah pengguna mengganti alasan.
         _saveFieldValue(fieldDef, val, templateId, itemId, sectionId);
       } else {
         debSave(val);
