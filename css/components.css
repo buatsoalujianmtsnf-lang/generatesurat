@@ -294,6 +294,11 @@
   color: var(--color-danger);
 }
 
+/* Rekap Nilai — field tersembunyi tidak dapat mengambil ruang di accordion. */
+#section-murid .row-entry__body .form-group[hidden] {
+  display: none !important;
+}
+
 /* Checkbox & Radio */
 .form-check {
   display: flex;
