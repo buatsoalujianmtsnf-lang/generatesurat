@@ -1,0 +1,126 @@
+/* DaisyUI v5 adaptation layer for the vanilla-JS Generator Surat editor.
+   DaisyUI components decorate application UI only; print/preview document markup
+   intentionally remains governed by preview.css and print.css. */
+:root {
+  --radius-box: 1rem;
+  --radius-field: .65rem;
+  --radius-selector: .65rem;
+}
+html[data-theme="light"] {
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+/* Preserve existing client-side modal state and overlay layout.
+   A native daisyUI dialog cannot replace this div without rewriting UI.showModal. */
+#modal-overlay.modal { position: fixed; inset: 0; overflow: auto; }
+#modal-overlay.modal.hidden { display: none !important; }
+#modal-overlay.modal:not(.hidden) { display: flex; }
+#modal-overlay > .modal-box { max-width: min(94vw, 720px); width: 100%; margin: auto; }
+#modal-overlay .modal-action { display:flex; flex-wrap:wrap; gap:.6rem; justify-content:flex-end; }
+/* DaisyUI toast is a fixed-position stack; our existing notification item is
+   a child inside an independently positioned toast-container. */
+#toast-container .toast {
+  position: relative;
+  inset: auto;
+  display: flex;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+  white-space: normal;
+  pointer-events: auto;
+}
+#toast-container .toast.alert-success { border-color: color-mix(in srgb,var(--color-success) 36%,transparent); }
+#toast-container .toast.alert-error { border-color: color-mix(in srgb,var(--color-error) 36%,transparent); }
+/* DaisyUI components use semantic tokens while preserving existing app layout. */
+.app-header.navbar {
+  min-height: var(--header-height);
+  flex-wrap: nowrap;
+  width: 100%;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.editor-tabs.tabs { flex-wrap: nowrap; gap:0; overflow-x: auto; }
+.editor-tabs .editor-tab.tab {
+  min-width: 0;
+  height: auto;
+  flex: 1 0 auto;
+  white-space: nowrap;
+}
+.editor-tabs .editor-tab.tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+.form-section.card,
+.row-entry.card,
+.settings-card.card,
+.template-card.card,
+.lp__feature.card {
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+}
+.form-section.card,
+.row-entry.card { display: block; overflow: hidden; }
+.form-section__body.collapsed { display: none !important; }
+.row-entry__body:not(.is-open) { display: none !important; }
+.form-input.input,
+.form-select.select,
+.form-textarea.textarea,
+.settings-select.select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  border-color: var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.form-input.input:focus-visible,
+.form-select.select:focus-visible,
+.form-textarea.textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+.btn.btn--primary.btn-primary { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+.btn.btn--secondary.btn-outline { color: var(--color-text); background: var(--color-surface); border-color: var(--color-border-strong); }
+.btn.btn--danger.btn-error { background: var(--color-danger); color: white; border-color: var(--color-danger); }
+.btn.btn--danger-outline.btn-error { color: var(--color-danger); border-color: var(--color-danger); }
+.btn:disabled,
+.btn[disabled] { cursor: not-allowed; opacity: .55; }
+.btn:focus-visible,
+.editor-tab:focus-visible,
+.template-card:focus-visible,
+.row-entry__header:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.lp__hero .badge,
+.lp__preview-badge.badge { line-height: 1.4; }
+.lp__search.input { width: min(100%, 340px); }
+.lp__feature.card { padding: var(--space-5); }
+.lp__stat.stat { min-width: 0; }
+.form-section__header.collapse-title,
+.row-entry__header.collapse-title { cursor: pointer; }
+/* The paper document is not a UI component: prevent DaisyUI from restyling its table,
+   font or white A4 background in editor preview, print and PDF. */
+.doc-content,
+.surat-page,
+.doc-preview,
+.doc-content table,
+.doc-content td,
+.doc-content th { color: #000; }
+.doc-content, .surat-page { background: #fff; }
+@media print {
+  #toast-container, #modal-overlay { display: none !important; }
+  .doc-content, .surat-page { background: #fff !important; color: #000 !important; }
+}
+@media (max-width: 768px) {
+  .app-header.navbar { min-width: 0; }
+  #modal-overlay > .modal-box { max-width: calc(100vw - 24px); max-height: min(90dvh, 800px); overflow-y:auto; }
+  .form-input.input,.form-select.select,.form-textarea.textarea { font-size:16px; }
+  .lp__search.input { max-width:100%; }
+}
