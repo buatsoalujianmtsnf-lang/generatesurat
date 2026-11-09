@@ -289,6 +289,110 @@ describe('GS-005: pagination integration across all runtime templates', () => {
 
 
 
+describe('DPU: metadata, tanggal, wilayah dan NIP penandatangan', () => {
+  const open = () => {
+    const h = createPreviewHarness([120]);
+    const template = h.registry.get('dpu');
+    const data = template.createDefaultData();
+    h.state.currentId = 'dpu';
+    h.state.currentData = data;
+    return { template, data, render: () => {
+      h.renderer.render(template, data, {});
+      return h.preview.innerHTML;
+    } };
+  };
+
+  it('menjaga label, titik dua, dan karakter pertama ketiga nilai sejajar pada blok kanan', () => {
+    const { data, render } = open();
+    data.meta.statusAkreditasi = 'A';
+    data.meta.kodeSekolah = '0549';
+    data.meta.tahunPelajaran = '2026/2027';
+    const html = render();
+    const table = html.match(/<table class="dpu-meta__right"[^>]*>([\s\S]*?)<\/table>/);
+    expect(table).not.toBeNull();
+    expect(table[0]).toContain('margin-left:auto;text-align:left;table-layout:auto;');
+    const cells = [...table[1].matchAll(/<td style="([^"]+)">([^<]*)<\/td>/g)]
+      .map(([, style, value]) => ({ style, value }));
+    expect(cells).toHaveLength(9);
+    expect(cells.map(cell => cell.value)).toEqual([
+      'Status Akreditasi', ':', 'A',
+      'Kode Sekolah', ':', '0549',
+      'Tahun Pelajaran', ':', '2026/2027',
+    ]);
+    for (const index of [0, 2, 3, 5, 6, 8]) {
+      expect(cells[index].style).toContain('text-align:left;');
+    }
+    for (const index of [1, 4, 7]) {
+      expect(cells[index].style).toContain('text-align:center;');
+    }
+  });
+
+  it('menggunakan date picker Tanggal Surat serta field Nama Provinsi dan Kabupaten/Kota', () => {
+    const { template } = open();
+    const fields = template.formSections.find(section => section.id === 'tandaTangan').fields;
+    expect(fields.find(field => field.key === 'tandaTangan.tanggalSurat')).toMatchObject({
+      label: 'Tanggal Surat', type: 'date',
+    });
+    expect(fields.find(field => field.key === 'tandaTangan.namaProvinsi')).toMatchObject({
+      label: 'Nama Provinsi', type: 'text',
+    });
+    expect(fields.find(field => field.key === 'tandaTangan.namaKabupatenKota')).toMatchObject({
+      label: 'Nama Kabupaten/Kota', type: 'text',
+    });
+    expect(fields.some(field => field.key === 'tandaTangan.tahun')).toBe(false);
+  });
+
+  it('mengubah tanggal ke format panjang dan nama wilayah secara dinamis', () => {
+    const { data, render } = open();
+    data.tandaTangan.tanggalSurat = '2026-11-09';
+    data.tandaTangan.namaProvinsi = 'Sumatera Selatan';
+    data.tandaTangan.namaKabupatenKota = 'Kota Palembang';
+    data.tandaTangan.kota = 'Palembang';
+    const html = render();
+    expect(html).toContain('Palembang, 9 November 2026');
+    expect(html).toContain('a.n. Kepala Kantor Wilayah Kemenag Prov. Sumatera Selatan');
+    expect(html).toContain('a.n. Kepala Kantor Kemenag Kota Palembang');
+    expect(html).not.toContain('Prov. Sumsel');
+    expect(html).not.toContain('Kab. Musi Rawas');
+    data.tandaTangan.namaProvinsi = 'Provinsi Lampung';
+    data.tandaTangan.namaKabupatenKota = 'Kabupaten Musi Rawas';
+    const other = render();
+    expect(other).toContain('Prov. Lampung');
+    expect(other).toContain('Kab. Musi Rawas');
+    expect(other).not.toContain('Prov. Provinsi');
+    expect(other).not.toContain('Kab. Kabupaten');
+  });
+
+  it('menyelaraskan awal NIP dengan nama masing-masing dari ketiga pihak', () => {
+    const { data, render } = open();
+    for (let i = 1; i <= 3; i++) {
+      data.tandaTangan['pihak' + i].nama = 'Nama Pihak ' + i;
+      data.tandaTangan['pihak' + i].nip = 'NIP-' + i;
+    }
+    const html = render();
+    const identities = [...html.matchAll(/<div class="doc-ttd-col__identity" style="([^"]+)">([\s\S]*?)<\/div>/g)];
+    expect(identities).toHaveLength(3);
+    identities.forEach(([, style, body], i) => {
+      expect(style).toContain('display:inline-block;text-align:left;');
+      expect(body).toContain('Nama Pihak ' + (i + 1) + '</p>');
+      expect(body).toContain('NIP. NIP-' + (i + 1) + '</p>');
+    });
+  });
+
+  it('tetap menampilkan tahun dari draf legacy dan melindungi teks wilayah', () => {
+    const { data, render } = open();
+    delete data.tandaTangan.tanggalSurat;
+    delete data.tandaTangan.namaProvinsi;
+    delete data.tandaTangan.namaKabupatenKota;
+    data.tandaTangan.tahun = '2024';
+    expect(render()).toContain('Musi Rawas, 2024');
+    data.tandaTangan.namaProvinsi = '<script>alert(1)</script>';
+    const html = render();
+    expect(html).toContain('Prov. &lt;script&gt;alert(1)&lt;/script&gt;');
+    expect(html).not.toContain('<script>alert(1)</script>');
+  });
+});
+
 describe('IJOP Surat Permohonan Lembaga: form kosong dan tata letak', () => {
   const open = () => {
     const h = createPreviewHarness([120]);
