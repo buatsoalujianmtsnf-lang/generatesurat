@@ -3,7 +3,7 @@
    =============================================================
    Berdasarkan dokumen: "IJOP - SURAT PERMOHONAN PERPANJANGAN IZIN OPERASIONAL
    DARI LEMBAGA"
-   Instansi: Madrasah, ditujukan ke Kankemenag Kab. Musi Rawas
+   Instansi: RA/Madrasah, ditujukan ke Kankemenag Kabupaten/Kota pilihan pengguna
    Ukuran kertas: A4 Portrait
 */
 
@@ -25,24 +25,25 @@ const TemplateIjopPermohonan = (() => {
     return {
       surat: {
         nomor: '',
-        namaKabupatenKota: 'Musi Rawas',
-        bentukPemerintahan: 'Kabupaten',
-        namaLokasiInstansi: 'Muara Beliti',
+        namaKabupatenKota: '',
+        bentukPemerintahan: '',
+        namaLokasiInstansi: '',
         tanggal: '',          // ISO: YYYY-MM-DD
       },
       lembaga: {
-        bentukSatuanPendidikan: 'Madrasah',
-        namaRaMadrasah: 'MTs Nurul Falah',
-        nsm: '121216050060',
-        npsn: '69963460',
-        alamat: 'Jl. Jambi Lama RT. 004 Kelurahan Terawas Kecamatan STL. Ulu Terawas',
+        bentukSatuanPendidikan: '',
+        namaRaMadrasah: '',
+        nsm: '',
+        npsn: '',
+        alamat: '',
         akteNotaris: '',
         pengesahanAkteNotaris: '',
-        peringkatAkreditasi: 'C',
+        peringkatAkreditasi: '',
       },
       kepala: {
         namaKepala: '',
-        jabatan: '',          // mis. "Kepala MTs Nurul Falah"
+        nip: '',
+        jabatan: '',
       },
     };
   }
@@ -57,28 +58,28 @@ const TemplateIjopPermohonan = (() => {
           key: 'surat.nomor',
           label: 'Nomor Surat',
           type: 'text',
-          placeholder: 'Contoh: 01/MTs-NF/X/2026',
+          placeholder: '……………………',
           required: false,
         },
         {
           key: 'surat.bentukPemerintahan',
           label: 'Bentuk Pemerintahan',
           type: 'select',
-          options: ['Kabupaten', 'Kota'],
+          options: [{ value: '', label: '…………………' }, 'Kabupaten', 'Kota'],
           required: false,
         },
         {
           key: 'surat.namaKabupatenKota',
           label: 'Nama Kabupaten/Kota',
           type: 'text',
-          placeholder: 'Contoh: Musi Rawas (tanpa kata Kabupaten/Kota)',
+          placeholder: '……………………',
           required: true,
         },
         {
           key: 'surat.namaLokasiInstansi',
           label: 'Nama Lokasi Instansi',
           type: 'text',
-          placeholder: 'Contoh: Muara Beliti',
+          placeholder: '……………………',
           required: false,
         },
         {
@@ -98,56 +99,56 @@ const TemplateIjopPermohonan = (() => {
           key: 'lembaga.bentukSatuanPendidikan',
           label: 'Bentuk Satuan Pendidikan',
           type: 'select',
-          options: ['RA', 'Madrasah'],
+          options: [{ value: '', label: '…………………' }, 'RA', 'Madrasah'],
           required: false,
         },
         {
           key: 'lembaga.namaRaMadrasah',
           label: 'Nama RA/Madrasah',
           type: 'text',
-          placeholder: 'Contoh: MTs Nurul Falah',
+          placeholder: '……………………',
           required: true,
         },
         {
           key: 'lembaga.nsm',
           label: 'NSM',
           type: 'text',
-          placeholder: 'Contoh: 121216050060',
+          placeholder: '……………………',
           required: false,
         },
         {
           key: 'lembaga.npsn',
           label: 'NPSN',
           type: 'text',
-          placeholder: 'Contoh: 69963460',
+          placeholder: '……………………',
           required: false,
         },
         {
           key: 'lembaga.alamat',
           label: 'Alamat',
           type: 'text',
-          placeholder: 'Alamat lengkap madrasah',
+          placeholder: '……………………',
           required: false,
         },
         {
           key: 'lembaga.akteNotaris',
           label: 'Akte Notaris',
           type: 'text',
-          placeholder: 'Nomor dan nama notaris',
+          placeholder: '……………………',
           required: false,
         },
         {
           key: 'lembaga.pengesahanAkteNotaris',
           label: 'Pengesahan Akte Notaris',
           type: 'text',
-          placeholder: 'Contoh: AHU-XXXXX.AH.01.04.Tahun XXXX',
+          placeholder: '……………………',
           required: false,
         },
         {
           key: 'lembaga.peringkatAkreditasi',
           label: 'Peringkat Akreditasi',
           type: 'select',
-          options: ['A', 'B', 'C', 'Belum Terakreditasi'],
+          options: [{ value: '', label: '…………………' }, 'A', 'B', 'C', 'Belum Terakreditasi'],
           required: false,
         },
       ],
@@ -161,15 +162,23 @@ const TemplateIjopPermohonan = (() => {
           key: 'kepala.jabatan',
           label: 'Jabatan',
           type: 'text',
-          placeholder: 'Contoh: Kepala MTs Nurul Falah',
+          placeholder: '……………………',
           required: false,
         },
         {
           key: 'kepala.namaKepala',
           label: 'Nama Kepala',
           type: 'text',
-          placeholder: 'Nama lengkap dan gelar',
+          placeholder: '……………………',
           required: true,
+        },
+        {
+          key: 'kepala.nip',
+          label: 'NIP. Kepala RA/Madrasah',
+          type: 'text',
+          placeholder: '……………………',
+          maxLength: 30,
+          required: false,
         },
       ],
     },
