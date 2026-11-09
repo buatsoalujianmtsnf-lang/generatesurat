@@ -96,7 +96,7 @@ const TemplateRegistry = (() => {
 
     if (!groups.length) {
       containerEl.innerHTML = `
-        <div class="form-empty-state">
+        <div class="form-empty-state card">
           <p>Tidak ada template tersedia.</p>
         </div>`;
       return;
@@ -134,7 +134,7 @@ const TemplateRegistry = (() => {
           <div class="template-card__icon">${Utils.escapeHtml(tpl.meta.icon || '📄')}</div>
           <div class="template-card__name">${Utils.escapeHtml(tpl.meta.name)}</div>
           <div class="template-card__desc">${Utils.escapeHtml(tpl.meta.description)}</div>
-          <span class="template-card__badge">${orientLabel}</span>
+          <span class="template-card__badge badge badge-outline">${orientLabel}</span>
         `;
 
         const choose = () => {
