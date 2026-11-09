@@ -217,10 +217,10 @@ const PreviewRenderer = (() => {
           <tr><td>Status</td><td>:</td><td>${_esc(meta.status)}</td></tr>
           <tr><td>NSM/NPSN</td><td>:</td><td>${_esc(meta.nsmNpsn)}</td></tr>
         </table>
-        <table style="text-align:right;">
-          <tr><td>Status Akreditasi</td><td>:</td><td>${_esc(meta.statusAkreditasi)}</td></tr>
-          <tr><td>Kode Sekolah</td><td>:</td><td>${_esc(meta.kodeSekolah)}</td></tr>
-          <tr><td>Tahun Pelajaran</td><td>:</td><td>${_esc(meta.tahunPelajaran)}</td></tr>
+        <table class="dpu-meta__right" style="margin-left:auto;text-align:left;table-layout:auto;">
+          <tr><td style="white-space:nowrap;text-align:left;">Status Akreditasi</td><td style="text-align:center;">:</td><td style="text-align:left;">${_esc(meta.statusAkreditasi)}</td></tr>
+          <tr><td style="white-space:nowrap;text-align:left;">Kode Sekolah</td><td style="text-align:center;">:</td><td style="text-align:left;">${_esc(meta.kodeSekolah)}</td></tr>
+          <tr><td style="white-space:nowrap;text-align:left;">Tahun Pelajaran</td><td style="text-align:center;">:</td><td style="text-align:left;">${_esc(meta.tahunPelajaran)}</td></tr>
         </table>
       </div>`;
 
@@ -255,37 +255,52 @@ const PreviewRenderer = (() => {
   }
 
   function _buildTtdDpu(ttd) {
-    const kota  = ttd.kota || 'Musi Rawas';
-    const tahun = ttd.tahun || '';
+    const kota = String(ttd.kota || 'Musi Rawas');
+    // Draf lama dengan field tahun tetap dapat ditampilkan.
+    const tanggal = ttd.tanggalSurat
+      ? _formatTanggalPanjang(String(ttd.tanggalSurat))
+      : String(ttd.tahun || '');
+    const provinsi = String(ttd.namaProvinsi ?? 'Sumsel').trim()
+      .replace(/^(?:Provinsi|Prov\.)\s*/i, '');
+    const wilayahMentah = String(ttd.namaKabupatenKota ?? 'Musi Rawas').trim();
+    const kabupatenKota = wilayahMentah.replace(/^(?:Kabupaten|Kab\.|Kota)\s*/i, '');
+    const kabPrefix = /^Kota\s/i.test(wilayahMentah) ? 'Kota' : 'Kab.';
+    const provLabel = provinsi ? 'Prov. ' + _esc(provinsi) : 'Prov. ……………';
+    const kabLabel = kabupatenKota ? kabPrefix + ' ' + _esc(kabupatenKota) : 'Kab./Kota ……………';
     const p1 = ttd.pihak1 || {};
     const p2 = ttd.pihak2 || {};
     const p3 = ttd.pihak3 || {};
+
+    // Inline-block keeps the first character of NIP aligned with the name.
+    function identity(person) {
+      return '<div class="doc-ttd-col__identity" style="display:inline-block;text-align:left;max-width:100%;overflow-wrap:anywhere;">'
+        + '<p class="doc-ttd-col__name">' + (_esc(person.nama) || '.............................') + '</p>'
+        + '<p class="doc-ttd-col__nip">NIP. ' + (_esc(person.nip) || '-') + '</p>'
+        + '</div>';
+    }
 
     return `
       <div class="doc-ttd-section doc-ttd-section--dpu">
         <div class="doc-ttd-grid doc-ttd-grid--dpu">
           <div class="doc-ttd-col">
             <p class="doc-ttd-col__place">Mengetahui,</p>
-            <p class="doc-ttd-col__role">a.n. Kepala Kantor Wilayah Kemenag Prov. Sumsel</p>
+            <p class="doc-ttd-col__role">a.n. Kepala Kantor Wilayah Kemenag ${provLabel}</p>
             <p class="doc-ttd-col__role">${_esc(p1.jabatan || 'Katim Kurikulum')}</p>
             <div class="doc-ttd-col__space"></div>
-            <p class="doc-ttd-col__name">${_esc(p1.nama) || '.............................'}</p>
-            <p class="doc-ttd-col__nip">NIP. ${_esc(p1.nip) || '-'}</p>
+            ${identity(p1)}
           </div>
           <div class="doc-ttd-col">
             <p class="doc-ttd-col__place">Mengetahui,</p>
-            <p class="doc-ttd-col__role">a.n. Kepala Kantor Kemenag Kab. Musi Rawas</p>
+            <p class="doc-ttd-col__role">a.n. Kepala Kantor Kemenag ${kabLabel}</p>
             <p class="doc-ttd-col__role">${_esc(p2.jabatan || 'Kasi Pendidikan Madrasah,')}</p>
             <div class="doc-ttd-col__space"></div>
-            <p class="doc-ttd-col__name">${_esc(p2.nama) || '.............................'}</p>
-            <p class="doc-ttd-col__nip">NIP. ${_esc(p2.nip) || '-'}</p>
+            ${identity(p2)}
           </div>
           <div class="doc-ttd-col">
-            <p class="doc-ttd-col__place">${_esc(kota)}, ${_esc(tahun)}</p>
+            <p class="doc-ttd-col__place">${_esc(kota)}, ${_esc(tanggal)}</p>
             <p class="doc-ttd-col__role">${_esc(p3.jabatan || 'Kepala MTs Nurul Falah,')}</p>
             <div class="doc-ttd-col__space"></div>
-            <p class="doc-ttd-col__name">${_esc(p3.nama) || '.............................'}</p>
-            <p class="doc-ttd-col__nip">NIP. ${_esc(p3.nip) || '-'}</p>
+            ${identity(p3)}
           </div>
         </div>
       </div>`;
