@@ -289,7 +289,7 @@ describe('GS-005: pagination integration across all runtime templates', () => {
 
 
 
-describe('IJOP Surat Permohonan Lembaga: teks dinamis dan perataan', () => {
+describe('IJOP Surat Permohonan Lembaga: form kosong dan tata letak', () => {
   const open = () => {
     const h = createPreviewHarness([120]);
     const template = h.registry.get('ijop-permohonan');
@@ -302,15 +302,18 @@ describe('IJOP Surat Permohonan Lembaga: teks dinamis dan perataan', () => {
     } };
   };
 
-  it('menampilkan lokasi/tanggal rata kanan, perihal sejajar label dan titik dua, serta akte satu baris', () => {
+  it('menyelaraskan baris Nomor dengan nama wilayah/tanggal serta Perihal satu tabel', () => {
     const { data, render } = open();
+    data.surat.namaKabupatenKota = 'Musi Rawas';
     data.surat.tanggal = '2026-11-09';
     const html = render();
-    expect(html).toMatch(/<div style="margin-top:12pt;text-align:right;">[\s\S]*?Musi Rawas, 9 November 2026/);
-    expect(html).toContain('class="ijop-permohonan__identitas"');
-    expect(html).toMatch(/<tr><td style="white-space:nowrap;vertical-align:top;">Perihal<\/td><td style="text-align:center;vertical-align:top;">:<\/td><td><strong>Permohonan Perpanjangan Izin Operasional Lembaga Pendidikan<\/strong><\/td><\/tr>/);
-    expect(html).toContain('<td style="white-space:nowrap;">Pengesahan Akte Notaris</td>');
+    const table = html.match(/<table class="ijop-permohonan__identitas"[\s\S]*?<\/table>/)?.[0];
+    expect(table).toBeTruthy();
+    expect(table).toMatch(/<tr>[\s\S]*?>Nomor<\/td>[\s\S]*?class="ijop-permohonan__tanggal"[\s\S]*?Musi Rawas, 9 November 2026[\s\S]*?<\/tr>/);
+    expect(table).toContain('text-align:right;vertical-align:top;white-space:nowrap;');
+    expect(table).toMatch(/>Perihal<\/td>[\s\S]*?<td colspan="2"[^>]*><strong>Permohonan Perpanjangan Izin Operasional Lembaga Pendidikan<\/strong><\/td>/);
     expect(html).not.toContain('style="width:55%;"');
+    expect(html).toContain('<td style="white-space:nowrap;">Pengesahan Akte Notaris</td>');
   });
 
   it.each([
@@ -328,21 +331,20 @@ describe('IJOP Surat Permohonan Lembaga: teks dinamis dan perataan', () => {
   });
 
   it.each([
-    ['RA', 'Nama RA', 'pendirian RA'],
-    ['Madrasah', 'Nama Madrasah', 'pendirian Madrasah'],
-  ])('mengubah label dan kalimat sesuai bentuk satuan %s', (jenis, nama, pendirian) => {
+    ['RA', 'Nama RA', 'pendirian RA', 'Kepala RA'],
+    ['Madrasah', 'Nama Madrasah', 'pendirian Madrasah', 'Kepala Madrasah'],
+  ])('mengubah label dan jabatan sesuai bentuk satuan %s', (jenis, nama, pendirian, jabatan) => {
     const { data, render } = open();
     data.lembaga.bentukSatuanPendidikan = jenis;
     const html = render();
     expect(html).toContain('>' + nama + '</td>');
     expect(html).toContain('operasional/' + pendirian);
+    expect(html).toContain('>' + jabatan + '</p>');
     expect(html).not.toContain('Nama RA/Madrasah');
     expect(html).not.toContain('pendirian RA/Madrasah');
-    expect(html).not.toContain('Kepala RA/Madrasah');
-    expect(html).toContain('>Kepala</p>');
   });
 
-  it('menjorokkan lokasi instansi satu tab dan melindungi isian dari HTML berbahaya', () => {
+  it('menjorokkan lokasi instansi dan melindungi input berbahaya', () => {
     const { data, render } = open();
     data.surat.namaLokasiInstansi = 'Tugu Mulyo <img src=x onerror=alert(1)>';
     const html = render();
@@ -351,26 +353,71 @@ describe('IJOP Surat Permohonan Lembaga: teks dinamis dan perataan', () => {
     expect(html).not.toContain('<img src=x onerror=alert(1)>');
   });
 
-  it('mempertahankan rendering draf lama yang belum memiliki field dropdown/lokasi', () => {
+  it('nilai default seluruh input kosong, placeholder tampilan titik-titik, bukan data contoh', () => {
+    const { data, template, render } = open();
+    for (const section of Object.values(data)) {
+      for (const value of Object.values(section)) {
+        expect(value).toBe('');
+      }
+    }
+    expect(render()).not.toContain('MTs Nurul Falah');
+    expect(render()).not.toContain('Kabupaten Musi Rawas');
+    expect(render()).not.toContain('Muara Beliti');
+    expect(render()).toContain('……………………');
+    expect(render()).toContain('Kepala RA/Madrasah');
+    const selectedOptions = template.formSections.flatMap(section => section.fields)
+      .filter(field => field.type === 'select');
+    expect(selectedOptions.every(field => field.options[0].value === '')).toBe(true);
+    expect(selectedOptions.every(field => field.options[0].label.includes('…'))).toBe(true);
+  });
+
+  it('draf lama tetap muncul tanpa mengganti nilai yang sudah diinput', () => {
     const { data, render } = open();
-    delete data.surat.bentukPemerintahan;
-    delete data.surat.namaLokasiInstansi;
-    delete data.lembaga.bentukSatuanPendidikan;
+    data.surat.namaKabupatenKota = 'Musi Rawas';
+    data.surat.bentukPemerintahan = 'Kabupaten';
+    data.surat.namaLokasiInstansi = 'Muara Beliti';
+    data.lembaga.bentukSatuanPendidikan = 'Madrasah';
+    data.lembaga.namaRaMadrasah = 'MTs Nurul Falah';
+    data.kepala.namaKepala = 'Ahmad';
     const html = render();
     expect(html).toContain('Kementerian Agama Kabupaten Musi Rawas');
     expect(html).toContain('<strong>Muara Beliti</strong>');
     expect(html).toContain('Nama Madrasah');
+    expect(html).toContain('>Ahmad</p>');
   });
 
-  it('menyediakan tiga field baru dengan opsi sesuai kebutuhan', () => {
+  it('NIP Kepala tampil tepat di bawah nama dengan posisi huruf pertama sejajar', () => {
+    const { data, template, render } = open();
+    data.lembaga.bentukSatuanPendidikan = 'RA';
+    data.kepala.namaKepala = 'Siti Aminah, S.Pd.';
+    data.kepala.nip = '198706152012032001';
+    const html = render();
+    const identity = html.match(/<div class="ijop-permohonan__ttd-identitas" style="([^"]+)">([\s\S]*?)<\/div>/);
+    expect(identity).not.toBeNull();
+    expect(identity[1]).toContain('display:inline-block;text-align:left;');
+    expect(identity[2]).toContain('Siti Aminah, S.Pd.</p>');
+    expect(identity[2]).toContain('NIP. 198706152012032001</p>');
+    expect(html).toContain('>Kepala RA</p>');
+    const fields = template.formSections.find(s => s.id === 'kepala').fields;
+    expect(fields.find(field => field.key === 'kepala.nip')?.type).toBe('text');
+  });
+
+  it('nilai Alamat diawali sejajar dengan label serta titik dua, termasuk alamat panjang', () => {
+    const { data, render } = open();
+    data.lembaga.alamat = 'Jl. Mawar No. 8, Desa Contoh, Kecamatan Contoh, Provinsi Contoh';
+    const html = render();
+    expect(html).toMatch(/<tr><td style="vertical-align:top;">Alamat<\/td><td style="padding:0 6px;vertical-align:top;">:<\/td><td style="vertical-align:top;overflow-wrap:anywhere;white-space:normal;">Jl. Mawar/);
+  });
+
+  it('opsi dropdown wilayah dan satuan tetap tersedia dengan placeholder netral', () => {
     const { template } = open();
     const surat = template.formSections.find(section => section.id === 'surat').fields;
     const lembaga = template.formSections.find(section => section.id === 'lembaga').fields;
-    expect(surat.find(field => field.key === 'surat.bentukPemerintahan').options)
-      .toEqual(['Kabupaten', 'Kota']);
+    expect(surat.find(field => field.key === 'surat.bentukPemerintahan').options.map(x => typeof x === 'string' ? x : x.value))
+      .toEqual(['', 'Kabupaten', 'Kota']);
     expect(surat.find(field => field.key === 'surat.namaLokasiInstansi').type).toBe('text');
-    expect(lembaga.find(field => field.key === 'lembaga.bentukSatuanPendidikan').options)
-      .toEqual(['RA', 'Madrasah']);
+    expect(lembaga.find(field => field.key === 'lembaga.bentukSatuanPendidikan').options.map(x => typeof x === 'string' ? x : x.value))
+      .toEqual(['', 'RA', 'Madrasah']);
   });
 });
 
