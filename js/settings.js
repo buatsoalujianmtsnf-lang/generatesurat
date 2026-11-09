@@ -89,19 +89,19 @@ const Settings = (() => {
     _rootEl.innerHTML = `
 
       <!-- ── PRESET ─────────────────────────────────── -->
-      <div class="settings-card" id="settings-card-preset">
+      <div class="settings-card card" id="settings-card-preset">
         <div class="settings-card__header">
           <span class="settings-card__icon">📋</span>
           <span class="settings-card__title">Preset Dokumen</span>
         </div>
         <div class="settings-card__body">
-          <p class="settings-hint">Pilih preset untuk mengisi semua pengaturan dokumen sekaligus.</p>
+          <p class="settings-hint text-base-content/70">Pilih preset untuk mengisi semua pengaturan dokumen sekaligus.</p>
           <div class="preset-grid" id="preset-grid"></div>
         </div>
       </div>
 
       <!-- ── DOKUMEN ─────────────────────────────────── -->
-      <div class="settings-card" id="settings-card-document">
+      <div class="settings-card card" id="settings-card-document">
         <div class="settings-card__header">
           <span class="settings-card__icon">📄</span>
           <span class="settings-card__title">Dokumen</span>
@@ -111,7 +111,7 @@ const Settings = (() => {
           <!-- Ukuran kertas -->
           <div class="settings-row">
             <label class="settings-label" for="paper-size-select">Ukuran Kertas</label>
-            <select class="form-select settings-select" id="paper-size-select">
+            <select class="form-select settings-select select" id="paper-size-select">
               ${Object.entries(State.PAPER_SIZES).map(([key, val]) =>
                 `<option value="${key}">${Utils.escapeHtml(val.label)}</option>`
               ).join('')}
@@ -132,7 +132,7 @@ const Settings = (() => {
               <div class="settings-col">
                 <label class="settings-label" for="custom-width-input">Lebar</label>
                 <div class="input-with-unit">
-                  <input type="number" class="form-input" id="custom-width-input"
+                  <input type="number" class="form-input input" id="custom-width-input"
                     step="1" min="50" max="600" value="210" />
                   <span class="input-unit-badge" id="custom-width-unit">mm</span>
                 </div>
@@ -140,13 +140,13 @@ const Settings = (() => {
               <div class="settings-col">
                 <label class="settings-label" for="custom-height-input">Tinggi</label>
                 <div class="input-with-unit">
-                  <input type="number" class="form-input" id="custom-height-input"
+                  <input type="number" class="form-input input" id="custom-height-input"
                     step="1" min="50" max="900" value="297" />
                   <span class="input-unit-badge" id="custom-height-unit">mm</span>
                 </div>
               </div>
             </div>
-            <p class="settings-hint" id="custom-size-info">210 × 297 mm</p>
+            <p class="settings-hint text-base-content/70" id="custom-size-info">210 × 297 mm</p>
           </div>
 
           <!-- Orientasi -->
@@ -184,7 +184,7 @@ const Settings = (() => {
       </div>
 
       <!-- ── TIPOGRAFI ─────────────────────────────── -->
-      <div class="settings-card" id="settings-card-typography">
+      <div class="settings-card card" id="settings-card-typography">
         <div class="settings-card__header">
           <span class="settings-card__icon">🔤</span>
           <span class="settings-card__title">Tipografi Isi Surat</span>
@@ -194,7 +194,7 @@ const Settings = (() => {
           <!-- Font Family -->
           <div class="settings-row">
             <label class="settings-label" for="doc-font-family">Font</label>
-            <select class="form-select settings-select" id="doc-font-family"
+            <select class="form-select settings-select select" id="doc-font-family"
               style="font-family: inherit;">
               ${(State.DOCUMENT_FONTS || []).map(f =>
                 `<option value="${Utils.escapeHtml(f.value)}"
@@ -229,7 +229,7 @@ const Settings = (() => {
           <!-- Line Height -->
           <div class="settings-row">
             <label class="settings-label" for="doc-line-height">Jarak Baris</label>
-            <select class="form-select settings-select" id="doc-line-height"
+            <select class="form-select settings-select select" id="doc-line-height"
               style="max-width:120px;">
               ${[1.0, 1.15, 1.2, 1.3, 1.4, 1.5, 1.6, 1.8, 2.0].map(v =>
                 `<option value="${v}">${v}×</option>`
@@ -253,7 +253,7 @@ const Settings = (() => {
               border:1px solid var(--color-border);padding:4px 8px;">pt</span>
           </div>
 
-          <p class="settings-hint">
+          <p class="settings-hint text-base-content/70">
             Pengaturan tipografi berlaku untuk seluruh isi surat.
             Font KOP Surat diatur terpisah di tab <strong>KOP Surat</strong>.
           </p>
@@ -262,7 +262,7 @@ const Settings = (() => {
       </div>
 
       <!-- ── MARGIN ─────────────────────────────────── -->
-      <div class="settings-card" id="settings-card-margin">
+      <div class="settings-card card" id="settings-card-margin">
         <div class="settings-card__header">
           <span class="settings-card__icon">↔️</span>
           <span class="settings-card__title">Margin</span>
@@ -273,7 +273,7 @@ const Settings = (() => {
           <!-- Preset margin -->
           <div class="settings-row">
             <label class="settings-label" for="margin-preset-select">Preset Margin</label>
-            <select class="form-select settings-select" id="margin-preset-select">
+            <select class="form-select settings-select select" id="margin-preset-select">
               ${Object.entries(State.MARGIN_PRESETS).map(([key, val]) =>
                 `<option value="${key}">${Utils.escapeHtml(val.label)}</option>`
               ).join('')}
@@ -288,7 +288,7 @@ const Settings = (() => {
               <div class="margin-field margin-field--top">
                 <label class="margin-label" for="margin-top">Atas</label>
                 <div class="input-with-unit">
-                  <input type="number" class="form-input margin-input" id="margin-top"
+                  <input type="number" class="form-input margin-input input" id="margin-top"
                     min="0" max="60" step="1" value="20" />
                   <span class="input-unit-badge">mm</span>
                 </div>
@@ -298,7 +298,7 @@ const Settings = (() => {
                 <div class="margin-field margin-field--left">
                   <label class="margin-label" for="margin-left">Kiri</label>
                   <div class="input-with-unit">
-                    <input type="number" class="form-input margin-input" id="margin-left"
+                    <input type="number" class="form-input margin-input input" id="margin-left"
                       min="0" max="60" step="1" value="25" />
                     <span class="input-unit-badge">mm</span>
                   </div>
@@ -309,7 +309,7 @@ const Settings = (() => {
                 <div class="margin-field margin-field--right">
                   <label class="margin-label" for="margin-right">Kanan</label>
                   <div class="input-with-unit">
-                    <input type="number" class="form-input margin-input" id="margin-right"
+                    <input type="number" class="form-input margin-input input" id="margin-right"
                       min="0" max="60" step="1" value="20" />
                     <span class="input-unit-badge">mm</span>
                   </div>
@@ -319,7 +319,7 @@ const Settings = (() => {
               <div class="margin-field margin-field--bottom">
                 <label class="margin-label" for="margin-bottom">Bawah</label>
                 <div class="input-with-unit">
-                  <input type="number" class="form-input margin-input" id="margin-bottom"
+                  <input type="number" class="form-input margin-input input" id="margin-bottom"
                     min="0" max="60" step="1" value="25" />
                   <span class="input-unit-badge">mm</span>
                 </div>
@@ -331,7 +331,7 @@ const Settings = (() => {
       </div>
 
       <!-- ── FOOTER NOMOR HALAMAN ──────────────────── -->
-      <div class="settings-card" id="settings-card-page-number">
+      <div class="settings-card card" id="settings-card-page-number">
         <div class="settings-card__header">
           <span class="settings-card__icon">🔢</span>
           <span class="settings-card__title">Footer Nomor Halaman</span>
@@ -341,7 +341,7 @@ const Settings = (() => {
           <div class="settings-row settings-row--between">
             <div>
               <label class="settings-label" for="page-number-enabled">Tampilkan Footer</label>
-              <p class="settings-hint">Nomor halaman ditampilkan pada setiap halaman surat.</p>
+              <p class="settings-hint text-base-content/70">Nomor halaman ditampilkan pada setiap halaman surat.</p>
             </div>
             <label class="toggle-switch" title="Tampilkan footer nomor halaman">
               <input type="checkbox" class="toggle-switch__input" id="page-number-enabled" />
@@ -360,7 +360,7 @@ const Settings = (() => {
 
           <div class="settings-row">
             <label class="settings-label" for="page-number-font-family">Font</label>
-            <select class="form-select settings-select" id="page-number-font-family"
+            <select class="form-select settings-select select" id="page-number-font-family"
               style="font-family: inherit;">
               ${(State.DOCUMENT_FONTS || []).map(f =>
                 `<option value="${Utils.escapeHtml(f.value)}"
@@ -409,13 +409,13 @@ const Settings = (() => {
           <div class="settings-row">
             <label class="settings-label" for="page-number-bottom-offset">Jarak dari bawah kertas</label>
             <div class="input-with-unit">
-              <input type="number" class="form-input" id="page-number-bottom-offset"
+              <input type="number" class="form-input input" id="page-number-bottom-offset"
                 min="1" max="20" step="0.5" value="5" style="width:90px;" />
               <span class="input-unit-badge">mm</span>
             </div>
           </div>
 
-          <div class="settings-hint">
+          <div class="settings-hint text-base-content/70">
             Alignment kiri/kanan otomatis mengikuti <strong>margin kiri/kanan isi surat</strong>.
             Footer tidak memengaruhi pembagian halaman maupun tinggi tabel.
           </div>
@@ -428,7 +428,7 @@ const Settings = (() => {
       </div>
 
       <!-- ── CETAK ─────────────────────────────────── -->
-      <div class="settings-card" id="settings-card-print">
+      <div class="settings-card card" id="settings-card-print">
         <div class="settings-card__header">
           <span class="settings-card__icon">🖨️</span>
           <span class="settings-card__title">Cetak</span>
@@ -437,7 +437,7 @@ const Settings = (() => {
 
           <div class="settings-row">
             <label class="settings-label" for="print-scale-select">Skala Cetak</label>
-            <select class="form-select settings-select" id="print-scale-select">
+            <select class="form-select settings-select select" id="print-scale-select">
               <option value="80">80%</option>
               <option value="85">85%</option>
               <option value="90">90%</option>
@@ -454,7 +454,7 @@ const Settings = (() => {
           <div class="settings-row hidden" id="print-scale-custom-row">
             <label class="settings-label" for="print-scale-custom">Skala Custom (%)</label>
             <div class="input-with-unit">
-              <input type="number" class="form-input" id="print-scale-custom"
+              <input type="number" class="form-input input" id="print-scale-custom"
                 min="50" max="150" step="1" value="100" style="width:80px;" />
               <span class="input-unit-badge">%</span>
             </div>
@@ -472,14 +472,14 @@ const Settings = (() => {
       </div>
 
       <!-- ── PREVIEW ─────────────────────────────────── -->
-      <div class="settings-card" id="settings-card-preview">
+      <div class="settings-card card" id="settings-card-preview">
         <div class="settings-card__header">
           <span class="settings-card__icon">👁️</span>
           <span class="settings-card__title">Tampilan Preview</span>
         </div>
         <div class="settings-card__body">
 
-          <div class="settings-hint" style="margin-bottom:10px;">
+          <div class="settings-hint text-base-content/70" style="margin-bottom:10px;">
             Pengaturan berikut hanya memengaruhi <strong>tampilan preview</strong> di
             layar — tidak mengubah ukuran atau margin dokumen sebenarnya.
           </div>
@@ -517,7 +517,7 @@ const Settings = (() => {
       </div>
 
       <!-- ── DATA LOKAL ─────────────────────────────── -->
-      <div class="settings-card" id="settings-card-data">
+      <div class="settings-card card" id="settings-card-data">
         <div class="settings-card__header">
           <span class="settings-card__icon">💾</span>
           <span class="settings-card__title">Data Lokal</span>
@@ -541,7 +541,7 @@ const Settings = (() => {
               <span class="storage-status-value" id="ss-remaining">—</span>
             </div>
           </div>
-          <p class="settings-hint" style="margin-top:8px;">
+          <p class="settings-hint text-base-content/70" style="margin-top:8px;">
             Data tersimpan di perangkat ini dan akan dihapus otomatis setelah
             <strong>2 jam</strong> sejak penyimpanan terakhir.
           </p>
@@ -549,13 +549,13 @@ const Settings = (() => {
       </div>
 
       <!-- ── DATA MANAGEMENT ───────────────────────── -->
-      <div class="settings-card" id="settings-card-data-manager">
+      <div class="settings-card card" id="settings-card-data-manager">
         <div class="settings-card__header">
           <span class="settings-card__icon">🗂️</span>
           <span class="settings-card__title">Manajemen Data Lanjutan</span>
         </div>
         <div class="settings-card__body">
-          <p class="settings-hint">
+          <p class="settings-hint text-base-content/70">
             Kelola draft bernama dan pindahkan data antar perangkat melalui backup JSON.
           </p>
           <div id="data-manager-root"></div>
@@ -563,7 +563,7 @@ const Settings = (() => {
       </div>
 
       <!-- ── TINDAKAN ─────────────────────────────── -->
-      <div class="settings-card" id="settings-card-actions">
+      <div class="settings-card card" id="settings-card-actions">
         <div class="settings-card__header">
           <span class="settings-card__icon">⚙️</span>
           <span class="settings-card__title">Tindakan</span>
@@ -575,7 +575,7 @@ const Settings = (() => {
               <strong>Reset Pengaturan</strong>
               <p>Kembalikan ukuran kertas, margin, dan semua konfigurasi ke nilai default.</p>
             </div>
-            <button type="button" class="btn btn--secondary btn--sm" id="btn-reset-settings">
+            <button type="button" class="btn btn--secondary btn--sm btn-sm btn-outline" id="btn-reset-settings">
               Reset Pengaturan
             </button>
           </div>
@@ -587,7 +587,7 @@ const Settings = (() => {
               <strong>Hapus Semua Data Lokal</strong>
               <p>Hapus seluruh data surat, KOP, pengaturan, dan state yang tersimpan di perangkat ini.</p>
             </div>
-            <button type="button" class="btn btn--danger btn--sm" id="btn-clear-all-data">
+            <button type="button" class="btn btn--danger btn--sm btn-sm btn-error" id="btn-clear-all-data">
               Hapus Semua Data
             </button>
           </div>
