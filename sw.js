@@ -3,7 +3,7 @@
    ============================================================= */
 
 const CACHE_PREFIX = 'generator-surat-platform-';
-const CACHE_NAME = CACHE_PREFIX + 'v14';
+const CACHE_NAME = CACHE_PREFIX + 'v15';
 const APP_SHELL = [
   './',
   './index.html',
@@ -18,10 +18,12 @@ const APP_SHELL = [
   './css/data-manager.css',
   './css/about.css',
   './css/dark-mode.css',
+  './css/landing.css',
   './css/platform.css',
   './css/document-viewer.css',
   './css/print.css',
   './js/theme-init.js',
+  './js/routes.js',
   './js/utils.js',
   './js/storage.js',
   './js/state.js',
@@ -37,6 +39,7 @@ const APP_SHELL = [
   './templates/rekap-nilai.js',
   './templates/surat-izin.js',
   './js/template-registry.js',
+  './js/landing.js',
   './js/ui.js',
   './js/kop-editor.js',
   './js/excel-import.js',
