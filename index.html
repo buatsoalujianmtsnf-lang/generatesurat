@@ -44,6 +44,7 @@
   <link rel="stylesheet" href="css/izin-declaration.css" />
   <link rel="stylesheet" href="css/daisyui-adapter.css" />
   <link rel="stylesheet" href="css/tabler-icons.css" />
+  <link rel="stylesheet" href="css/editor-drawer.css" />
 </head>
 <body>
 
@@ -192,6 +193,12 @@
 
     <!-- HEADER -->
     <header class="app-header navbar">
+      <button type="button" id="editor-drawer-button"
+        class="btn btn-ghost btn-square drawer-button editor-drawer__open"
+        aria-controls="editor-panel" aria-expanded="true"
+        aria-label="Tutup panel editor" title="Tampilkan atau sembunyikan editor">
+        <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-layout-sidebar"></use></svg>
+      </button>
       <a class="app-header__brand" href="/" title="Kembali ke beranda" aria-label="Kembali ke beranda Generator Surat">
         <img
           src="assets/icons/logo.svg"
@@ -283,11 +290,106 @@
       </div>
     </header>
 
-    <!-- MAIN LAYOUT -->
-    <div class="app-body">
+    <!-- daisyUI Drawer: dokumen menjadi konten utama; editor sidebar dapat ditutup. -->
+    <div class="app-body drawer editor-drawer" id="editor-drawer" data-open="true">
+      <input id="editor-drawer-toggle" type="checkbox" class="drawer-toggle"
+        autocomplete="off" aria-label="Panel editor" checked />
+      <div class="drawer-content editor-drawer__content">
+      <main class="preview-panel" id="preview-panel">
+        <div class="preview-toolbar">
+          <div class="preview-toolbar__identity">
+            <button type="button" id="editor-drawer-preview-open"
+              class="btn btn-ghost btn-square btn-sm drawer-button editor-drawer__preview-open"
+              aria-controls="editor-panel" aria-expanded="true" aria-label="Buka panel editor"
+              title="Buka panel editor">
+              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-layout-sidebar"></use></svg>
+            </button>
+            <span class="preview-toolbar__label">Preview Surat</span>
+            <span id="viewer-template-label" class="viewer-template-label">Belum ada dokumen</span>
 
-      <!-- LEFT PANEL: EDITOR -->
-      <aside class="editor-panel" id="editor-panel">
+            <div class="viewer-page-nav" role="group" aria-label="Navigasi halaman">
+              <button type="button" id="viewer-page-first" class="btn-icon viewer-document-control btn btn-ghost btn-square btn-sm" title="Halaman pertama" aria-label="Halaman pertama">
+                <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-chevrons-left"></use></svg>
+              </button>
+              <button type="button" id="viewer-page-prev" class="btn-icon viewer-document-control btn btn-ghost btn-square btn-sm" title="Halaman sebelumnya" aria-label="Halaman sebelumnya">
+                <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-chevron-left"></use></svg>
+              </button>
+              <label class="viewer-page-input-wrap">
+                <input id="viewer-page-current" class="viewer-page-input viewer-document-control" type="number" min="1" value="" inputmode="numeric" aria-label="Nomor halaman aktif" />
+                <span aria-hidden="true">/</span>
+                <span id="viewer-page-total">—</span>
+              </label>
+              <button type="button" id="viewer-page-next" class="btn-icon viewer-document-control btn btn-ghost btn-square btn-sm" title="Halaman berikutnya" aria-label="Halaman berikutnya">
+                <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-chevron-right"></use></svg>
+              </button>
+              <button type="button" id="viewer-page-last" class="btn-icon viewer-document-control btn btn-ghost btn-square btn-sm" title="Halaman terakhir" aria-label="Halaman terakhir">
+                <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-chevrons-right"></use></svg>
+              </button>
+            </div>
+
+            <span id="viewer-page-status" class="viewer-page-status" aria-live="polite">Belum ada halaman</span>
+            <span id="preview-page-info" class="preview-page-info" aria-live="polite">1 halaman</span>
+          </div>
+          <div class="preview-toolbar__actions">
+            <button id="btn-fit-page" class="btn-icon btn btn-ghost btn-square btn-sm" title="Sesuaikan ke halaman" aria-label="Sesuaikan preview ke halaman">
+              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8" height="16"><use href="assets/icons/tabler-sprite.svg#ti-arrows-maximize"></use></svg>
+            </button>
+            <button id="btn-fit-width" class="btn-icon btn btn-ghost btn-square btn-sm" title="Sesuaikan ke lebar" aria-label="Sesuaikan preview ke lebar">
+              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-arrows-horizontal"></use></svg>
+            </button>
+            <span class="preview-toolbar__divider" aria-hidden="true"></span>
+            <button id="btn-zoom-out" class="btn-icon btn btn-ghost btn-square btn-sm" title="Perkecil tampilan" aria-label="Perkecil tampilan">
+              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2"><use href="assets/icons/tabler-sprite.svg#ti-zoom-out"></use></svg>
+            </button>
+            <span id="zoom-level-text" class="zoom-level-text">100%</span>
+            <button id="btn-zoom-in" class="btn-icon btn btn-ghost btn-square btn-sm" title="Perbesar tampilan" aria-label="Perbesar tampilan">
+              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2"><use href="assets/icons/tabler-sprite.svg#ti-zoom-in"></use></svg>
+            </button>
+            <button id="btn-zoom-reset" class="btn-icon btn btn-ghost btn-square btn-sm" title="Reset zoom" aria-label="Reset zoom">
+              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2"><use href="assets/icons/tabler-sprite.svg#ti-refresh"></use></svg>
+            </button>
+            <span class="preview-toolbar__divider" aria-hidden="true"></span>
+            <button id="viewer-focus-toggle" class="btn-icon viewer-focus-toggle btn btn-ghost btn-square btn-sm" title="Mode fokus preview" aria-label="Buka preview dalam mode fokus" aria-pressed="false">
+              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-arrows-maximize"></use></svg>
+              <span class="viewer-focus-label">Fokus</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="preview-viewport" id="preview-viewport">
+          <div class="preview-canvas-wrapper" id="preview-canvas-wrapper">
+            <!-- Surat preview dirender di sini -->
+            <div id="surat-preview" class="surat-preview">
+              <div class="preview-placeholder" id="preview-placeholder">
+                <!-- Skeleton loading — tampil saat aplikasi baru boot / template belum dipilih -->
+                <div class="preview-skeleton" aria-hidden="true" id="preview-skeleton">
+                  <div class="skeleton-block preview-skeleton__page skeleton"></div>
+                </div>
+                <!-- Pesan statis setelah skeleton (tersembunyi hingga JS siap) -->
+                <div id="preview-empty-msg" style="display:none; text-align:center; color: var(--color-text-muted); padding: var(--space-8);">
+                  <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" style="width:48px;height:48px;margin:0 auto var(--space-4)" width="1"><use href="assets/icons/tabler-sprite.svg#ti-file-text"></use></svg>
+                  <p>Preview surat akan muncul di sini setelah template dipilih dan data diisi.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      </div>
+      <div class="drawer-side editor-drawer__side">
+        <label for="editor-drawer-toggle" class="drawer-overlay editor-drawer__overlay"
+          aria-label="Tutup panel editor"></label>
+      <aside class="editor-panel" id="editor-panel" tabindex="-1" aria-label="Panel editor surat">
+        <div class="editor-drawer__heading">
+          <div class="editor-drawer__heading-label">
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-writing"></use></svg>
+            <strong>Editor Surat</strong>
+          </div>
+          <button type="button" id="editor-drawer-close" class="btn btn-ghost btn-square btn-sm"
+            aria-label="Tutup panel editor" title="Tutup panel editor">
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-chevron-left"></use></svg>
+          </button>
+        </div>
 
         <!-- Tab Navigation -->
         <nav class="editor-tabs tabs tabs-border" role="tablist" aria-label="Bagian editor">
@@ -373,101 +475,17 @@
         <!-- Phase 2: contextual workflow actions -->
         <div id="workflow-actions" class="workflow-actions" aria-label="Navigasi alur pembuatan surat"></div>
 
-        <!-- Mobile: Preview toggle -->
-        <div class="mobile-preview-toggle-wrap">
-          <button
-            type="button"
-            id="mobile-preview-toggle"
-            class="mobile-preview-toggle"
-            aria-controls="preview-panel"
-            aria-expanded="true"
-            title="Sembunyikan preview surat">
-            <svg class="ti-icon mobile-preview-toggle__icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8" height="16"><use href="assets/icons/tabler-sprite.svg#ti-eye"></use></svg>
-            <span class="mobile-preview-toggle__label">Sembunyikan Preview</span>
+        <!-- Preview selalu tersedia di area utama; tombol ini menutup drawer. -->
+        <div class="editor-drawer__footer">
+          <button id="editor-drawer-preview" type="button" class="btn btn-outline btn-sm"
+            aria-controls="preview-panel" title="Tutup editor dan lihat pratinjau surat">
+            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-eye"></use></svg>
+            Lihat Pratinjau
           </button>
         </div>
 
-      </aside>
-
-      <!-- RESIZER -->
-      <div class="panel-resizer" id="panel-resizer" aria-hidden="true"></div>
-
-      <!-- RIGHT PANEL: PREVIEW -->
-      <main class="preview-panel" id="preview-panel">
-        <div class="preview-toolbar">
-          <div class="preview-toolbar__identity">
-            <span class="preview-toolbar__label">Preview Surat</span>
-            <span id="viewer-template-label" class="viewer-template-label">Belum ada dokumen</span>
-
-            <div class="viewer-page-nav" role="group" aria-label="Navigasi halaman">
-              <button type="button" id="viewer-page-first" class="btn-icon viewer-document-control btn btn-ghost btn-square btn-sm" title="Halaman pertama" aria-label="Halaman pertama">
-                <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-chevrons-left"></use></svg>
-              </button>
-              <button type="button" id="viewer-page-prev" class="btn-icon viewer-document-control btn btn-ghost btn-square btn-sm" title="Halaman sebelumnya" aria-label="Halaman sebelumnya">
-                <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-chevron-left"></use></svg>
-              </button>
-              <label class="viewer-page-input-wrap">
-                <input id="viewer-page-current" class="viewer-page-input viewer-document-control" type="number" min="1" value="" inputmode="numeric" aria-label="Nomor halaman aktif" />
-                <span aria-hidden="true">/</span>
-                <span id="viewer-page-total">—</span>
-              </label>
-              <button type="button" id="viewer-page-next" class="btn-icon viewer-document-control btn btn-ghost btn-square btn-sm" title="Halaman berikutnya" aria-label="Halaman berikutnya">
-                <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-chevron-right"></use></svg>
-              </button>
-              <button type="button" id="viewer-page-last" class="btn-icon viewer-document-control btn btn-ghost btn-square btn-sm" title="Halaman terakhir" aria-label="Halaman terakhir">
-                <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-chevrons-right"></use></svg>
-              </button>
-            </div>
-
-            <span id="viewer-page-status" class="viewer-page-status" aria-live="polite">Belum ada halaman</span>
-            <span id="preview-page-info" class="preview-page-info" aria-live="polite">1 halaman</span>
-          </div>
-          <div class="preview-toolbar__actions">
-            <button id="btn-fit-page" class="btn-icon btn btn-ghost btn-square btn-sm" title="Sesuaikan ke halaman" aria-label="Sesuaikan preview ke halaman">
-              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8" height="16"><use href="assets/icons/tabler-sprite.svg#ti-arrows-maximize"></use></svg>
-            </button>
-            <button id="btn-fit-width" class="btn-icon btn btn-ghost btn-square btn-sm" title="Sesuaikan ke lebar" aria-label="Sesuaikan preview ke lebar">
-              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-arrows-horizontal"></use></svg>
-            </button>
-            <span class="preview-toolbar__divider" aria-hidden="true"></span>
-            <button id="btn-zoom-out" class="btn-icon btn btn-ghost btn-square btn-sm" title="Perkecil tampilan" aria-label="Perkecil tampilan">
-              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2"><use href="assets/icons/tabler-sprite.svg#ti-zoom-out"></use></svg>
-            </button>
-            <span id="zoom-level-text" class="zoom-level-text">100%</span>
-            <button id="btn-zoom-in" class="btn-icon btn btn-ghost btn-square btn-sm" title="Perbesar tampilan" aria-label="Perbesar tampilan">
-              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2"><use href="assets/icons/tabler-sprite.svg#ti-zoom-in"></use></svg>
-            </button>
-            <button id="btn-zoom-reset" class="btn-icon btn btn-ghost btn-square btn-sm" title="Reset zoom" aria-label="Reset zoom">
-              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2"><use href="assets/icons/tabler-sprite.svg#ti-refresh"></use></svg>
-            </button>
-            <span class="preview-toolbar__divider" aria-hidden="true"></span>
-            <button id="viewer-focus-toggle" class="btn-icon viewer-focus-toggle btn btn-ghost btn-square btn-sm" title="Mode fokus preview" aria-label="Buka preview dalam mode fokus" aria-pressed="false">
-              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-arrows-maximize"></use></svg>
-              <span class="viewer-focus-label">Fokus</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="preview-viewport" id="preview-viewport">
-          <div class="preview-canvas-wrapper" id="preview-canvas-wrapper">
-            <!-- Surat preview dirender di sini -->
-            <div id="surat-preview" class="surat-preview">
-              <div class="preview-placeholder" id="preview-placeholder">
-                <!-- Skeleton loading — tampil saat aplikasi baru boot / template belum dipilih -->
-                <div class="preview-skeleton" aria-hidden="true" id="preview-skeleton">
-                  <div class="skeleton-block preview-skeleton__page skeleton"></div>
-                </div>
-                <!-- Pesan statis setelah skeleton (tersembunyi hingga JS siap) -->
-                <div id="preview-empty-msg" style="display:none; text-align:center; color: var(--color-text-muted); padding: var(--space-8);">
-                  <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" style="width:48px;height:48px;margin:0 auto var(--space-4)" width="1"><use href="assets/icons/tabler-sprite.svg#ti-file-text"></use></svg>
-                  <p>Preview surat akan muncul di sini setelah template dipilih dan data diisi.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-
+            </aside>
+      </div>
     </div><!-- /.app-body -->
 
   </div><!-- /#app -->
@@ -494,6 +512,7 @@
   <script src="js/template-registry.js"></script>
   <script src="js/landing.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/editor-drawer.js"></script>
   <script src="js/kop-editor.js"></script>
   <script src="js/excel-import.js"></script>
   <script src="js/signature-pad.js"></script>

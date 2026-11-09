@@ -365,6 +365,11 @@ const UI = (() => {
     });
 
     State.setActiveTab(tabId);
+    // A workflow action may switch tabs while the drawer is closed.
+    // Re-open the editor without stealing focus from the selected control.
+    if (typeof EditorDrawer !== 'undefined' && EditorDrawer.isCompact()) {
+      EditorDrawer.open({ focus: false });
+    }
 
     // Refresh storage status setiap kali tab Settings dibuka
     if (tabId === 'settings' && typeof Settings !== 'undefined') {
