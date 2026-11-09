@@ -21,7 +21,7 @@ const TemplateRekapNilai = (() => {
     id: TEMPLATE_ID,
     name: 'Rekapitulasi Nilai',
     description: 'Rekap nilai guru: formatif (per-BAB), sumatif lingkup materi, STS, SAS, dan praktik.',
-    icon: '📝',
+    icon: 'writing',
     orientation: 'landscape',
     paperSize: 'a4',
     category: 'nilai',
@@ -84,7 +84,7 @@ const TemplateRekapNilai = (() => {
     {
       id: 'header',
       title: 'Informasi Dokumen',
-      icon: '📋',
+      icon: 'clipboard-list',
       fields: [
         {
           key: 'header.modePengisian',
@@ -161,7 +161,7 @@ const TemplateRekapNilai = (() => {
     {
       id: 'murid',
       title: 'Daftar Murid',
-      icon: '👤',
+      icon: 'user',
       type: 'repeatable',
       itemLabel: 'Murid',
       itemFactory: _createMurid,
@@ -312,7 +312,7 @@ const TemplateRekapNilai = (() => {
     {
       id: 'tandaTangan',
       title: 'Tanda Tangan',
-      icon: '✍️',
+      icon: 'signature',
       fields: [
         {
           key: 'tandaTangan.namaKabupaten',
