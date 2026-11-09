@@ -1519,6 +1519,14 @@ const PreviewRenderer = (() => {
     const s   = data?.surat   || {};
     const l   = data?.lembaga || {};
     const k   = data?.kepala  || {};
+    // Draf lama yang belum mempunyai dropdown tetap kompatibel.
+    const bentukPemerintahan = s.bentukPemerintahan === 'Kota' ? 'Kota' : 'Kabupaten';
+    const namaWilayah = String(s.namaKabupatenKota || '').trim()
+      .replace(/^(?:Kabupaten|Kota)\s+/i, '');
+    const wilayahLengkap = bentukPemerintahan + (namaWilayah ? ' ' + namaWilayah : '');
+    const lokasiInstansi = s.namaLokasiInstansi == null
+      ? 'Muara Beliti' : String(s.namaLokasiInstansi).trim();
+    const satuanPendidikan = l.bentukSatuanPendidikan === 'RA' ? 'RA' : 'Madrasah';
     const m   = margin || State.getMarginMm();
     const t   = typo   || State.getTypography();
 
@@ -1533,48 +1541,45 @@ const PreviewRenderer = (() => {
         <hr class="doc-kop-divider" />
         <hr class="doc-kop-divider-thin" />
 
-        <!-- Nomor, Lampiran, Perihal + Tanggal -->
-        <table style="width:100%;border-collapse:collapse;margin-top:12pt;">
-          <tr>
-            <td style="width:55%;">
-              <table style="border-collapse:collapse;">
-                <tr><td style="width:90px;">Nomor</td><td style="padding:0 6px;">:</td><td style="white-space:pre-wrap;">${s.nomor ? _esc(s.nomor) : '………………………..'}</td></tr>
-                <tr><td>Lampiran</td><td style="padding:0 6px;">:</td><td>7 (tujuh) lembar</td></tr>
-                <tr><td>Perihal</td><td style="padding:0 6px;">:</td><td><strong>Permohonan Perpanjangan izin Operasional Lembaga Pendidikan</strong></td></tr>
-              </table>
-            </td>
-            <td style="text-align:left;vertical-align:top;">
-              ${s.namaKabupatenKota ? _esc(s.namaKabupatenKota) : '………………….'}, ${_formatBulanTahun(s.tanggal)}
-            </td>
-          </tr>
+        <!-- Tanggal surat sejajar tepi kanan dokumen. -->
+        <div style="margin-top:12pt;text-align:right;">
+          ${s.namaKabupatenKota ? _esc(s.namaKabupatenKota) : '………………….'}, ${_formatBulanTahun(s.tanggal)}
+        </div>
+
+        <!-- Baris identitas surat menggunakan kolom yang konsisten.
+             Perihal dapat memanfaatkan lebar penuh di sebelah label dan titik dua. -->
+        <table class="ijop-permohonan__identitas" style="width:100%;border-collapse:collapse;table-layout:auto;margin-top:6pt;">
+          <tr><td style="width:70pt;white-space:nowrap;vertical-align:top;">Nomor</td><td style="width:12pt;text-align:center;vertical-align:top;">:</td><td style="overflow-wrap:anywhere;">${s.nomor ? _esc(s.nomor) : '………………………..'}</td></tr>
+          <tr><td style="white-space:nowrap;vertical-align:top;">Lampiran</td><td style="text-align:center;vertical-align:top;">:</td><td>7 (tujuh) lembar</td></tr>
+          <tr><td style="white-space:nowrap;vertical-align:top;">Perihal</td><td style="text-align:center;vertical-align:top;">:</td><td><strong>Permohonan Perpanjangan Izin Operasional Lembaga Pendidikan</strong></td></tr>
         </table>
 
         <!-- Tujuan Surat -->
         <div style="margin-top:16pt;">
           <p style="margin:0;">Kepada</p>
-          <p style="margin:0;">Yth. Kepala Kantor Kementerian Agama Kabupaten Musi Rawas</p>
+          <p style="margin:0;">Yth. Kepala Kantor Kementerian Agama ${_esc(wilayahLengkap)}</p>
           <p style="margin:0;">Cq. Kepala Seksi Pendidikan Madrasah</p>
           <p style="margin:0;">di</p>
-          <p style="margin:0;"><strong>Muara Beliti</strong></p>
+          <p style="margin:0;padding-left:24pt;"><strong>${lokasiInstansi ? _esc(lokasiInstansi) : '………………….'}</strong></p>
         </div>
 
         <!-- Pembuka -->
         <div style="margin-top:16pt;">
           <p style="margin:0 0 8pt 0;"><em>Assalamu'alaikum Wr.Wb</em></p>
           <p style="margin:0 0 8pt 0;text-align:justify;">
-            Sehubungan dengan habisnya masa berlaku izin pendirian madrasah kami, dengan hormat bersama ini
-            kami sampaikan permohonan perpanjangan izin operasional/pendirian RA/Madrasah :
+            Sehubungan dengan habisnya masa berlaku izin pendirian ${_esc(satuanPendidikan)} kami, dengan hormat bersama ini
+            kami sampaikan permohonan perpanjangan izin operasional/pendirian ${_esc(satuanPendidikan)} :
           </p>
         </div>
 
         <!-- Data Lembaga -->
-        <table style="border-collapse:collapse;margin-left:20pt;margin-bottom:12pt;">
-          <tr><td style="width:160px;">Nama RA/Madrasah</td><td style="padding:0 6px;">:</td><td>${l.namaRaMadrasah ? _esc(l.namaRaMadrasah) : '……………'}</td></tr>
+        <table class="ijop-permohonan__lembaga" style="border-collapse:collapse;width:calc(100% - 20pt);table-layout:auto;margin-left:20pt;margin-bottom:12pt;">
+          <tr><td style="width:155pt;white-space:nowrap;">Nama ${_esc(satuanPendidikan)}</td><td style="padding:0 6px;">:</td><td>${l.namaRaMadrasah ? _esc(l.namaRaMadrasah) : '……………'}</td></tr>
           <tr><td>NSM</td><td style="padding:0 6px;">:</td><td>${l.nsm ? _esc(l.nsm) : '……………'}</td></tr>
           <tr><td>NPSN</td><td style="padding:0 6px;">:</td><td>${l.npsn ? _esc(l.npsn) : '……………'}</td></tr>
           <tr><td>Alamat</td><td style="padding:0 6px;">:</td><td>${l.alamat ? _esc(l.alamat) : '……………'}</td></tr>
           <tr><td>Akte Notaris</td><td style="padding:0 6px;">:</td><td>${l.akteNotaris ? _esc(l.akteNotaris) : '……………'}</td></tr>
-          <tr><td>Pengesahan Akte Notaris</td><td style="padding:0 6px;">:</td><td>${l.pengesahanAkteNotaris ? _esc(l.pengesahanAkteNotaris) : '……………'}</td></tr>
+          <tr><td style="white-space:nowrap;">Pengesahan Akte Notaris</td><td style="padding:0 6px;">:</td><td>${l.pengesahanAkteNotaris ? _esc(l.pengesahanAkteNotaris) : '……………'}</td></tr>
           <tr><td>Peringkat Akreditasi</td><td style="padding:0 6px;">:</td><td>${l.peringkatAkreditasi ? _esc(l.peringkatAkreditasi) : '……………'}</td></tr>
         </table>
 
@@ -1600,7 +1605,7 @@ const PreviewRenderer = (() => {
         <!-- Tanda Tangan -->
         <div style="margin-top:24pt;display:flex;justify-content:flex-end;">
           <div style="text-align:center;min-width:150px;">
-            <p style="margin:0;">${k.jabatan ? _esc(k.jabatan) : 'Kepala RA/Madrasah…………..'}</p>
+            <p style="margin:0;">${k.jabatan ? _esc(k.jabatan) : 'Kepala'}</p>
             <div style="height:50pt;"></div>
             <p style="margin:0;text-decoration:underline;font-weight:bold;">${k.namaKepala ? _esc(k.namaKepala) : '…………………………….'}</p>
           </div>
