@@ -249,8 +249,8 @@ const App = (() => {
     document.getElementById('btn-export-pdf')?.addEventListener('click', () => {
       if (typeof Workflow !== "undefined" && typeof Workflow.preparePdf === "function") {
         Workflow.preparePdf();
-      } else if (typeof PdfExport !== "undefined" && typeof PdfExport.exportDocument === "function") {
-        PdfExport.exportDocument();
+      } else {
+        UI.toast('Alur konfirmasi PDF belum siap. Muat ulang aplikasi.', 'error');
       }
     });
 
@@ -259,7 +259,7 @@ const App = (() => {
       if (typeof Workflow !== "undefined" && typeof Workflow.preparePrint === "function") {
         Workflow.preparePrint();
       } else {
-        Print.printDocument();
+        UI.toast('Alur konfirmasi cetak belum siap. Muat ulang aplikasi.', 'error');
       }
     });
 
