@@ -210,6 +210,18 @@ describe('GS-005: pagination integration across all runtime templates', () => {
     expect(h.preview.dataset.pageCount).toBe('1');
   });
 
+  it('shows Indonesian date and numeric duration with words in Surat Izin', () => {
+    const h = createPreviewHarness([120]);
+    const template = h.registry.get('surat-izin');
+    const data = template.createDefaultData();
+    data.izin.hariTanggalIzin = '2026-11-09';
+    data.izin.durasiIzin = 3;
+    h.renderer.render(template, data, {});
+    expect(h.preview.innerHTML).toContain('Senin, 09 November 2026');
+    expect(h.preview.innerHTML).toContain('3 (tiga) Hari');
+    expect(h.preview.innerHTML).not.toContain('>2026-11-09<');
+  });
+
   it('keeps the Nama Orang Tua/Wali label on one line in Surat Izin', () => {
     const h = createPreviewHarness([120]);
     const template = h.registry.get('surat-izin');

@@ -2233,8 +2233,8 @@ const PreviewRenderer = (() => {
     const namaOrangTuaWali = _esc(mu.namaOrangTuaWali || '…………………………………');
     const namaMurid        = _esc(mu.namaMurid        || '…………………………………');
     const kelasMurid       = _esc(mu.kelasMurid       || '……………');
-    const hariTanggalIzin  = _esc(iz.hariTanggalIzin  || '…………………………………');
-    const durasiIzin       = _esc(iz.durasiIzin       || '……………………');
+    const hariTanggalIzin  = _esc(TemplateSuratIzin.formatHariTanggalIzin(iz.hariTanggalIzin) || '…………………………………');
+    const durasiIzin       = _esc(TemplateSuratIzin.formatLamaIzin(iz.durasiIzin) || '……………………');
     const alasanIzin       = _esc(TemplateSuratIzin.getAlasanIzinText(iz) || '…………………………………');
     const namaLokasi       = _esc(pg.namaLokasi       || '……………………');
     const signatureDataUrl = TemplateSuratIzin.getSignatureDataUrl(pg.tandaTanganDataUrl);

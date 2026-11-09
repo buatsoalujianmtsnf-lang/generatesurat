@@ -334,6 +334,8 @@ const Validation = (() => {
         const number = Number(value);
         if (!Number.isFinite(number)) {
           errors.push({ field: fieldPath, message: `${label} harus berupa angka.` });
+        } else if (fieldDef.integer === true && !Number.isSafeInteger(number)) {
+          errors.push({ field: fieldPath, message: `${label} harus berupa bilangan bulat.` });
         } else if (fieldDef.min !== undefined && number < Number(fieldDef.min)) {
           errors.push({ field: fieldPath, message: `${label} minimal ${fieldDef.min}.` });
         } else if (fieldDef.max !== undefined && number > Number(fieldDef.max)) {
