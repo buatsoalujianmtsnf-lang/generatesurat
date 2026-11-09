@@ -15,7 +15,7 @@ const TemplateIjopRekomendasiKankemenag = (() => {
     id: TEMPLATE_ID,
     name: 'IJOP: Rekomendasi Kakankemenag',
     description: 'Rekomendasi perpanjangan izin pendirian RA/Madrasah dari Kepala Kantor Kemenag Kab. Musi Rawas.',
-    icon: '🏛️',
+    icon: 'building-bank',
     orientation: 'portrait',
     paperSize: 'a4',
     category: 'ijop',
@@ -50,7 +50,7 @@ const TemplateIjopRekomendasiKankemenag = (() => {
     {
       id: 'surat',
       title: 'Identitas Surat',
-      icon: '📋',
+      icon: 'clipboard-list',
       fields: [
         {
           key: 'surat.nomor',
@@ -70,7 +70,7 @@ const TemplateIjopRekomendasiKankemenag = (() => {
     {
       id: 'kakankemenag',
       title: 'Data Kakankemenag',
-      icon: '👤',
+      icon: 'user',
       fields: [
         {
           key: 'kakankemenag.nama',
@@ -105,7 +105,7 @@ const TemplateIjopRekomendasiKankemenag = (() => {
     {
       id: 'lembaga',
       title: 'Data RA/Madrasah',
-      icon: '🏫',
+      icon: 'school',
       fields: [
         {
           key: 'lembaga.namaRaMadrasah',
