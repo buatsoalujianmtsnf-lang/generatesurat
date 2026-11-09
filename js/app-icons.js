@@ -13,7 +13,7 @@ const AppIcons = (() => {
     '🔤':'file-text','🔢':'list-check','⚙️':'settings','📌':'pinned',
     '🎨':'palette','🛡️':'shield-check','🗂️':'books','❌':'trash',
     'ℹ️':'info-circle','📜':'file-description','❓':'info-circle','🧭':'arrows-horizontal',
-    '♥':'circle-check','✉':'mail','⬅':'chevron-left','➡':'chevron-right',
+    '♥':'circle-check','⬅':'chevron-left','➡':'chevron-right',
     '↔':'arrows-horizontal','☰':'list-check','↻':'refresh','⇩':'download','⇧':'upload',
   });
   function svg(name, className = '') {
@@ -25,8 +25,8 @@ const AppIcons = (() => {
   function apply(root = document) {
     root.querySelectorAll('[data-tabler-icon]').forEach(el => {
       const name = el.getAttribute('data-tabler-icon');
-      if (!name || el.dataset.tablerRendered === 'true') return;
-      el.dataset.tablerRendered = 'true';
+      if (!name || el.getAttribute('data-tabler-rendered') === 'true') return;
+      el.setAttribute('data-tabler-rendered', 'true');
       el.innerHTML = svg(name);
     });
   }
