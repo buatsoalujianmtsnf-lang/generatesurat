@@ -43,7 +43,9 @@ function harness(mode = 'lengkap') {
   };
   const document = { querySelector: vi.fn(() => ({ value: 'format' })) };
   const ctx = {
-    Utils: { generateId: () => 'murid-new', escapeHtml: x => String(x) },
+    Utils: { generateId: () => 'murid-new', escapeHtml: x => String(x)
+      .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;') },
     State: state, UI: ui, document, window: { XLSX: excel }, XLSX: excel,
     console,
   };
@@ -54,6 +56,7 @@ function harness(mode = 'lengkap') {
     api: runInNewContext('ExcelImport', ctx), excel, ui, state, written,
     getData: () => data, getModal: () => modal, getConfirm: () => confirm,
     setActive: v => { active = v; },
+    updateHeader: patch => { data.header = { ...data.header, ...patch }; },
   };
 }
 
@@ -109,6 +112,48 @@ describe('Excel Rekap Nilai: mode dan kolom dinamis', () => {
     expect(h.written).toHaveBeenCalledOnce();
     expect(h.getData().header.modePengisian).toBe('lengkap');
     expect(h.ui.hideModal).toHaveBeenCalledOnce();
+  });
+
+  it('merinci jumlah BAB, TP per BAB, total TP aktif, LM dan jumlah kolom sesuai dokumen', () => {
+    const h = harness('lengkap');
+    h.api.showRekapDownloadModal();
+    const content = h.getModal().body;
+    expect(content).toContain('Konfigurasi aktif saat ini');
+    expect(content).toMatch(/Jumlah BAB<\/span><strong>2<\/strong>/);
+    expect(content).toMatch(/TP per BAB<\/span><strong>2<\/strong>/);
+    expect(content).toMatch(/Total TP aktif<\/span><strong>4<\/strong>/);
+    expect(content).toMatch(/Jumlah LM<\/span><strong>1<\/strong>/);
+    expect(content).toContain('2 kolom identitas + 4 kolom TP + 1 kolom LM + 4 kolom nilai tetap');
+    expect(content).toContain('11 kolom');
+    expect(content).toContain('9 kolom nilai');
+    expect(content).toContain('2 kolom');
+    expect(content).toContain('Murid yang sudah terisi di editor:');
+    expect(content).toContain('<strong>1</strong>');
+    expect(content).toContain('VIII A');
+    expect(content).toContain('file berformat');
+    expect(content).toContain('0–100');
+    expect(h.written).not.toHaveBeenCalled();
+  });
+
+  it('mengambil konfigurasi terbaru setiap modal dibuka, termasuk nilai maksimum dan escape teks', () => {
+    const h = harness('format');
+    h.api.showRekapDownloadModal();
+    expect(h.getModal().body).toContain('11 kolom');
+    h.updateHeader({
+      jumlahBab: 5, jumlahTpBab: 4, jumlahLm: 4,
+      mataPelajaran: '<img onerror=alert(1)>',
+      tahunPelajaran: '2026/2027',
+    });
+    h.api.showRekapDownloadModal();
+    const content = h.getModal().body;
+    expect(content).toMatch(/Jumlah BAB<\/span><strong>5<\/strong>/);
+    expect(content).toMatch(/TP per BAB<\/span><strong>4<\/strong>/);
+    expect(content).toMatch(/Total TP aktif<\/span><strong>20<\/strong>/);
+    expect(content).toMatch(/Jumlah LM<\/span><strong>4<\/strong>/);
+    expect(content).toContain('30 kolom');
+    expect(content).toContain('2026/2027');
+    expect(content).not.toContain('<img onerror=');
+    expect(h.state.setFormData).not.toHaveBeenCalled();
   });
 
   it('mengimpor format dengan metadata, menyimpan data lain dan menunggu konfirmasi', () => {
