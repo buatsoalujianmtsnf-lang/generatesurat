@@ -324,7 +324,7 @@ describe('Rekap Nilai: panel Pengaturan Tabel vs preview', () => {
     }
   });
 
-  it('keeps Tahun Pelajaran on one line and aligns Semester/Tahun at the right edge', () => {
+  it('sejajarkan awal label dan nilai Semester/Tahun Pelajaran pada blok kanan', () => {
     const h = open();
     h.state.currentData.header.semester = 'Genap';
     h.state.currentData.header.tahunPelajaran = '2026/2027';
@@ -334,10 +334,24 @@ describe('Rekap Nilai: panel Pengaturan Tabel vs preview', () => {
     expect(html).toContain('justify-content:space-between');
     expect(html).toContain('rekap-nilai-meta__right');
     expect(html).toContain('margin-left:auto;flex-shrink:0;');
-    expect(html).toMatch(/<td style="white-space:nowrap;text-align:right;">Semester<\/td>/);
-    expect(html).toMatch(/<td style="white-space:nowrap;text-align:right;">Tahun Pelajaran<\/td>/);
-    expect(html).toContain('>2026/2027</td>');
-    expect(html).toContain('>Genap</td>');
+    const table = html.match(/<table class="rekap-nilai-meta__right"[^>]*>([\s\S]*?)<\/table>/);
+    expect(table).not.toBeNull();
+    const cells = [...table[1].matchAll(/<td style="([^"]+)">([^<]*)<\/td>/g)]
+      .map(([, style, content]) => ({ style, content }));
+    expect(cells).toHaveLength(6);
+    expect(cells.map(cell => cell.content)).toEqual([
+      'Semester', ':', 'Genap', 'Tahun Pelajaran', ':', '2026/2027',
+    ]);
+    // Sama-sama align kiri dalam kolom tabel yang sama, bukan align kanan
+    // yang menyebabkan huruf pertama Semester/Genap bergeser.
+    for (const idx of [0, 2, 3, 5]) {
+      expect(cells[idx].style).toContain('white-space:nowrap;');
+      expect(cells[idx].style).toContain('text-align:left;');
+      expect(cells[idx].style).not.toContain('text-align:right;');
+    }
+    for (const idx of [1, 4]) {
+      expect(cells[idx].style).toContain('text-align:center;');
+    }
   });
 
   it('aligns each NIP with the leftmost letter of the related signatory name', () => {

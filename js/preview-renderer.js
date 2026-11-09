@@ -2008,16 +2008,18 @@ const PreviewRenderer = (() => {
               <td>${_esc(hdr.namaKelas || '')}</td>
             </tr>
           </table>
+          <!-- Satu tabel menjaga lebar kolom tetap; setiap label dan nilai
+               dimulai pada posisi horizontal yang sama di kedua baris. -->
           <table class="rekap-nilai-meta__right" style="width:auto;table-layout:auto;margin-left:auto;flex-shrink:0;">
             <tr>
-              <td style="white-space:nowrap;text-align:right;">Semester</td>
-              <td style="white-space:nowrap;">:</td>
-              <td style="white-space:nowrap;text-align:right;">${_esc(hdr.semester || '')}</td>
+              <td style="white-space:nowrap;text-align:left;">Semester</td>
+              <td style="white-space:nowrap;text-align:center;">:</td>
+              <td style="white-space:nowrap;text-align:left;">${_esc(hdr.semester || '')}</td>
             </tr>
             <tr>
-              <td style="white-space:nowrap;text-align:right;">Tahun Pelajaran</td>
-              <td style="white-space:nowrap;">:</td>
-              <td style="white-space:nowrap;text-align:right;">${_esc(hdr.tahunPelajaran || '')}</td>
+              <td style="white-space:nowrap;text-align:left;">Tahun Pelajaran</td>
+              <td style="white-space:nowrap;text-align:center;">:</td>
+              <td style="white-space:nowrap;text-align:left;">${_esc(hdr.tahunPelajaran || '')}</td>
             </tr>
           </table>
         </div>
