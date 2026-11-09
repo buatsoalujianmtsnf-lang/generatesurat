@@ -1,4 +1,9 @@
 /* Landing page – isolated from the existing document editor */
+html[data-route-page="landing"] body {
+  overflow-x: hidden;
+  overflow-y: auto;
+  min-height: 100svh;
+}
 html[data-route-page="landing"] #app,
 html[data-route-page="landing"] #modal-overlay,
 html[data-route-page="landing"] #toast-container { display: none !important; }
