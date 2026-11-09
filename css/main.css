@@ -500,6 +500,95 @@ a:hover {
   gap: var(--space-3);
 }
 
+
+/* ── Kelompok template: native <details>/<summary> dengan akses keyboard ── */
+.template-group {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.template-group.has-active {
+  border-color: var(--color-primary);
+}
+
+.template-group__heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 52px;
+  padding: var(--space-3);
+  cursor: pointer;
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  list-style: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.template-group__heading::-webkit-details-marker { display: none; }
+.template-group__heading::marker { content: ''; }
+
+.template-group__heading:hover {
+  background: var(--color-surface-2);
+}
+
+.template-group__heading:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -3px;
+  border-radius: var(--radius-lg);
+}
+
+.template-group[open] > .template-group__heading {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.template-group__icon { flex: 0 0 auto; font-size: 18px; }
+.template-group__title { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.template-group__count {
+  flex: 0 0 auto;
+  min-width: 25px;
+  padding: 3px 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-2);
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.template-group__chevron {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+  font-size: 21px;
+  line-height: 1;
+  transform: rotate(0deg);
+  transition: transform var(--transition-fast);
+}
+
+.template-group[open] .template-group__chevron { transform: rotate(180deg); }
+.template-group__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  min-width: 0;
+}
+
+.template-group__items .template-card {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .template-group__heading { min-height: 48px; padding: var(--space-2) var(--space-3); }
+  .template-group__items { gap: var(--space-2); padding: var(--space-2); }
+}
+
 .template-card {
   border: 2px solid var(--color-border);
   border-radius: var(--radius-lg);

@@ -44,14 +44,57 @@ const TemplateRegistry = (() => {
     return _templates.size;
   }
 
-  /* ── Render daftar template sebagai kartu UI ── */
+  /* ── Kelompok template (urutan mengikuti alur administrasi surat) ── */
+  const TEMPLATE_GROUPS = [
+    {
+      id: 'registrasi-dpu', title: 'Registrasi dan DPU', icon: '📚',
+      ids: ['dpu', 'mutasi-masuk', 'siswa-baru'],
+    },
+    {
+      id: 'ijop', title: 'IJOP (Izin Operasional)', icon: '📑',
+      ids: [
+        'ijop-permohonan', 'ijop-sptjm-satpen', 'ijop-rekomendasi-pengawas',
+        'ijop-rekomendasi-kankemenag', 'ijop-sptjm-kankemenag',
+      ],
+    },
+    {
+      id: 'pengolahan-nilai', title: 'Pengolahan Nilai', icon: '📊',
+      ids: ['rekap-nilai'],
+    },
+    {
+      id: 'surat-menyurat-siswa', title: 'Surat Menyurat Siswa', icon: '✉️',
+      ids: ['surat-izin'],
+    },
+  ];
+
+  function getGroupedTemplates() {
+    const registered = getAll();
+    const included = new Set();
+    const groups = TEMPLATE_GROUPS.map(group => {
+      const templates = group.ids.map(id => _templates.get(id)).filter(Boolean);
+      templates.forEach(template => included.add(template.TEMPLATE_ID));
+      return { id: group.id, title: group.title, icon: group.icon, templates };
+    }).filter(group => group.templates.length > 0);
+
+    // Template baru tetap muncul meski belum dimasukkan ke kelompok baku.
+    const uncategorized = registered.filter(template => !included.has(template.TEMPLATE_ID));
+    if (uncategorized.length) {
+      groups.push({
+        id: 'template-lainnya', title: 'Template Lainnya', icon: '📄',
+        templates: uncategorized,
+      });
+    }
+    return groups;
+  }
+
+  /* ── Render daftar template sebagai accordion kelompok ── */
   function renderTemplateList(containerEl, activeTemplateId, onSelect) {
     if (!containerEl) return;
 
     containerEl.innerHTML = '';
-    const templates = getAll();
+    const groups = getGroupedTemplates();
 
-    if (templates.length === 0) {
+    if (!groups.length) {
       containerEl.innerHTML = `
         <div class="form-empty-state">
           <p>Tidak ada template tersedia.</p>
@@ -59,47 +102,80 @@ const TemplateRegistry = (() => {
       return;
     }
 
-    templates.forEach(tpl => {
-      const isActive = tpl.TEMPLATE_ID === activeTemplateId;
-      const card = document.createElement('div');
-      card.className = `template-card${isActive ? ' active' : ''}`;
-      card.setAttribute('role', 'button');
-      card.setAttribute('tabindex', '0');
-      card.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-      card.dataset.templateId = tpl.TEMPLATE_ID;
+    groups.forEach((group, groupIndex) => {
+      const hasActive = group.templates.some(tpl => tpl.TEMPLATE_ID === activeTemplateId);
+      const details = document.createElement('details');
+      details.className = `template-group${hasActive ? ' has-active' : ''}`;
+      details.dataset.groupId = group.id;
+      details.open = hasActive || (!activeTemplateId && groupIndex === 0);
 
-      const orientLabel = tpl.meta.orientation === 'landscape' ? 'A4 Landscape' : 'A4 Portrait';
+      const summary = document.createElement('summary');
+      summary.className = 'template-group__heading';
+      summary.innerHTML = `
+        <span class="template-group__icon" aria-hidden="true">${Utils.escapeHtml(group.icon)}</span>
+        <span class="template-group__title">${Utils.escapeHtml(group.title)}</span>
+        <span class="template-group__count" aria-label="${group.templates.length} template">${group.templates.length}</span>
+        <span class="template-group__chevron" aria-hidden="true">⌄</span>`;
+      details.appendChild(summary);
 
-      card.innerHTML = `
-        <div class="template-card__icon">${Utils.escapeHtml(tpl.meta.icon || '📄')}</div>
-        <div class="template-card__name">${Utils.escapeHtml(tpl.meta.name)}</div>
-        <div class="template-card__desc">${Utils.escapeHtml(tpl.meta.description)}</div>
-        <span class="template-card__badge">${orientLabel}</span>
-      `;
+      const items = document.createElement('div');
+      items.className = 'template-group__items';
+      group.templates.forEach(tpl => {
+        const isActive = tpl.TEMPLATE_ID === activeTemplateId;
+        const card = document.createElement('div');
+        card.className = `template-card${isActive ? ' active' : ''}`;
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        card.dataset.templateId = tpl.TEMPLATE_ID;
 
-      card.addEventListener('click', () => {
-        if (typeof onSelect === 'function') onSelect(tpl.TEMPLATE_ID);
-      });
+        const orientLabel = tpl.meta.orientation === 'landscape' ? 'A4 Landscape' : 'A4 Portrait';
+        card.innerHTML = `
+          <div class="template-card__icon">${Utils.escapeHtml(tpl.meta.icon || '📄')}</div>
+          <div class="template-card__name">${Utils.escapeHtml(tpl.meta.name)}</div>
+          <div class="template-card__desc">${Utils.escapeHtml(tpl.meta.description)}</div>
+          <span class="template-card__badge">${orientLabel}</span>
+        `;
 
-      card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
+        const choose = () => {
           if (typeof onSelect === 'function') onSelect(tpl.TEMPLATE_ID);
-        }
+        };
+        card.addEventListener('click', choose);
+        card.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            choose();
+          }
+        });
+        items.appendChild(card);
       });
 
-      containerEl.appendChild(card);
+      details.appendChild(items);
+      details.addEventListener('toggle', () => {
+        if (!details.open) return;
+        containerEl.querySelectorAll('.template-group').forEach(other => {
+          if (other !== details) other.open = false;
+        });
+      });
+      containerEl.appendChild(details);
     });
   }
 
-  /* ── Update active state kartu ── */
+  /* ── Update penanda kartu aktif dan buka kelompoknya saat dipilih/restore ── */
   function updateActiveCard(containerEl, activeTemplateId) {
     if (!containerEl) return;
-    const cards = containerEl.querySelectorAll('.template-card');
-    cards.forEach(card => {
+    containerEl.querySelectorAll('.template-card').forEach(card => {
       const isActive = card.dataset.templateId === activeTemplateId;
       card.classList.toggle('active', isActive);
       card.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+    containerEl.querySelectorAll('.template-group').forEach(group => {
+      const hasActive = Array.from(group.querySelectorAll('.template-card')).some(
+        card => card.dataset.templateId === activeTemplateId
+      );
+      group.classList.toggle('has-active', hasActive);
+      if (hasActive) group.open = true;
+      else if (activeTemplateId) group.open = false;
     });
   }
 
@@ -206,6 +282,7 @@ const TemplateRegistry = (() => {
     register,
     get,
     getAll,
+    getGroupedTemplates,
     count,
     renderTemplateList,
     updateActiveCard,
