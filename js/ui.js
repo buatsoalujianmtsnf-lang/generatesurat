@@ -22,7 +22,7 @@ const UI = (() => {
 
     const cfg    = TOAST_CONFIG[type] || TOAST_CONFIG.info;
     const toastEl = document.createElement('div');
-    toastEl.className = `toast toast--${type}`;
+    toastEl.className = `toast toast--${type} alert alert-${type === 'error' ? 'error' : type === 'warning' ? 'warning' : type === 'success' ? 'success' : 'info'}`;
     toastEl.setAttribute('role', 'alert');
     toastEl.setAttribute('aria-live', 'assertive');
 
@@ -106,7 +106,7 @@ const UI = (() => {
     if (footer && Array.isArray(footer)) {
       footer.forEach(btnConfig => {
         const btn = document.createElement('button');
-        btn.className   = `btn ${btnConfig.class || 'btn--secondary'}`;
+        btn.className   = `btn ${btnConfig.class || 'btn--secondary'} ${btnConfig.class === 'btn--danger' ? 'btn-error' : btnConfig.class === 'btn--primary' ? 'btn-primary' : 'btn-outline'}`;
         btn.textContent = btnConfig.label || '';
         if (btnConfig.disabled === true) btn.disabled = true;
         btn.addEventListener('click', () => {
