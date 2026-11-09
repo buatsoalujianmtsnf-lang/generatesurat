@@ -443,6 +443,12 @@ const SignaturePad = (() => {
     }
 
     openButton?.addEventListener('click', openModal);
+    // Label field juga dapat digunakan untuk membuka editor di layar mobile.
+    group.querySelector('.form-label')?.addEventListener('click', event => {
+      if (!isMobile()) return;
+      event.preventDefault();
+      openModal();
+    });
     restore(persisted, true);
     refresh();
 
