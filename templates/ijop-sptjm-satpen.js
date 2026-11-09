@@ -14,7 +14,7 @@ const TemplateIjopSptjmSatpen = (() => {
     id: TEMPLATE_ID,
     name: 'IJOP: SPTJM dari Kepala Satpen',
     description: 'Surat Pernyataan Tanggung Jawab Mutlak (SPTJM) dari Kepala Satuan Pendidikan (bermeterai Rp 10.000).',
-    icon: '🖊️',
+    icon: 'signature',
     orientation: 'portrait',
     paperSize: 'a4',
     category: 'ijop',
@@ -43,7 +43,7 @@ const TemplateIjopSptjmSatpen = (() => {
     {
       id: 'surat',
       title: 'Identitas Surat',
-      icon: '📋',
+      icon: 'clipboard-list',
       fields: [
         {
           key: 'surat.nomor',
@@ -70,7 +70,7 @@ const TemplateIjopSptjmSatpen = (() => {
     {
       id: 'kepala',
       title: 'Data Kepala Satuan Pendidikan',
-      icon: '👤',
+      icon: 'user',
       fields: [
         {
           key: 'kepala.nama',
