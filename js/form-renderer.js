@@ -108,6 +108,7 @@ const FormRenderer = (() => {
       const sectionEl = _buildSection(section, formData, templateId);
       _containerEl.appendChild(sectionEl);
     });
+    _syncRekapNilaiMuridFields(templateId);
 
     // Init & render accordion Pengaturan Tabel
     // TableConfigManager.initForTemplate dipanggil oleh TableConfigUI.render
@@ -253,6 +254,7 @@ const FormRenderer = (() => {
         section, newItem, currentItems.length, templateId, listEl
       );
       listEl.appendChild(entry);
+      _syncRekapNilaiMuridFields(templateId);
 
       // Auto expand entry baru
       const body = entry.querySelector('.row-entry__body');
@@ -650,6 +652,9 @@ const FormRenderer = (() => {
         _setNestedValue(update, fieldDef.clearDependent.key, '');
       }
       State.setFormData(templateId, update);
+      if (fieldDef.key === 'header.modePengisian') {
+        _syncRekapNilaiMuridFields(templateId);
+      }
 
       // Kondisi showIf juga berlaku untuk field biasa, bukan hanya repeatable.
       const section = TemplateRegistry.get(templateId)?.formSections?.find(s =>
@@ -659,6 +664,24 @@ const FormRenderer = (() => {
         _syncConditionalFields(section.fields, State.getFormData(templateId), templateId, null, null, body);
       }
     }
+  }
+
+  /* Mode "Format Saja" hanya menampilkan No. dan Nama Murid.
+     Elemen input nilai tidak dibuang agar berpindah kembali ke "Lengkap"
+     dapat memulihkan nilai tanpa kehilangan draft. */
+  function _syncRekapNilaiMuridFields(templateId) {
+    if (templateId !== 'rekap-nilai') return;
+    const section = document.getElementById('section-murid');
+    if (!section) return;
+    const isFormat = State.getFormData(templateId)?.header?.modePengisian === 'format';
+    section.querySelectorAll('.row-entry__body .form-group').forEach(group => {
+      const visible = group.dataset.fieldKey === 'no' || group.dataset.fieldKey === 'namaMurid';
+      const hide = isFormat && !visible;
+      group.hidden = hide;
+      group.querySelectorAll('input, select, textarea').forEach(input => {
+        input.disabled = hide;
+      });
+    });
   }
 
   /* ── Helper: ambil nilai nested dari object (misal 'meta.namaMadrasah') ── */
@@ -707,6 +730,7 @@ const FormRenderer = (() => {
   return {
     init,
     render,
+    syncRekapNilaiMuridFields: _syncRekapNilaiMuridFields,
   };
 
 })();
