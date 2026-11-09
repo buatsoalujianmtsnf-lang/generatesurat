@@ -141,22 +141,22 @@ const ExcelImport = (() => {
             <div class="excel-import-toolbar__desc">${Utils.escapeHtml(cfg.title)} · input massal dari Excel</div>
           </div>
         </div>
-        <span class="excel-import-toolbar__badge">3 langkah mudah</span>
+        <span class="excel-import-toolbar__badge badge badge-info">3 langkah mudah</span>
       </div>
 
       <div class="excel-import-toolbar__steps" aria-label="Alur import data">
         <div class="excel-import-step">
-          <span class="excel-import-step__number">1</span>
+          <span class="excel-import-step__number badge">1</span>
           <span><strong>Unduh template</strong><small>Gunakan format yang tersedia.</small></span>
         </div>
         <span class="excel-import-step__line" aria-hidden="true"></span>
         <div class="excel-import-step">
-          <span class="excel-import-step__number">2</span>
+          <span class="excel-import-step__number badge">2</span>
           <span><strong>Isi data ${isRekap ? 'murid' : 'siswa'}</strong><small>Jangan ubah nama kolom.</small></span>
         </div>
         <span class="excel-import-step__line" aria-hidden="true"></span>
         <div class="excel-import-step">
-          <span class="excel-import-step__number">3</span>
+          <span class="excel-import-step__number badge">3</span>
           <span><strong>Unggah &amp; import</strong><small>Data masuk sekaligus.</small></span>
         </div>
       </div>
@@ -181,11 +181,11 @@ const ExcelImport = (() => {
           <strong class="excel-import-toolbar__file-name">Belum ada file</strong>
           <small class="excel-import-toolbar__file-size"></small>
         </span>
-        <button type="button" class="btn-icon excel-import-clear" title="Ganti file" aria-label="Ganti file">↻</button>
+        <button type="button" class="btn-icon excel-import-clear btn btn-square btn-ghost btn-sm" title="Ganti file" aria-label="Ganti file">↻</button>
       </div>
 
       <div class="excel-import-toolbar__actions">
-        <button type="button" class="btn btn--sm btn--secondary excel-template-btn">
+        <button type="button" class="btn btn--sm btn--secondary excel-template-btn btn-sm btn-outline">
           <span aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
               <path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>
@@ -193,7 +193,7 @@ const ExcelImport = (() => {
           </span>
           Download Template
         </button>
-        <button type="button" class="btn btn--sm btn--primary excel-import-btn">
+        <button type="button" class="btn btn--sm btn--primary excel-import-btn btn-sm btn-primary">
           <span aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
               <path d="M12 15V3M8 7l4-4 4 4M5 13v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/>
@@ -329,13 +329,13 @@ const ExcelImport = (() => {
         + '<div class="excel-mode-picker__current-head"><strong>Konfigurasi aktif saat ini</strong>'
         + '<small>Dibaca dari Informasi Dokumen</small></div>'
         + '<div class="excel-mode-picker__stats">'
-        + '<div class="excel-mode-picker__stat"><span>Jumlah BAB</span><strong>'
+        + '<div class="excel-mode-picker__stat stat"><span>Jumlah BAB</span><strong>'
         + layout.jumlahBab + '</strong></div>'
-        + '<div class="excel-mode-picker__stat"><span>TP per BAB</span><strong>'
+        + '<div class="excel-mode-picker__stat stat"><span>TP per BAB</span><strong>'
         + layout.jumlahTpBab + '</strong></div>'
-        + '<div class="excel-mode-picker__stat"><span>Total TP aktif</span><strong>'
+        + '<div class="excel-mode-picker__stat stat"><span>Total TP aktif</span><strong>'
         + totalTp + '</strong></div>'
-        + '<div class="excel-mode-picker__stat"><span>Jumlah LM</span><strong>'
+        + '<div class="excel-mode-picker__stat stat"><span>Jumlah LM</span><strong>'
         + totalLm + '</strong></div>'
         + '</div>'
         + '<p class="excel-mode-picker__breakdown">'
