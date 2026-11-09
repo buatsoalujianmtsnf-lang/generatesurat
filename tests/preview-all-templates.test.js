@@ -210,6 +210,17 @@ describe('GS-005: pagination integration across all runtime templates', () => {
     expect(h.preview.dataset.pageCount).toBe('1');
   });
 
+  it('keeps the Nama Orang Tua/Wali label on one line in Surat Izin', () => {
+    const h = createPreviewHarness([120]);
+    const template = h.registry.get('surat-izin');
+    h.state.currentId = template.TEMPLATE_ID;
+    h.state.currentData = template.createDefaultData();
+    h.renderer.render(template, h.state.currentData, {});
+    expect(h.preview.innerHTML).toMatch(
+      /<td[^>]*white-space:nowrap;[^>]*>Nama Orang Tua\/Wali<\/td>/
+    );
+  });
+
   it('renders the full selected reason text, including custom other reasons, without KOP', () => {
     const h = createPreviewHarness([120]);
     const tpl = h.registry.get('surat-izin');
