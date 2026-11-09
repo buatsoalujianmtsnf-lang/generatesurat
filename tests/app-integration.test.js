@@ -108,6 +108,45 @@ describe('Application shell integration', () => {
       'sekolah', 'murid', 'izin', 'pengirim',
     ]);
     expect(izin.tableColumns).toHaveLength(0);
+    const fields = izin.formSections.find(section => section.id === 'izin').fields;
+    const alasan = fields.find(field => field.key === 'izin.alasanIzin');
+    const detail = fields.find(field => field.key === 'izin.alasanIzinLainnya');
+    expect(alasan.type).toBe('select');
+    expect(alasan.required).toBe(true);
+    expect(alasan.options.map(option => option.label)).toEqual([
+      'Pilih alasan izin...', 'Sakit', 'Mengikuti orang tua', 'Urusan keluarga',
+      'Acara keluarga', 'Berobat', 'Musibah keluarga', 'Keperluan lainnya',
+    ]);
+    expect(detail.required).toBe(true);
+    expect(detail.showIf({ izin: { alasanIzin: 'lainnya' } })).toBe(true);
+    expect(detail.showIf({ izin: { alasanIzin: 'sakit' } })).toBe(false);
+  });
+
+  it('validates the required other-reason detail and rejects invalid selections', () => {
+    const registry = loadTemplateRegistry();
+    const izin = registry.get('surat-izin');
+    const ctx = {};
+    runInNewContext(read('js/utils.js'), ctx);
+    runInNewContext(read('js/validation.js'), ctx);
+    const validation = runInNewContext('Validation', ctx);
+    const data = izin.createDefaultData();
+    data.murid.namaOrangTuaWali = 'Orang Tua';
+    data.murid.namaMurid = 'Siswa';
+    data.murid.kelasMurid = 'VII A';
+    data.izin.hariTanggalIzin = 'Senin, 9 November 2026';
+    data.izin.durasiIzin = '1 hari';
+
+    data.izin.alasanIzin = 'lainnya';
+    expect(validation.formTemplate(data, izin).errors.some(error =>
+      error.field === 'izin.alasanIzinLainnya')).toBe(true);
+    data.izin.alasanIzinLainnya = 'kegiatan keluarga mendesak';
+    expect(validation.formTemplate(data, izin).valid).toBe(true);
+    data.izin.alasanIzin = 'sakit';
+    data.izin.alasanIzinLainnya = '';
+    expect(validation.formTemplate(data, izin).valid).toBe(true);
+    data.izin.alasanIzin = 'pilihan-palsu';
+    expect(validation.formTemplate(data, izin).errors.some(error =>
+      error.field === 'izin.alasanIzin')).toBe(true);
   });
 
   it('keeps install and update controls hidden until browser support is available', () => {

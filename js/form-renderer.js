@@ -82,7 +82,16 @@ const FormRenderer = (() => {
 
     _containerEl.innerHTML = '';
 
-    const formData = State.getFormData(templateId);
+    let formData = State.getFormData(templateId);
+
+    // Draft lama menyimpan Alasan Izin sebagai teks bebas. Pertahankan isinya.
+    if (typeof tpl.normalizeLegacyAlasan === 'function') {
+      const patch = tpl.normalizeLegacyAlasan(formData?.izin);
+      if (patch) {
+        State.setFormData(templateId, { izin: patch });
+        formData = State.getFormData(templateId);
+      }
+    }
 
     tpl.formSections.forEach(section => {
       const sectionEl = _buildSection(section, formData, templateId);
@@ -406,7 +415,20 @@ const FormRenderer = (() => {
           <select class="form-select" id="${fieldDomId}"
             ${fieldDef.required ? 'required' : ''}
             ${fieldDef.inputAlign ? `style="text-align:${Utils.escapeHtml(fieldDef.inputAlign)};"` : ''}>${opts}</select>`;
-        _bindInput(group.querySelector('select'), fieldDef, templateId, itemId, sectionId);
+        const select = group.querySelector('select');
+        _bindInput(select, fieldDef, templateId, itemId, sectionId);
+        if (fieldDef.hint || fieldDef.options.some(opt => opt && typeof opt === 'object' && opt.description)) {
+          const helper = document.createElement('small');
+          helper.className = 'form-helper';
+          helper.setAttribute('aria-live', 'polite');
+          const refreshHelper = () => {
+            const selected = fieldDef.options.find(opt => opt && typeof opt === 'object' && opt.value === select.value);
+            helper.textContent = selected?.description || fieldDef.hint || '';
+          };
+          select.addEventListener('change', refreshHelper);
+          refreshHelper();
+          group.appendChild(helper);
+        }
         break;
       }
 
@@ -461,7 +483,7 @@ const FormRenderer = (() => {
   }
 
   function _syncConditionalFields(fields, formData, templateId, itemId, sectionId, containerEl) {
-    if (!Array.isArray(fields) || !containerEl || !itemId) return;
+    if (!Array.isArray(fields) || !containerEl) return;
 
     fields.forEach((fieldDef, index) => {
       if (typeof fieldDef?.showIf !== 'function') return;
@@ -518,7 +540,13 @@ const FormRenderer = (() => {
       if (fieldDef.type === 'number') {
         val = e.target.value === '' ? '' : Utils.safeFloat(val, 0);
       }
-      debSave(val);
+      if (fieldDef.type === 'select' || fieldDef.key === 'izin.alasanIzinLainnya') {
+        // Dropdown dan detail kondisional langsung tersimpan untuk mencegah
+        // nilai yang tertunda muncul kembali setelah pengguna mengganti alasan.
+        _saveFieldValue(fieldDef, val, templateId, itemId, sectionId);
+      } else {
+        debSave(val);
+      }
     });
 
     // Validasi on blur untuk field required
@@ -576,7 +604,18 @@ const FormRenderer = (() => {
       // Field root level (meta, tandaTangan, dll)
       const update = {};
       _setNestedValue(update, fieldDef.key, value);
+      if (fieldDef.clearDependent && value !== fieldDef.clearDependent.keepValue) {
+        _setNestedValue(update, fieldDef.clearDependent.key, '');
+      }
       State.setFormData(templateId, update);
+
+      // Kondisi showIf juga berlaku untuk field biasa, bukan hanya repeatable.
+      const section = TemplateRegistry.get(templateId)?.formSections?.find(s =>
+        Array.isArray(s.fields) && s.fields.includes(fieldDef));
+      if (section?.fields?.some(f => typeof f.showIf === 'function')) {
+        const body = document.getElementById(`section-body-${section.id}`);
+        _syncConditionalFields(section.fields, State.getFormData(templateId), templateId, null, null, body);
+      }
     }
   }
 
