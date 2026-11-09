@@ -108,6 +108,11 @@ describe('Application shell integration', () => {
       'sekolah', 'murid', 'izin', 'pengirim',
     ]);
     expect(izin.tableColumns).toHaveLength(0);
+    const signature = izin.formSections.find(section => section.id === 'pengirim').fields
+      .find(field => field.key === 'pengirim.tandaTanganDataUrl');
+    expect(signature.type).toBe('signature');
+    expect(signature.required).toBe(false);
+    expect(izin.createDefaultData().pengirim.tandaTanganDataUrl).toBe('');
     const fields = izin.formSections.find(section => section.id === 'izin').fields;
     const alasan = fields.find(field => field.key === 'izin.alasanIzin');
     const detail = fields.find(field => field.key === 'izin.alasanIzinLainnya');
