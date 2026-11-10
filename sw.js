@@ -3,7 +3,7 @@
    ============================================================= */
 
 const CACHE_PREFIX = 'generator-surat-platform-';
-const CACHE_NAME = CACHE_PREFIX + 'v39';
+const CACHE_NAME = CACHE_PREFIX + 'v40';
 const APP_SHELL = [
   './',
   './index.html',
@@ -46,6 +46,8 @@ const APP_SHELL = [
   './templates/ijop-sptjm-kankemenag.js',
   './templates/rekap-nilai.js',
   './templates/surat-izin.js',
+  './templates/surat-permohonan-pindah.js',
+  './templates/surat-keterangan-pindah.js',
   './js/template-registry.js',
   './js/landing.js',
   './js/ui.js',
