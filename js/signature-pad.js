@@ -1,5 +1,5 @@
 /* ==============================================================
-   Tanda tangan Surat Izin: tinta biru, Undo/Redo dan modal mobile.
+   Tanda tangan surat orang tua/wali: tinta biru, Undo/Redo dan modal mobile.
    Data tetap PNG transparan, disimpan ke State hanya saat Save di mobile.
    ============================================================== */
 const SignaturePad = (() => {

@@ -78,6 +78,71 @@ describe('Two DOCX-based Surat Pindah templates', () => {
     expect(html).not.toContain('class="doc-kop"');
   });
 
+  it('exposes the same optional direct-signature component as Surat Izin', () => {
+    const { request } = setup();
+    const section = request.formSections.find(item => item.id === 'pengirim');
+    const field = section.fields.find(item => item.key === 'pengirim.tandaTanganDataUrl');
+    expect(field).toMatchObject({
+      type: 'signature', required: false, label: 'Tanda Tangan Orang Tua/Wali',
+    });
+    expect(request.createDefaultData().pengirim.tandaTanganDataUrl).toBe('');
+    const source = read('js/form-renderer.js');
+    expect(source).toContain("case 'signature':");
+    expect(source).toContain('SignaturePad.mount(group');
+    expect(source).toContain('onChange: imageData => _saveFieldValue');
+    const pad = read('js/signature-pad.js');
+    expect(pad).toContain("canvas.toDataURL('image/png')");
+    expect(pad).toContain("closeActive");
+    expect(pad).toContain('Simpan Tanda Tangan');
+  });
+
+  it('renders validated transparent PNG signature above the parent name', () => {
+    const { request, renderer } = setup();
+    const data = request.createDefaultData();
+    data.pengirim.namaOrangTuaWali = 'Wali Contoh';
+    const validPng = 'data:image/png;base64,iVBORw0KGgo=';
+    data.pengirim.tandaTanganDataUrl = validPng;
+    const html = renderer.buildDocumentHtml(request, data, {}, null, null);
+    const signatureIndex = html.indexOf('src="' + validPng + '"');
+    const parentIndex = html.lastIndexOf('>Wali Contoh</p>');
+    expect(signatureIndex).toBeGreaterThan(-1);
+    expect(parentIndex).toBeGreaterThan(signatureIndex);
+    expect(html).toContain('object-fit:contain');
+    expect(html).toContain('alt="Tanda tangan Orang Tua/Wali"');
+    // The rest of the letter stays unchanged (no institutional KOP).
+    expect(html).not.toContain('doc-kop-divider');
+    expect(html).toContain('Permohonan Pindah Sekolah');
+  });
+
+  it('rejects injected or oversized signature images without affecting other values', () => {
+    const { request, renderer } = setup();
+    const data = request.createDefaultData();
+    const values = [
+      'data:image/svg+xml,<svg onload="alert(1)">',
+      'javascript:alert(1)',
+      'https://example.com/signature.png',
+      'data:image/png;base64,' + 'A'.repeat(350001),
+      'data:image/png;base64,abc" onerror="alert(1)',
+    ];
+    for (const value of values) {
+      data.pengirim.tandaTanganDataUrl = value;
+      const html = renderer.buildDocumentHtml(request, data, {}, null, null);
+      expect(request.getSignatureDataUrl(value)).toBe('');
+      expect(html).not.toContain('alt="Tanda tangan Orang Tua/Wali"');
+      expect(html).not.toContain('<svg onload');
+      expect(html).not.toContain('src="javascript:');
+    }
+  });
+
+  it('preserves a stable blank signature area for manual signing', () => {
+    const { request, renderer } = setup();
+    const data = request.createDefaultData();
+    const html = renderer.buildDocumentHtml(request, data, {}, null, null);
+    expect(html).toContain('height:23mm;display:flex;align-items:center;justify-content:center;');
+    expect(html).not.toContain('alt="Tanda tangan Orang Tua/Wali"');
+    expect(request.createDefaultData().pengirim.tandaTanganDataUrl).toBe('');
+  });
+
   it('renders certificate with KOP, source wording, report card and kepala/NIP', () => {
     const { certificate, renderer } = setup();
     const data = certificate.createDefaultData();
@@ -192,6 +257,6 @@ describe('Two DOCX-based Surat Pindah templates', () => {
       expect(read('js/routes.js')).toContain("'" + tpl + "'");
       expect(read('js/template-registry.js')).toContain("'" + tpl + "'");
     }
-    expect(sw).toContain("CACHE_PREFIX + 'v41'");
+    expect(sw).toContain("CACHE_PREFIX + 'v42'");
   });
 });

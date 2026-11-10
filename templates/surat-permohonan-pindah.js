@@ -33,7 +33,8 @@ const TemplateSuratPermohonanPindah = (() => {
     "alasan": ""
   },
   "pengirim": {
-    "namaOrangTuaWali": ""
+    "namaOrangTuaWali": "",
+    "tandaTanganDataUrl": ""
   }
 });
   const formSections = [
@@ -161,10 +162,23 @@ const TemplateSuratPermohonanPindah = (() => {
         "label": "Nama Orang Tua/Wali",
         "type": "text",
         "required": true
+      },
+      {
+        "key": "pengirim.tandaTanganDataUrl",
+        "label": "Tanda Tangan Orang Tua/Wali",
+        "type": "signature",
+        "required": false,
+        "hint": "Tanda tangan menggunakan tinta biru. Gambar langsung dengan jari, stylus, atau mouse, atau kosongkan untuk tanda tangan manual setelah dicetak."
       }
     ]
   }
 ];
+  /* Saring gambar tanda tangan saat rendering agar hanya PNG data URL
+     berukuran wajar yang dapat dimasukkan ke HTML/PDF/Cetak. */
+  function getSignatureDataUrl(value) {
+    if (typeof value !== 'string' || value.length > 350000) return '';
+    return /^data:image\/png;base64,[A-Za-z0-9+/]+={0,2}$/.test(value) ? value : '';
+  }
   const tableColumns = [];
-  return { TEMPLATE_ID, meta, createDefaultData, formSections, tableColumns };
+  return { TEMPLATE_ID, meta, createDefaultData, formSections, getSignatureDataUrl, tableColumns };
 })();
