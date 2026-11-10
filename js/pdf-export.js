@@ -112,7 +112,7 @@ const PdfExport = (() => {
     button.dataset.exporting = isExporting ? 'true' : 'false';
 
     const label = button.querySelector('.btn-label');
-    if (label) label.textContent = isExporting ? 'Membuat PDF…' : 'Ekspor PDF';
+    if (label) label.textContent = isExporting ? 'Membuat PDF…' : 'PDF';
   }
 
   async function exportDocument() {
@@ -132,18 +132,22 @@ const PdfExport = (() => {
       return false;
     }
 
-    // @ts-ignore
-    if (typeof PreviewRenderer !== 'undefined'
-        // @ts-ignore
-        && typeof PreviewRenderer.waitForReady === 'function') {
-      // @ts-ignore
-      await PreviewRenderer.waitForReady();
-    }
-
     _exporting = true;
     _setExportState(true);
 
     try {
+      // Semua langkah asynchronous termasuk penyiapan preview harus berada
+      // dalam try/finally agar tombol tidak terjebak dan kegagalan diberi pesan.
+      // @ts-ignore
+      if (typeof PreviewRenderer !== 'undefined'
+          // @ts-ignore
+          && typeof PreviewRenderer.waitForReady === 'function') {
+        // @ts-ignore
+        await PreviewRenderer.waitForReady();
+      }
+      if (State.getActiveTemplate() !== templateId) {
+        throw new Error('Template berubah saat menyiapkan PDF. Coba kembali.');
+      }
       if (document.fonts?.ready) await document.fonts.ready;
 
       const preview = document.getElementById('surat-preview');
@@ -238,8 +242,11 @@ const PdfExport = (() => {
         userMessage = 'Server PDF mengalami kesalahan internal. Coba beberapa saat lagi.';
       } else if (msg.includes('belum siap') || msg.includes('tidak ditemukan')) {
         userMessage = msg;
-      } else if (msg.includes('dimensi') || msg.includes('tidak valid')) {
+      } else if (msg.includes('dimensi') || msg.includes('tidak valid')
+          || msg.includes('Template berubah')) {
         userMessage = msg;
+      } else if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+        userMessage = 'Server PDF tidak dapat dihubungi. Periksa koneksi internet dan coba lagi.';
       }
 
       // @ts-ignore

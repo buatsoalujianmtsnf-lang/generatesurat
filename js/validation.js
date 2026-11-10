@@ -385,6 +385,93 @@ const Validation = (() => {
       section.fields.forEach(fieldDef => validateField(fieldDef, formData));
     });
 
+    // Dua surat pindah memerlukan validasi lintas-field sebelum PDF/Cetak.
+    const isPindah = template.TEMPLATE_ID === 'surat-permohonan-pindah'
+      || template.TEMPLATE_ID === 'surat-keterangan-pindah';
+    if (isPindah) {
+      const nisnValue = getValue(formData, 'siswa.nisn');
+      if (nisnValue !== undefined && nisnValue !== null
+          && String(nisnValue).trim() !== ''
+          && !/^\d{10}$/.test(String(nisnValue).trim())) {
+        errors.push({ field: 'siswa.nisn', message: 'NISN harus 10 digit angka.' });
+      }
+      const issued = getValue(formData, 'surat.tanggalSurat');
+      const born = getValue(formData, 'siswa.tanggalLahir');
+      const validDate = value => typeof value === 'string'
+        && value !== '' && isoDate(value).valid;
+      if (validDate(issued) && validDate(born) && born > issued) {
+        errors.push({ field: 'siswa.tanggalLahir',
+          message: 'Tanggal lahir siswa tidak boleh setelah tanggal surat.' });
+      }
+      if (template.TEMPLATE_ID === 'surat-keterangan-pindah') {
+        const requested = getValue(formData, 'pindah.tanggalPermohonan');
+        if (validDate(issued) && validDate(requested) && requested > issued) {
+          errors.push({ field: 'pindah.tanggalPermohonan',
+            message: 'Tanggal permohonan orang tua/wali tidak boleh setelah tanggal surat keterangan.' });
+        }
+      }
+    }
+
+    // Rentang kegiatan harus dimulai paling lambat pada tanggal selesai.
+    // Draf lama tanpa modeTanggal tetap dianggap kegiatan satu hari.
+    if (template.TEMPLATE_ID === 'surat-pemberitahuan-kegiatan') {
+      const kegiatan = formData?.kegiatan || {};
+      if (kegiatan.modeTanggal === 'rentang') {
+        const start = kegiatan.tanggal;
+        const end = kegiatan.tanggalSelesai;
+        if (start && end && isoDate(String(start)).valid && isoDate(String(end)).valid
+            && end < start) {
+          errors.push({
+            field: 'kegiatan.tanggalSelesai',
+            message: 'Tanggal selesai tidak boleh lebih awal daripada tanggal mulai.',
+          });
+        }
+      }
+    }
+
+    // Siswa aktif: NISN, periode pendidikan, dan konsistensi tanggal surat.
+    if (template.TEMPLATE_ID === 'surat-keterangan-siswa-aktif') {
+      const nisnValue = String(getValue(formData, 'siswa.nisn') || '').trim();
+      if (nisnValue && !/^\d{10}$/.test(nisnValue)) {
+        errors.push({ field: 'siswa.nisn', message: 'NISN harus 10 digit angka.' });
+      }
+      const tahun = String(getValue(formData, 'siswa.tahunPelajaran') || '').trim();
+      const tahunMatch = /^(\d{4})[/-](\d{4})$/.exec(tahun);
+      if (tahun && (!tahunMatch || Number(tahunMatch[2]) !== Number(tahunMatch[1]) + 1)) {
+        errors.push({
+          field: 'siswa.tahunPelajaran',
+          message: 'Tahun Pelajaran harus berformat YYYY/YYYY dengan tahun berurutan.',
+        });
+      }
+      const tanggalSurat = getValue(formData, 'surat.tanggalSurat');
+      const tanggalLahir = getValue(formData, 'siswa.tanggalLahir');
+      if (isoDate(String(tanggalSurat || '')).valid && isoDate(String(tanggalLahir || '')).valid
+          && tanggalSurat && tanggalLahir && tanggalLahir > tanggalSurat) {
+        errors.push({
+          field: 'siswa.tanggalLahir',
+          message: 'Tanggal lahir siswa tidak boleh setelah tanggal surat.',
+        });
+      }
+    }
+
+    // NISN selalu 10 digit, dan tanggal lahir tidak melewati tanggal surat.
+    const disciplineIds = [
+      'surat-perjanjian-siswa',
+      'berita-acara-pertemuan-ortu',
+    ];
+    if (disciplineIds.includes(template.TEMPLATE_ID)) {
+      const nisn = String(getValue(formData, 'siswa.nisn') ?? '').trim();
+      if (nisn && !/^\d{10}$/.test(nisn)) {
+        errors.push({ field: 'siswa.nisn', message: 'NISN harus 10 digit angka.' });
+      }
+      const lahir = getValue(formData, 'siswa.tanggalLahir');
+      const terbit = getValue(formData, 'surat.tanggal');
+      if (lahir && terbit && isoDate(String(lahir)).valid && isoDate(String(terbit)).valid
+          && lahir > terbit) {
+        errors.push({ field: 'siswa.tanggalLahir', message: 'Tanggal lahir siswa tidak boleh setelah tanggal surat.' });
+      }
+    }
+
     return { valid: errors.length === 0, errors };
   }
 
