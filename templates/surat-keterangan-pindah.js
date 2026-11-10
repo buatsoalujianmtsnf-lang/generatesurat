@@ -133,7 +133,10 @@ const TemplateSuratKeteranganPindah = (() => {
         "key": "siswa.nisn",
         "label": "NISN",
         "type": "text",
-        "required": true
+        "required": true,
+        "maxLength": 10,
+        "inputMode": "numeric",
+        "validator": "nisn"
       },
       {
         "key": "siswa.kelas",
