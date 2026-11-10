@@ -1957,8 +1957,10 @@ const PreviewRenderer = (() => {
   /* ── Surat pindah: memakai data dan redaksi dari dokumen DOCX acuan. ── */
   function _renderPindahIdentityRows(siswa, includeSchool = false, schoolName = '') {
     const value = input => _esc(input || '………………………………');
-    const born = [siswa.tempatLahir || '', siswa.tanggalLahir ? _formatTanggalPanjang(siswa.tanggalLahir) : '']
-      .filter(Boolean).join(', ');
+    const born = [
+      siswa.tempatLahir || '……………………',
+      siswa.tanggalLahir ? _formatTanggalPanjang(siswa.tanggalLahir) : '……………………',
+    ].join(', ');
     const entries = [
       ['Nama Lengkap', siswa.namaLengkap],
       ['Tempat, Tanggal Lahir', born],
@@ -1995,7 +1997,8 @@ const PreviewRenderer = (() => {
     const m = margin || State.getMarginMm();
     const t = typo || State.getTypography();
     return `padding:${m.top}mm ${m.right}mm ${m.bottom}mm ${m.left}mm;`
-      + `font-family:'${t.fontFamily}',serif;font-size:${t.fontSize}pt;line-height:${t.lineHeight};`;
+      + `font-family:'${t.fontFamily}',serif;font-size:${t.fontSize}pt;line-height:${t.lineHeight};`
+      + 'overflow-wrap:anywhere;word-break:normal;';
   }
 
   function _renderSuratPermohonanPindah(data, margin, typo) {
@@ -2009,7 +2012,9 @@ const PreviewRenderer = (() => {
     const tanggalSurat = _formatTanggalPanjang(surat.tanggalSurat);
     const namaTujuan = _esc(pindah.sekolahTujuan || '………………………………');
     const alamatTujuan = _esc(pindah.alamatSekolahTujuan || '………………………………');
-    const alasan = _esc(pindah.alasan || '………………………………');
+    const alasanMentah = String(pindah.alasan || '').trim().replace(/\s+/g, ' ');
+    const alasan = _esc(alasanMentah || '………………………………');
+    const akhirAlasan = /[.!?]$/.test(alasanMentah) ? '' : '.';
     const orangTua = _esc(pengirim.namaOrangTuaWali || '………………………………');
     return `
       <div class="doc-content doc-content--surat-permohonan-pindah" style="${_renderPindahTextStyle(margin, typo)}">
@@ -2032,7 +2037,7 @@ const PreviewRenderer = (() => {
           tersebut di atas, ke ${namaTujuan} yang beralamat di ${alamatTujuan}.
         </p>
         <p style="margin:0 0 12pt;text-align:justify;">
-          Adapun alasan kepindahan ini dikarenakan ${alasan}.
+          Adapun alasan kepindahan ini dikarenakan ${alasan}${akhirAlasan}
         </p>
         <p style="margin:0 0 13pt;text-align:justify;">
           Demikian surat permohonan pindah sekolah ini saya buat dengan sebenar-benarnya dan penuh
