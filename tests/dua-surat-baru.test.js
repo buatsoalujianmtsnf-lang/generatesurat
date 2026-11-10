@@ -152,6 +152,108 @@ describe('DOCX-based new official school letters', () => {
     expect(html).not.toContain('<b>Malicious</b>');
   });
 
+
+  it('provides both Satdik options and keeps legacy drafts compatible', () => {
+    const { notice, active, renderer } = setup();
+    for (const template of [notice, active]) {
+      const data = template.createDefaultData();
+      const schoolFields = template.formSections.find(section => section.id === 'sekolah').fields;
+      const choice = schoolFields.find(field => field.key === 'sekolah.jenisSatdik');
+      expect(choice.type).toBe('select');
+      expect(choice.options.map(option => option.value)).toEqual(['Madrasah', 'Sekolah']);
+      expect(data.sekolah.jenisSatdik).toBe('Madrasah');
+
+      data.sekolah.jenisSatdik = 'Sekolah';
+      let html = renderer.buildDocumentHtml(template, data, {}, null, null);
+      expect(html).toContain('Kepala Sekolah MTs Nurul Falah,');
+      expect(html).not.toContain('Kepala Sekolah/Madrasah,');
+
+      delete data.sekolah.jenisSatdik;
+      html = renderer.buildDocumentHtml(template, data, {}, null, null);
+      expect(html).toContain('Kepala Madrasah MTs Nurul Falah,');
+    }
+  });
+
+  it('shows school name immediately beneath the addressee on activity notices', () => {
+    const { notice, renderer } = setup();
+    const data = notice.createDefaultData();
+    data.sekolah.nama = 'Sekolah Contoh A';
+    data.sekolah.jenisSatdik = 'Sekolah';
+    const html = renderer.buildDocumentHtml(notice, data, {}, null, null);
+    expect(html).toMatch(/Yth\. Bapak\/Ibu Orang Tua\/Wali Murid<\/p>\s*<p[^>]*>Sekolah Contoh A<\/p>/);
+    expect(html).toContain('pihak sekolah.');
+    expect(html).not.toContain('pihak sekolah/madrasah.');
+  });
+
+  it('supports single-day and chronological date ranges with automatic weekday names', () => {
+    const { notice, renderer, validation } = setup();
+    const data = notice.createDefaultData();
+    const fields = notice.formSections.find(section => section.id === 'kegiatan').fields;
+    const mode = fields.find(field => field.key === 'kegiatan.modeTanggal');
+    const finish = fields.find(field => field.key === 'kegiatan.tanggalSelesai');
+    expect(mode.type).toBe('select');
+    expect(mode.options.map(o => o.value)).toEqual(['tunggal', 'rentang']);
+    expect(finish.required).toBe(true);
+    expect(finish.showIf(data)).toBe(false);
+    expect(data.kegiatan.modeTanggal).toBe('tunggal');
+
+    data.kegiatan.tanggal = '2026-11-10';
+    data.kegiatan.tanggalSelesai = '2026-11-13';
+    let html = renderer.buildDocumentHtml(notice, data, {}, null, null);
+    expect(html).toContain('Selasa, 10 November 2026');
+    expect(html).not.toContain('Jumat, 13 November 2026');
+    expect(validation.formTemplate(data, notice).errors.some(e =>
+      e.field === 'kegiatan.tanggalSelesai')).toBe(false);
+
+    data.kegiatan.modeTanggal = 'rentang';
+    expect(finish.showIf(data)).toBe(true);
+    html = renderer.buildDocumentHtml(notice, data, {}, null, null);
+    expect(html).toContain('Selasa, 10 November 2026 s.d. Jumat, 13 November 2026');
+
+    data.kegiatan.tanggalSelesai = '2026-11-09';
+    expect(validation.formTemplate(data, notice).errors.some(e =>
+      e.field === 'kegiatan.tanggalSelesai')).toBe(true);
+
+    data.kegiatan.tanggalSelesai = '';
+    expect(validation.formTemplate(data, notice).errors.some(e =>
+      e.field === 'kegiatan.tanggalSelesai')).toBe(true);
+
+    data.kegiatan.tanggalSelesai = '2026-11-10';
+    expect(validation.formTemplate(data, notice).errors.some(e =>
+      e.field === 'kegiatan.tanggalSelesai')).toBe(false);
+  });
+
+  it('renders explicit sequential numbering even if the global CSS resets list markers', () => {
+    const { notice, renderer } = setup();
+    const data = notice.createDefaultData();
+    data.ketentuanTambahan = [
+      { id: 'a', teks: 'Membawa alat tulis' },
+      { id: 'blank', teks: '' },
+      { id: 'b', teks: 'Hadir tepat waktu' },
+      { id: 'c', teks: 'Menjaga ketertiban' },
+    ];
+    const html = renderer.buildDocumentHtml(notice, data, {}, null, null);
+    expect(html).toContain('class="doc-activity__conditions"');
+    expect(html).toContain('list-style-type:decimal');
+    expect(html).toContain('<li value="1"');
+    expect(html).toContain('<li value="2"');
+    expect(html).toContain('<li value="3"');
+    expect(html).not.toContain('<li value="4"');
+  });
+
+  it('left-aligns NIP with the first character of the head name on both new templates', () => {
+    const { notice, active, renderer } = setup();
+    for (const template of [notice, active]) {
+      const data = template.createDefaultData();
+      data.kepala.nama = 'Kepala Contoh';
+      data.kepala.nip = '197601012006041001';
+      const html = renderer.buildDocumentHtml(template, data, {}, null, null);
+      expect(html).toContain('class="doc-signature__identity"');
+      expect(html).toMatch(/doc-signature__identity"[^>]*text-align:left[^>]*>/);
+      expect(html).toMatch(/Kepala Contoh<\/p><p[^>]*>NIP\. 197601012006041001<\/p>/);
+    }
+  });
+
   it('is included in routes, classic script order, and PWA app shell', () => {
     const html = read('index.html');
     const cache = read('sw.js');
