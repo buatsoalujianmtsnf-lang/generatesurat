@@ -161,6 +161,6 @@ describe('DOCX-based new official school letters', () => {
       expect(read('js/routes.js')).toContain("'" + name + "'");
       expect(read('js/template-registry.js')).toContain("'" + name + "'");
     }
-    expect(cache).toContain("CACHE_PREFIX + 'v43'");
+    expect(cache).toContain("CACHE_PREFIX + 'v44'");
   });
 });
