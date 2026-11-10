@@ -2221,9 +2221,9 @@ const PreviewRenderer = (() => {
     const kepala = data?.kepala || {};
     const sekolah = data?.sekolah || {};
     const siswa = data?.siswa || {};
-    const born = _officialValue(siswa.tempatLahir) + ', '
-      + (siswa.tanggalLahir ? _esc(_formatTanggalPanjang(siswa.tanggalLahir)) : '………………………………');
-    const ids = _officialValue(siswa.nis) + '/' + _officialValue(siswa.nisn);
+    const born = (siswa.tempatLahir || '………………………………') + ', '
+      + (siswa.tanggalLahir ? _formatTanggalPanjang(siswa.tanggalLahir) : '………………………………');
+    const ids = (siswa.nis || '………………………………') + '/' + (siswa.nisn || '………………………………');
     return '<div class="doc-content doc-content--siswa-aktif" style="' + _officialStyle(margin, typo) + '">'
       + _buildKopHtml(kop) + '<hr class="doc-kop-divider" /><hr class="doc-kop-divider-thin" />'
       + '<div style="text-align:center;margin:10pt 0 16pt;"><p style="margin:0;font-weight:bold;text-decoration:underline;">SURAT KETERANGAN SISWA AKTIF</p>'
