@@ -39,6 +39,8 @@ const PreviewRenderer = (() => {
     'surat-izin',
     'surat-permohonan-pindah',
     'surat-keterangan-pindah',
+    'surat-pemberitahuan-kegiatan',
+    'surat-keterangan-siswa-aktif',
   ]);
 
   function _usesMultiPageLayout(templateId) {
@@ -187,6 +189,8 @@ const PreviewRenderer = (() => {
     if (id === 'surat-izin')                  return _renderSuratIzin(formData, margin, typo);
     if (id === 'surat-permohonan-pindah')     return _renderSuratPermohonanPindah(formData, margin, typo);
     if (id === 'surat-keterangan-pindah')     return _renderSuratKeteranganPindah(formData, kop, margin, typo);
+    if (id === 'surat-pemberitahuan-kegiatan')  return _renderSuratPemberitahuanKegiatan(formData, kop, margin, typo);
+    if (id === 'surat-keterangan-siswa-aktif')  return _renderSuratKeteranganSiswaAktif(formData, kop, margin, typo);
     return '<div style="padding:20px;color:#666;">Template tidak dikenali.</div>';
   }
 
@@ -2115,6 +2119,137 @@ const PreviewRenderer = (() => {
           </div>
         </div>
       </div>`;
+  }
+
+
+  /* Official letter helpers: all user values are HTML-escaped. */
+  function _officialValue(value) {
+    return _esc(String(value ?? '').trim() || '………………………………');
+  }
+
+  function _officialRows(entries) {
+    return '<table style="width:100%;table-layout:fixed;border-collapse:collapse;margin:7pt 0 13pt;">'
+      + entries.map(([label, value]) =>
+        '<tr><td style="width:38%;padding:2pt 4pt 2pt 10mm;vertical-align:top;">' + _esc(label)
+        + '</td><td style="width:5%;text-align:center;vertical-align:top;padding:2pt 0;">:</td>'
+        + '<td style="vertical-align:top;padding:2pt 0;white-space:pre-line;overflow-wrap:anywhere;">'
+        + _officialValue(value) + '</td></tr>'
+      ).join('') + '</table>';
+  }
+
+  function _officialSignature(data) {
+    const surat = data?.surat || {};
+    const sekolah = data?.sekolah || {};
+    const kepala = data?.kepala || {};
+    const tanggal = surat.tanggalSurat ? _formatTanggalPanjang(surat.tanggalSurat) : '………………………………';
+    return '<div style="display:flex;justify-content:flex-end;margin-top:16pt;break-inside:avoid;page-break-inside:avoid;">'
+      + '<div style="min-width:53mm;max-width:80mm;text-align:center;overflow-wrap:anywhere;">'
+      + '<p style="margin:0;">' + _officialValue(surat.kabupatenKota) + ', ' + _esc(tanggal) + '</p>'
+      + '<p style="margin:2pt 0 0;">Kepala ' + _officialValue(sekolah.nama) + ',</p>'
+      + '<div style="height:21mm;"></div><p style="font-weight:bold;text-decoration:underline;margin:0;">'
+      + _officialValue(kepala.nama) + '</p>'
+      + (String(kepala.nip || '').trim() ? '<p style="margin:2pt 0 0;">NIP. ' + _officialValue(kepala.nip) + '</p>' : '')
+      + '</div></div>';
+  }
+
+  function _officialStyle(margin, typo) {
+    const m = margin || State.getMarginMm();
+    const t = typo || State.getTypography();
+    return 'padding:' + m.top + 'mm ' + m.right + 'mm ' + m.bottom + 'mm ' + m.left
+      + 'mm;font-family:' + _esc(t.fontFamily) + ',serif;font-size:' + t.fontSize
+      + 'pt;line-height:' + t.lineHeight + ';overflow-wrap:anywhere;';
+  }
+
+  function _officialWeekday(dateText) {
+    if (typeof dateText !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(dateText)) return '…………';
+    const [year, month, day] = dateText.split('-').map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return '…………';
+    return ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][date.getUTCDay()];
+  }
+
+  function _renderSuratPemberitahuanKegiatan(data, kop, margin, typo) {
+    const surat = data?.surat || {};
+    const kegiatan = data?.kegiatan || {};
+    const tanggal = kegiatan.tanggal ? _formatTanggalPanjang(kegiatan.tanggal) : '………………………………';
+    const tanggalSurat = surat.tanggalSurat ? _formatTanggalPanjang(surat.tanggalSurat) : '………………………………';
+    const waktuRaw = String(kegiatan.waktu || '').trim();
+    const waktu = waktuRaw.replace(/^pukul\s*/i, '').replace(/\s*WIB\s*$/i, '') || '…………';
+    const clauses = Array.isArray(data?.ketentuanTambahan) ? data.ketentuanTambahan : [];
+    const validClauses = clauses.filter(item => item && typeof item.teks === 'string' && item.teks.trim());
+    const extraClauses = validClauses.length
+      ? '<div style="margin:12pt 0 10pt;"><p style="margin:0 0 6pt;">Ketentuan Tambahan/Khusus:</p>'
+      + '<ol style="margin:0;padding-left:16mm;">'
+      + validClauses.map(item => '<li style="margin-bottom:3pt;white-space:pre-line;overflow-wrap:anywhere;">'
+        + _esc(item.teks.trim()) + '</li>').join('') + '</ol></div>'
+      : '';
+    const header = '<div style="display:flex;justify-content:space-between;gap:12pt;margin:12pt 0 18pt;">'
+      + '<table style="border-collapse:collapse;min-width:55%;max-width:65%;">'
+      + '<tr><td>Nomor</td><td style="padding:0 7pt;">:</td><td>' + _officialValue(surat.nomorSurat) + '</td></tr>'
+      + '<tr><td>Lampiran</td><td style="padding:0 7pt;">:</td><td>-</td></tr>'
+      + '<tr><td>Perihal</td><td style="padding:0 7pt;">:</td><td><strong>Pemberitahuan Kegiatan</strong></td></tr>'
+      + '</table><div style="max-width:43%;text-align:right;">' + _officialValue(surat.kabupatenKota)
+      + ', ' + _esc(tanggalSurat) + '</div></div>';
+    return '<div class="doc-content doc-content--pemberitahuan-kegiatan" style="' + _officialStyle(margin, typo) + '">'
+      + _buildKopHtml(kop) + '<hr class="doc-kop-divider" /><hr class="doc-kop-divider-thin" />'
+      + header
+      + '<div style="margin-bottom:16pt;"><p style="margin:0;">Yth. Bapak/Ibu Orang Tua/Wali Murid</p>'
+      + '<p style="margin:0;">di</p><p style="margin:0 0 0 14pt;">Tempat</p></div>'
+      + '<p style="margin:0 0 12pt;"><em>Assalamu’alaikum warahmatullahi wabarakatuh.</em></p>'
+      + '<p style="margin:0 0 9pt;">Dengan hormat,</p>'
+      + '<p style="margin:0 0 9pt;text-align:justify;">Dalam rangka ' + _officialValue(kegiatan.dalamRangka)
+      + ', kami bermaksud menyelenggarakan kegiatan ' + _officialValue(kegiatan.nama)
+      + ' yang akan dilaksanakan pada:</p>'
+      + _officialRows([
+        ['Hari, Tanggal', _officialWeekday(kegiatan.tanggal) + ', ' + tanggal],
+        ['Waktu', 'Pukul ' + waktu + ' WIB s.d. selesai'],
+        ['Tempat', kegiatan.lokasi],
+        ['Peserta', kegiatan.peserta],
+      ])
+      + '<p style="margin:0 0 12pt;text-align:justify;">Adapun kegiatan tersebut bertujuan untuk '
+      + _officialValue(kegiatan.tujuan) + '.</p>'
+      + '<p style="margin:0 0 12pt;text-align:justify;">Sehubungan dengan hal tersebut, kami memberitahukan kepada Bapak/Ibu Orang Tua/Wali Siswa agar dapat mengetahui dan mendukung pelaksanaan kegiatan dimaksud, serta memberikan izin kepada putra/putrinya untuk mengikuti kegiatan tersebut sesuai dengan ketentuan yang telah ditetapkan oleh pihak sekolah/madrasah.</p>'
+      + extraClauses
+      + '<p style="margin:0 0 12pt;text-align:justify;">Kami mengharapkan perhatian dan kerja sama Bapak/Ibu untuk memastikan putra/putrinya mematuhi ketentuan tersebut demi kelancaran, ketertiban, dan keberhasilan pelaksanaan kegiatan.</p>'
+      + '<p style="margin:0 0 12pt;text-align:justify;">Demikian surat pemberitahuan ini kami sampaikan. Atas perhatian, dukungan, dan kerja sama Bapak/Ibu, kami mengucapkan terima kasih.</p>'
+      + '<p style="margin:0;"><em>Wassalamu’alaikum warahmatullahi wabarakatuh.</em></p>'
+      + _officialSignature(data) + '</div>';
+  }
+
+  function _renderSuratKeteranganSiswaAktif(data, kop, margin, typo) {
+    const surat = data?.surat || {};
+    const kepala = data?.kepala || {};
+    const sekolah = data?.sekolah || {};
+    const siswa = data?.siswa || {};
+    const born = _officialValue(siswa.tempatLahir) + ', '
+      + (siswa.tanggalLahir ? _esc(_formatTanggalPanjang(siswa.tanggalLahir)) : '………………………………');
+    const ids = _officialValue(siswa.nis) + '/' + _officialValue(siswa.nisn);
+    return '<div class="doc-content doc-content--siswa-aktif" style="' + _officialStyle(margin, typo) + '">'
+      + _buildKopHtml(kop) + '<hr class="doc-kop-divider" /><hr class="doc-kop-divider-thin" />'
+      + '<div style="text-align:center;margin:10pt 0 16pt;"><p style="margin:0;font-weight:bold;text-decoration:underline;">SURAT KETERANGAN SISWA AKTIF</p>'
+      + '<p style="margin:2pt 0 0;">Nomor: ' + _officialValue(surat.nomorSurat) + '</p></div>'
+      + '<p style="margin:0 0 8pt;">Yang bertanda tangan di bawah ini:</p>'
+      + _officialRows([
+        ['Nama', kepala.nama],
+        ['NIP', kepala.nip || '—'],
+        ['Jabatan', 'Kepala Sekolah/Madrasah'],
+        ['Nama Sekolah/Madrasah', sekolah.nama],
+        ['Alamat', sekolah.alamat],
+      ])
+      + '<p style="margin:0 0 8pt;">Dengan ini menerangkan bahwa:</p>'
+      + _officialRows([
+        ['Nama Lengkap', siswa.namaLengkap],
+        ['Tempat, Tanggal Lahir', born],
+        ['NIS/NISN', ids],
+        ['Jenis Kelamin', siswa.jenisKelamin],
+        ['Kelas', siswa.kelas],
+        ['Semester', siswa.semester],
+        ['Tahun Pelajaran', siswa.tahunPelajaran],
+      ])
+      + '<p style="margin:0 0 12pt;text-align:justify;">Adalah benar siswa yang terdaftar dan <strong>masih berstatus aktif</strong> pada sekolah/madrasah yang saya pimpin serta mengikuti kegiatan pembelajaran sebagaimana mestinya pada tahun pelajaran tersebut.</p>'
+      + '<p style="margin:0 0 12pt;text-align:justify;">Surat keterangan ini diterbitkan untuk digunakan sebagaimana mestinya sesuai dengan keperluan yang bersangkutan.</p>'
+      + '<p style="margin:0 0 12pt;text-align:justify;">Demikian surat keterangan ini dibuat dengan sebenarnya agar dapat dipergunakan sebagaimana mestinya.</p>'
+      + _officialSignature(data) + '</div>';
   }
 
   /* ── Escape helper ── */
