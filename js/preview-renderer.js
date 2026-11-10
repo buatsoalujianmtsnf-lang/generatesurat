@@ -2016,6 +2016,10 @@ const PreviewRenderer = (() => {
     const alasan = _esc(alasanMentah || '………………………………');
     const akhirAlasan = /[.!?]$/.test(alasanMentah) ? '' : '.';
     const orangTua = _esc(pengirim.namaOrangTuaWali || '………………………………');
+    const signatureDataUrl = TemplateSuratPermohonanPindah.getSignatureDataUrl(pengirim.tandaTanganDataUrl);
+    const signatureHtml = signatureDataUrl
+      ? `<img src="${_esc(signatureDataUrl)}" alt="Tanda tangan Orang Tua/Wali" style="display:block;max-width:100%;width:160px;height:40pt;object-fit:contain;" />`
+      : '';
     return `
       <div class="doc-content doc-content--surat-permohonan-pindah" style="${_renderPindahTextStyle(margin, typo)}">
         <p style="text-align:right;margin:0 0 20pt;">${kota}, ${tanggalSurat}</p>
@@ -2047,7 +2051,7 @@ const PreviewRenderer = (() => {
           <div style="min-width:53mm;max-width:75mm;text-align:center;">
             <p style="margin:0;">Hormat saya,</p>
             <p style="margin:0;">Orang Tua/Wali Murid,</p>
-            <div style="height:23mm;"></div>
+            <div style="height:23mm;display:flex;align-items:center;justify-content:center;">${signatureHtml}</div>
             <p style="margin:0;font-weight:bold;overflow-wrap:anywhere;">${orangTua}</p>
           </div>
         </div>
