@@ -35,6 +35,7 @@ function modalHarness() {
   const handlers = new Map();
   const ctx = {
     Storage: {},
+    Utils: { escapeHtml: value => String(value) },
     HTMLElement: HTMLElementMock,
     document: {
       activeElement: elements.get('modal-overlay'),
