@@ -27,6 +27,9 @@ const REQUIRED_TEMPLATE_IDS = [
   'surat-keterangan-pindah',
   'surat-pemberitahuan-kegiatan',
   'surat-keterangan-siswa-aktif',
+  'surat-panggilan-orang-tua',
+  'surat-perjanjian-siswa',
+  'berita-acara-pertemuan-ortu',
 ];
 
 function loadTemplateRegistry() {

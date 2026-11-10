@@ -63,7 +63,7 @@ describe('Tabler Icons: standardized local icon system', () => {
       'assets/icons/tabler-sprite.svg']) {
       expect(sw).toContain("'./" + asset + "'");
     }
-    expect(sw).toContain("const CACHE_NAME = CACHE_PREFIX + 'v44';");
+    expect(sw).toContain("const CACHE_NAME = CACHE_PREFIX + 'v45';");
   });
 
   it('preserves logo/favicon and print layout independent of icons', () => {
@@ -82,6 +82,7 @@ describe('Tabler Icons: standardized local icon system', () => {
       'ijop-rekomendasi-kankemenag', 'ijop-sptjm-kankemenag',
       'rekap-nilai', 'surat-izin', 'surat-permohonan-pindah', 'surat-keterangan-pindah',
       'surat-pemberitahuan-kegiatan', 'surat-keterangan-siswa-aktif',
+      'surat-panggilan-orang-tua', 'surat-perjanjian-siswa', 'berita-acara-pertemuan-ortu',
     ];
     const api = iconApi();
     for (const name of files) {

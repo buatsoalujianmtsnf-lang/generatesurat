@@ -454,6 +454,24 @@ const Validation = (() => {
       }
     }
 
+    // NISN selalu 10 digit, dan tanggal lahir tidak melewati tanggal surat.
+    const disciplineIds = [
+      'surat-perjanjian-siswa',
+      'berita-acara-pertemuan-ortu',
+    ];
+    if (disciplineIds.includes(template.TEMPLATE_ID)) {
+      const nisn = String(getValue(formData, 'siswa.nisn') ?? '').trim();
+      if (nisn && !/^\d{10}$/.test(nisn)) {
+        errors.push({ field: 'siswa.nisn', message: 'NISN harus 10 digit angka.' });
+      }
+      const lahir = getValue(formData, 'siswa.tanggalLahir');
+      const terbit = getValue(formData, 'surat.tanggal');
+      if (lahir && terbit && isoDate(String(lahir)).valid && isoDate(String(terbit)).valid
+          && lahir > terbit) {
+        errors.push({ field: 'siswa.tanggalLahir', message: 'Tanggal lahir siswa tidak boleh setelah tanggal surat.' });
+      }
+    }
+
     return { valid: errors.length === 0, errors };
   }
 
