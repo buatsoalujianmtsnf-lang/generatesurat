@@ -330,6 +330,15 @@ const Validation = (() => {
         if (!dateCheck.valid) errors.push({ field: fieldPath, message: dateCheck.message });
       }
 
+      // Opt-in validation on template fields, not based on ambiguous field
+      // names. Surat pindah uses a single student object and a 10-digit NISN.
+      if (fieldDef.validator === 'nisn') {
+        const nisnCheck = nisn(value);
+        if (!nisnCheck.valid) {
+          errors.push({ field: fieldPath, message: nisnCheck.message });
+        }
+      }
+
       if (fieldDef.type === 'number') {
         const number = Number(value);
         if (!Number.isFinite(number)) {
