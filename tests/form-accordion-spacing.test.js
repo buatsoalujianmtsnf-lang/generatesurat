@@ -19,6 +19,7 @@ describe('Isi Surat accordion card spacing', () => {
     expect(css).toMatch(/#tab-form #form-container\s*\{[^}]*display:\s*flex;[^}]*flex-direction:\s*column;[^}]*gap:\s*var\(--editor-card-gap\);/s);
     expect(css).toMatch(/#tab-form #form-container > \.form-section\.card\s*\{[^}]*margin:\s*0;[^}]*border:\s*1px solid var\(--color-border\);/s);
     expect(css).toContain('#tab-form #form-container > .form-section.card:last-child');
+    expect(css).toContain('box-sizing: border-box');
   });
 
   it('gives nested participant accordions a predictable gap without extra margins', () => {
