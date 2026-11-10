@@ -19,6 +19,7 @@ const TemplateSuratKeteranganSiswaAktif = (() => {
       kepala: { nama: '', nip: '' },
       sekolah: {
         nama: 'MTs Nurul Falah',
+        jenisSatdik: 'Madrasah',
         alamat: 'Jl. Jambi Lama RT. 004 Kelurahan Terawas Kecamatan STL. Ulu Terawas 30771',
       },
       siswa: {
@@ -48,6 +49,11 @@ const TemplateSuratKeteranganSiswaAktif = (() => {
     {
       id: 'sekolah', title: 'Identitas Sekolah/Madrasah', icon: 'school',
       fields: [
+        { key: 'sekolah.jenisSatdik', label: 'Jenis Satdik', type: 'select', required: false,
+          options: [
+            { value: 'Madrasah', label: 'Madrasah' },
+            { value: 'Sekolah', label: 'Sekolah' },
+          ] },
         { key: 'sekolah.nama', label: 'Nama Sekolah/Madrasah', type: 'text', required: true },
         { key: 'sekolah.alamat', label: 'Alamat Sekolah/Madrasah', type: 'textarea',
           required: true, rows: 2 },
