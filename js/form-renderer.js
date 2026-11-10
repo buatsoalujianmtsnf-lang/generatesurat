@@ -375,6 +375,7 @@ const FormRenderer = (() => {
             value="${Utils.escapeHtml(String(value ?? ''))}"
             placeholder="${Utils.escapeHtml(fieldDef.placeholder || '')}"
             maxlength="${fieldDef.maxLength || 255}"
+            ${fieldDef.inputMode === 'numeric' ? 'inputmode="numeric"' : ''}
             ${fieldDef.required ? 'required' : ''}
             ${fieldDef.inputAlign ? `style="text-align:${Utils.escapeHtml(fieldDef.inputAlign)};"` : ''} />`;
         _bindInput(group.querySelector('input'), fieldDef, templateId, itemId, sectionId);
