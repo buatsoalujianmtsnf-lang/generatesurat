@@ -134,7 +134,7 @@ describe('Three student guidance and parent meeting documents', () => {
     expect(html).toContain('kerahasiaan informasi pribadi siswa');
   });
 
-  it('validates 10-digit NISN and date ordering and requires at least one attendee', () => {
+  it('validates NISN, date ordering and required identity of synced attendees', () => {
     const { agreement, minutes, validation } = setup();
     for (const template of [agreement, minutes]) {
       const data = template.createDefaultData();
@@ -147,7 +147,8 @@ describe('Three student guidance and parent meeting documents', () => {
     }
     const data = minutes.createDefaultData();
     const errors = validation.formTemplate(data, minutes).errors;
-    expect(errors.some(err => err.field === 'pihakHadir')).toBe(true);
+    expect(errors.some(err => err.field === 'pihakHadir[0].nama')).toBe(true);
+    expect(errors.some(err => err.field === 'pihakHadir[1].nama')).toBe(true);
   });
 
   it('escapes malicious user content and retains newline formatting', () => {
