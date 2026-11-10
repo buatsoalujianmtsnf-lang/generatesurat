@@ -37,6 +37,8 @@ const PreviewRenderer = (() => {
     'ijop-sptjm-kankemenag',
     'rekap-nilai',
     'surat-izin',
+    'surat-permohonan-pindah',
+    'surat-keterangan-pindah',
   ]);
 
   function _usesMultiPageLayout(templateId) {
@@ -183,6 +185,8 @@ const PreviewRenderer = (() => {
     if (id === 'ijop-sptjm-kankemenag')       return _renderIjopSptjmKankemenag(formData, kop, margin, typo);
     if (id === 'rekap-nilai')                 return _renderRekapNilai(formData, kop, margin, typo);
     if (id === 'surat-izin')                  return _renderSuratIzin(formData, margin, typo);
+    if (id === 'surat-permohonan-pindah')     return _renderSuratPermohonanPindah(formData, margin, typo);
+    if (id === 'surat-keterangan-pindah')     return _renderSuratKeteranganPindah(formData, kop, margin, typo);
     return '<div style="padding:20px;color:#666;">Template tidak dikenali.</div>';
   }
 
@@ -1945,6 +1949,160 @@ const PreviewRenderer = (() => {
             <div style="height:14pt;"></div>
             <p style="margin:0;text-decoration:underline;font-weight:bold;">${kk.nama ? _esc(kk.nama) : '…………………………………'}</p>
             <p style="margin:0;">NIP. ${kk.nip ? _esc(kk.nip) : '…………………………………..'}</p>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  /* ── Surat pindah: memakai data dan redaksi dari dokumen DOCX acuan. ── */
+  function _renderPindahIdentityRows(siswa, includeSchool = false, schoolName = '') {
+    const value = input => _esc(input || '………………………………');
+    const born = [siswa.tempatLahir || '', siswa.tanggalLahir ? _formatTanggalPanjang(siswa.tanggalLahir) : '']
+      .filter(Boolean).join(', ');
+    const entries = [
+      ['Nama Lengkap', siswa.namaLengkap],
+      ['Tempat, Tanggal Lahir', born],
+      ['Jenis Kelamin', siswa.jenisKelamin],
+      ['NISN', siswa.nisn],
+      ['Kelas', siswa.kelas],
+    ];
+    if (includeSchool) entries.push(['Asal Sekolah', schoolName]);
+    return '<table class="doc-pindah__identity" style="width:100%;border-collapse:collapse;table-layout:fixed;margin:8pt 0 12pt;">'
+      + entries.map(([label, content]) =>
+        '<tr><td style="width:39%;vertical-align:top;padding:2pt 0 2pt 14mm;">'
+        + _esc(label) + '</td><td style="width:5%;vertical-align:top;text-align:center;padding:2pt 0;">:</td>'
+        + '<td style="vertical-align:top;overflow-wrap:anywhere;padding:2pt 0;">' + value(content) + '</td></tr>'
+      ).join('')
+      + '</table>';
+  }
+
+  function _renderPindahDestinationRows(pindah) {
+    const entries = [
+      ['Nama Sekolah Tujuan', pindah.sekolahTujuan],
+      ['Alamat Sekolah Tujuan', pindah.alamatSekolahTujuan],
+      ['Alasan Pindah', pindah.alasan],
+    ];
+    return '<table class="doc-pindah__destination" style="width:100%;border-collapse:collapse;table-layout:fixed;margin:8pt 0 12pt;">'
+      + entries.map(([label, value]) =>
+        '<tr><td style="width:39%;vertical-align:top;padding:3pt 0 3pt 14mm;">'
+        + _esc(label) + '</td><td style="width:5%;vertical-align:top;text-align:center;padding:3pt 0;">:</td>'
+        + '<td style="vertical-align:top;overflow-wrap:anywhere;padding:3pt 0;">'
+        + _esc(value || '………………………………') + '</td></tr>'
+      ).join('') + '</table>';
+  }
+
+  function _renderPindahTextStyle(margin, typo) {
+    const m = margin || State.getMarginMm();
+    const t = typo || State.getTypography();
+    return `padding:${m.top}mm ${m.right}mm ${m.bottom}mm ${m.left}mm;`
+      + `font-family:'${t.fontFamily}',serif;font-size:${t.fontSize}pt;line-height:${t.lineHeight};`;
+  }
+
+  function _renderSuratPermohonanPindah(data, margin, typo) {
+    const surat = data?.surat || {};
+    const sekolah = data?.sekolah || {};
+    const siswa = data?.siswa || {};
+    const pindah = data?.pindah || {};
+    const pengirim = data?.pengirim || {};
+    const namaSekolah = _esc(sekolah.nama || '………………………………');
+    const kota = _esc(surat.kota || '……………………');
+    const tanggalSurat = _formatTanggalPanjang(surat.tanggalSurat);
+    const namaTujuan = _esc(pindah.sekolahTujuan || '………………………………');
+    const alamatTujuan = _esc(pindah.alamatSekolahTujuan || '………………………………');
+    const alasan = _esc(pindah.alasan || '………………………………');
+    const orangTua = _esc(pengirim.namaOrangTuaWali || '………………………………');
+    return `
+      <div class="doc-content doc-content--surat-permohonan-pindah" style="${_renderPindahTextStyle(margin, typo)}">
+        <p style="text-align:right;margin:0 0 20pt;">${kota}, ${tanggalSurat}</p>
+        <table style="border-collapse:collapse;margin:0 0 15pt;">
+          <tr><td style="min-width:62pt;padding-right:5pt;">Hal</td><td style="padding-right:7pt;">:</td><td>Permohonan Pindah Sekolah</td></tr>
+          <tr><td>Lampiran</td><td>:</td><td>-</td></tr>
+        </table>
+        <div style="margin:0 0 17pt;">
+          <p style="margin:0;">Kepada Yth.,</p>
+          <p style="margin:0;">Kepala ${namaSekolah}</p>
+          <p style="margin:0;">di</p>
+          <p style="margin:0 0 0 14pt;">Tempat</p>
+        </div>
+        <p style="margin:0 0 10pt;">Dengan hormat,</p>
+        <p style="margin:0 0 8pt;">Saya yang bertanda tangan di bawah ini, selaku orang tua/wali dari:</p>
+        ${_renderPindahIdentityRows(siswa, true, sekolah.nama)}
+        <p style="margin:0 0 12pt;text-align:justify;">
+          Bersama surat ini, saya bermaksud mengajukan permohonan pindah sekolah untuk anak saya
+          tersebut di atas, ke ${namaTujuan} yang beralamat di ${alamatTujuan}.
+        </p>
+        <p style="margin:0 0 12pt;text-align:justify;">
+          Adapun alasan kepindahan ini dikarenakan ${alasan}.
+        </p>
+        <p style="margin:0 0 13pt;text-align:justify;">
+          Demikian surat permohonan pindah sekolah ini saya buat dengan sebenar-benarnya dan penuh
+          kesadaran. Atas perhatian, bantuan, dan kerja sama Bapak/Ibu, saya ucapkan terima kasih.
+        </p>
+        <div style="display:flex;justify-content:flex-end;margin-top:18pt;break-inside:avoid;page-break-inside:avoid;">
+          <div style="min-width:53mm;max-width:75mm;text-align:center;">
+            <p style="margin:0;">Hormat saya,</p>
+            <p style="margin:0;">Orang Tua/Wali Murid,</p>
+            <div style="height:23mm;"></div>
+            <p style="margin:0;font-weight:bold;overflow-wrap:anywhere;">${orangTua}</p>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function _renderSuratKeteranganPindah(data, kop, margin, typo) {
+    const surat = data?.surat || {};
+    const sekolah = data?.sekolah || {};
+    const siswa = data?.siswa || {};
+    const pindah = data?.pindah || {};
+    const kepala = data?.kepala || {};
+    const namaSekolah = _esc(sekolah.nama || '………………………………');
+    const lokasi = _esc(sekolah.kelurahanDesa || '……………………');
+    const kota = _esc(surat.kota || '……………………');
+    const tanggal = _formatTanggalPanjang(surat.tanggalSurat);
+    const tanggalPermohonan = _formatTanggalPanjang(pindah.tanggalPermohonan);
+    const namaOrangTua = _esc(pindah.namaOrangTuaWali || '………………………………');
+    const kepalaNama = _esc(kepala.nama || '………………………………');
+    const kopHtml = _buildKopHtml(kop);
+    return `
+      <div class="doc-content doc-content--surat-keterangan-pindah" style="${_renderPindahTextStyle(margin, typo)}">
+        ${kopHtml}
+        <hr class="doc-kop-divider" />
+        <hr class="doc-kop-divider-thin" />
+        <div style="text-align:center;margin:10pt 0 16pt;">
+          <p style="margin:0;font-weight:bold;text-decoration:underline;">SURAT KETERANGAN PINDAH SEKOLAH</p>
+          <p style="margin:2pt 0 0;">Nomor: ${_esc(surat.nomorSurat || '………………………………')}</p>
+        </div>
+        <p style="margin:0 0 10pt;text-align:justify;">
+          Yang bertanda tangan di bawah ini, Kepala ${namaSekolah} ${lokasi},
+          menerangkan dengan sesungguhnya bahwa:
+        </p>
+        ${_renderPindahIdentityRows(siswa)}
+        <p style="margin:0 0 10pt;text-align:justify;">
+          Berdasarkan surat permohonan pindah dari orang tua/wali murid atas nama
+          ${namaOrangTua} tertanggal ${tanggalPermohonan},
+          siswa tersebut di atas telah disetujui untuk pindah sekolah/keluar dari
+          ${namaSekolah} menuju:
+        </p>
+        ${_renderPindahDestinationRows(pindah)}
+        <p style="margin:0 0 12pt;text-align:justify;">
+          Bersama dengan surat keterangan ini, turut kami sertakan dokumen
+          pencapaian hasil belajar siswa berupa <strong>Buku Laporan Pendidikan (Rapor) Asli.</strong>
+        </p>
+        <p style="margin:0 0 12pt;text-align:justify;">
+          Sejak tanggal dikeluarkannya surat keterangan ini, maka siswa yang
+          bersangkutan sudah tidak lagi berstatus sebagai siswa di ${namaSekolah}.
+        </p>
+        <p style="margin:0 0 14pt;text-align:justify;">
+          Demikian surat keterangan ini dibuat dengan sebenarnya agar dapat
+          dipergunakan sebagaimana mestinya oleh pihak-pihak yang berkepentingan.
+        </p>
+        <div style="display:flex;justify-content:flex-end;margin-top:14pt;break-inside:avoid;page-break-inside:avoid;">
+          <div style="min-width:53mm;max-width:80mm;text-align:center;">
+            <p style="margin:0;">${kota}, ${tanggal}</p>
+            <p style="margin:0;">Kepala ${namaSekolah},</p>
+            <div style="height:20mm;"></div>
+            <p style="margin:0;font-weight:bold;overflow-wrap:anywhere;">${kepalaNama}</p>
+            ${kepala.nip ? `<p style="margin:2pt 0 0;">NIP. ${_esc(kepala.nip)}</p>` : ''}
           </div>
         </div>
       </div>`;

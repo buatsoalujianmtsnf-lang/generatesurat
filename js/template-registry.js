@@ -63,7 +63,7 @@ const TemplateRegistry = (() => {
     },
     {
       id: 'surat-menyurat-siswa', title: 'Surat Menyurat Siswa', icon: 'mail',
-      ids: ['surat-izin'],
+      ids: ['surat-izin', 'surat-permohonan-pindah', 'surat-keterangan-pindah'],
     },
   ];
 
@@ -274,6 +274,12 @@ const TemplateRegistry = (() => {
     // ── Template Izin ──
     if (typeof TemplateSuratIzin !== 'undefined') {
       register(TemplateSuratIzin);
+    }
+    if (typeof TemplateSuratPermohonanPindah !== 'undefined') {
+      register(TemplateSuratPermohonanPindah);
+    }
+    if (typeof TemplateSuratKeteranganPindah !== 'undefined') {
+      register(TemplateSuratKeteranganPindah);
     }
 
     /*

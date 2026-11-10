@@ -63,7 +63,7 @@ describe('Tabler Icons: standardized local icon system', () => {
       'assets/icons/tabler-sprite.svg']) {
       expect(sw).toContain("'./" + asset + "'");
     }
-    expect(sw).toContain("const CACHE_NAME = CACHE_PREFIX + 'v39';");
+    expect(sw).toContain("const CACHE_NAME = CACHE_PREFIX + 'v40';");
   });
 
   it('preserves logo/favicon and print layout independent of icons', () => {
@@ -80,12 +80,12 @@ describe('Tabler Icons: standardized local icon system', () => {
       'dpu', 'mutasi-masuk', 'siswa-baru', 'ijop-permohonan',
       'ijop-sptjm-satpen', 'ijop-rekomendasi-pengawas',
       'ijop-rekomendasi-kankemenag', 'ijop-sptjm-kankemenag',
-      'rekap-nilai', 'surat-izin',
+      'rekap-nilai', 'surat-izin', 'surat-permohonan-pindah', 'surat-keterangan-pindah',
     ];
     const api = iconApi();
     for (const name of files) {
       const content = read('templates/' + name + '.js');
-      const icons = [...content.matchAll(/\bicon:\s*'([^']+)'/g)].map(x => x[1]);
+      const icons = [...content.matchAll(/(?:['"]?icon['"]?)\s*:\s*['"]([^'"]+)['"]/g)].map(x => x[1]);
       expect(icons.length, name).toBeGreaterThan(0);
       for (const icon of icons) expect(api.names.has(icon), name + ': ' + icon).toBe(true);
     }

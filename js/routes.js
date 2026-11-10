@@ -11,6 +11,8 @@ const Routes = (() => {
     'ijop-sptjm-kankemenag': 'ijop-sptjm-kakankemenag',
     'rekap-nilai': 'rekapitulasi-nilai',
     'surat-izin': 'izin-tidak-masuk',
+    'surat-permohonan-pindah': 'permohonan-pindah-sekolah',
+    'surat-keterangan-pindah': 'keterangan-pindah-sekolah',
   });
   const GROUP_IDS = ['registrasi-dpu', 'ijop', 'pengolahan-nilai', 'surat-menyurat-siswa'];
   const ID_BY_SLUG = Object.fromEntries(

@@ -35,6 +35,8 @@ declare var TemplateIjopRekomendasiKankemenag: any;
 declare var TemplateIjopSptjmKankemenag: any;
 declare var TemplateRekapNilai: any;
 declare var TemplateSuratIzin: any;
+declare var TemplateSuratPermohonanPindah: any;
+declare var TemplateSuratKeteranganPindah: any;
 declare var About: any;
 declare var App: any;
 declare var Routes: any;
