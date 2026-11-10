@@ -412,6 +412,23 @@ const Validation = (() => {
       }
     }
 
+    // Rentang kegiatan harus dimulai paling lambat pada tanggal selesai.
+    // Draf lama tanpa modeTanggal tetap dianggap kegiatan satu hari.
+    if (template.TEMPLATE_ID === 'surat-pemberitahuan-kegiatan') {
+      const kegiatan = formData?.kegiatan || {};
+      if (kegiatan.modeTanggal === 'rentang') {
+        const start = kegiatan.tanggal;
+        const end = kegiatan.tanggalSelesai;
+        if (start && end && isoDate(String(start)).valid && isoDate(String(end)).valid
+            && end < start) {
+          errors.push({
+            field: 'kegiatan.tanggalSelesai',
+            message: 'Tanggal selesai tidak boleh lebih awal daripada tanggal mulai.',
+          });
+        }
+      }
+    }
+
     // Siswa aktif: NISN, periode pendidikan, dan konsistensi tanggal surat.
     if (template.TEMPLATE_ID === 'surat-keterangan-siswa-aktif') {
       const nisnValue = String(getValue(formData, 'siswa.nisn') || '').trim();

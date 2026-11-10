@@ -16,9 +16,9 @@ const TemplateSuratPemberitahuanKegiatan = (() => {
   function createDefaultData() {
     return {
       surat: { nomorSurat: '', kabupatenKota: 'Musi Rawas', tanggalSurat: '' },
-      sekolah: { nama: 'MTs Nurul Falah' },
+      sekolah: { nama: 'MTs Nurul Falah', jenisSatdik: 'Madrasah' },
       kegiatan: {
-        dalamRangka: '', nama: '', tanggal: '', waktu: '',
+        dalamRangka: '', nama: '', modeTanggal: 'tunggal', tanggal: '', tanggalSelesai: '', waktu: '',
         lokasi: '', peserta: '', tujuan: '',
       },
       ketentuanTambahan: [],
@@ -42,6 +42,11 @@ const TemplateSuratPemberitahuanKegiatan = (() => {
     {
       id: 'sekolah', title: 'Sekolah/Madrasah', icon: 'school',
       fields: [
+        { key: 'sekolah.jenisSatdik', label: 'Jenis Satdik', type: 'select', required: false,
+          options: [
+            { value: 'Madrasah', label: 'Madrasah' },
+            { value: 'Sekolah', label: 'Sekolah' },
+          ] },
         { key: 'sekolah.nama', label: 'Nama Sekolah/Madrasah', type: 'text', required: true },
       ],
     },
@@ -50,8 +55,19 @@ const TemplateSuratPemberitahuanKegiatan = (() => {
       fields: [
         { key: 'kegiatan.dalamRangka', label: 'Dalam Rangka', type: 'textarea', required: true, rows: 2 },
         { key: 'kegiatan.nama', label: 'Nama Kegiatan/Acara', type: 'text', required: true },
-        { key: 'kegiatan.tanggal', label: 'Tanggal Kegiatan/Acara', type: 'date', required: true,
+        { key: 'kegiatan.modeTanggal', label: 'Durasi Hari Kegiatan', type: 'select',
+          required: false,
+          options: [
+            { value: 'tunggal', label: 'Satu Hari' },
+            { value: 'rentang', label: 'Rentang Hari' },
+          ],
+          clearDependent: { key: 'kegiatan.tanggalSelesai', keepValue: 'rentang' },
+          hint: 'Pilih Satu Hari atau Rentang Hari sesuai jadwal kegiatan.' },
+        { key: 'kegiatan.tanggal', label: 'Tanggal Kegiatan / Tanggal Mulai', type: 'date', required: true,
           hint: 'Hari kegiatan otomatis mengikuti tanggal yang dipilih.' },
+        { key: 'kegiatan.tanggalSelesai', label: 'Tanggal Selesai', type: 'date', required: true,
+          showIf: data => data?.kegiatan?.modeTanggal === 'rentang',
+          hint: 'Wajib diisi untuk kegiatan yang berlangsung lebih dari satu hari.' },
         { key: 'kegiatan.waktu', label: 'Waktu Mulai (WIB)', type: 'text', required: true,
           placeholder: 'Contoh: 08.00' },
         { key: 'kegiatan.lokasi', label: 'Tempat/Lokasi Kegiatan', type: 'textarea', required: true, rows: 2 },

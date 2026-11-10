@@ -2074,7 +2074,6 @@ const PreviewRenderer = (() => {
     const tanggal = _formatTanggalPanjang(surat.tanggalSurat);
     const tanggalPermohonan = _formatTanggalPanjang(pindah.tanggalPermohonan);
     const namaOrangTua = _esc(pindah.namaOrangTuaWali || '………………………………');
-    const kepalaNama = _esc(kepala.nama || '………………………………');
     const kopHtml = _buildKopHtml(kop);
     return `
       <div class="doc-content doc-content--surat-keterangan-pindah" style="${_renderPindahTextStyle(margin, typo)}">
@@ -2114,8 +2113,7 @@ const PreviewRenderer = (() => {
             <p style="margin:0;">${kota}, ${tanggal}</p>
             <p style="margin:0;">Kepala ${namaSekolah},</p>
             <div style="height:20mm;"></div>
-            <p style="margin:0;font-weight:bold;overflow-wrap:anywhere;">${kepalaNama}</p>
-            ${kepala.nip ? `<p style="margin:2pt 0 0;">NIP. ${_esc(kepala.nip)}</p>` : ''}
+            ${_officialSignerIdentity(kepala.nama, kepala.nip)}
           </div>
         </div>
       </div>`;
@@ -2137,6 +2135,21 @@ const PreviewRenderer = (() => {
       ).join('') + '</table>';
   }
 
+  function _officialSatdik(data) {
+    // Existing drafts lack jenisSatdik, so preserve the legacy Madrasah context.
+    return data?.sekolah?.jenisSatdik === 'Sekolah' ? 'Sekolah' : 'Madrasah';
+  }
+
+  function _officialSignerIdentity(nama, nip) {
+    const text = '<p style="margin:0;font-weight:bold;text-decoration:underline;">'
+      + _officialValue(nama) + '</p>';
+    const nipRow = String(nip || '').trim()
+      ? '<p style="margin:2pt 0 0;">NIP. ' + _officialValue(nip) + '</p>'
+      : '';
+    return '<div class="doc-signature__identity" style="display:inline-block;text-align:left;max-width:100%;overflow-wrap:anywhere;">'
+      + text + nipRow + '</div>';
+  }
+
   function _officialSignature(data) {
     const surat = data?.surat || {};
     const sekolah = data?.sekolah || {};
@@ -2145,10 +2158,9 @@ const PreviewRenderer = (() => {
     return '<div style="display:flex;justify-content:flex-end;margin-top:16pt;break-inside:avoid;page-break-inside:avoid;">'
       + '<div style="min-width:53mm;max-width:80mm;text-align:center;overflow-wrap:anywhere;">'
       + '<p style="margin:0;">' + _officialValue(surat.kabupatenKota) + ', ' + _esc(tanggal) + '</p>'
-      + '<p style="margin:2pt 0 0;">Kepala ' + _officialValue(sekolah.nama) + ',</p>'
-      + '<div style="height:21mm;"></div><p style="font-weight:bold;text-decoration:underline;margin:0;">'
-      + _officialValue(kepala.nama) + '</p>'
-      + (String(kepala.nip || '').trim() ? '<p style="margin:2pt 0 0;">NIP. ' + _officialValue(kepala.nip) + '</p>' : '')
+      + '<p style="margin:2pt 0 0;">Kepala ' + _officialSatdik(data) + ' ' + _officialValue(sekolah.nama) + ',</p>'
+      + '<div style="height:21mm;"></div>'
+      + _officialSignerIdentity(kepala.nama, kepala.nip)
       + '</div></div>';
   }
 
@@ -2168,10 +2180,20 @@ const PreviewRenderer = (() => {
     return ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][date.getUTCDay()];
   }
 
+  function _activityDateLabel(kegiatan) {
+    const start = kegiatan?.tanggal;
+    if (!start) return '…………, ………………………………';
+    const displayStart = _officialWeekday(start) + ', ' + _formatTanggalPanjang(start);
+    if (kegiatan?.modeTanggal !== 'rentang') return displayStart;
+    const end = kegiatan?.tanggalSelesai;
+    if (!end) return displayStart + ' s.d. ………………………………';
+    // Show both weekday names, including for cross-month/year ranges.
+    return displayStart + ' s.d. ' + _officialWeekday(end) + ', ' + _formatTanggalPanjang(end);
+  }
+
   function _renderSuratPemberitahuanKegiatan(data, kop, margin, typo) {
     const surat = data?.surat || {};
     const kegiatan = data?.kegiatan || {};
-    const tanggal = kegiatan.tanggal ? _formatTanggalPanjang(kegiatan.tanggal) : '………………………………';
     const tanggalSurat = surat.tanggalSurat ? _formatTanggalPanjang(surat.tanggalSurat) : '………………………………';
     const waktuRaw = String(kegiatan.waktu || '').trim();
     const waktu = waktuRaw.replace(/^pukul\s*/i, '').replace(/\s*WIB\s*$/i, '') || '…………';
@@ -2179,8 +2201,9 @@ const PreviewRenderer = (() => {
     const validClauses = clauses.filter(item => item && typeof item.teks === 'string' && item.teks.trim());
     const extraClauses = validClauses.length
       ? '<div style="margin:12pt 0 10pt;"><p style="margin:0 0 6pt;">Ketentuan Tambahan/Khusus:</p>'
-      + '<ol style="margin:0;padding-left:16mm;">'
-      + validClauses.map(item => '<li style="margin-bottom:3pt;white-space:pre-line;overflow-wrap:anywhere;">'
+      + '<ol class="doc-activity__conditions" style="list-style-type:decimal;list-style-position:outside;margin:0;padding-left:16mm;">'
+      + validClauses.map((item, index) => '<li value="' + (index + 1)
+        + '" style="display:list-item;list-style-type:decimal;margin-bottom:3pt;white-space:pre-line;overflow-wrap:anywhere;">'
         + _esc(item.teks.trim()) + '</li>').join('') + '</ol></div>'
       : '';
     const header = '<div style="display:flex;justify-content:space-between;gap:12pt;margin:12pt 0 18pt;">'
@@ -2194,6 +2217,7 @@ const PreviewRenderer = (() => {
       + _buildKopHtml(kop) + '<hr class="doc-kop-divider" /><hr class="doc-kop-divider-thin" />'
       + header
       + '<div style="margin-bottom:16pt;"><p style="margin:0;">Yth. Bapak/Ibu Orang Tua/Wali Murid</p>'
+      + '<p style="margin:0;">' + _officialValue(data?.sekolah?.nama) + '</p>'
       + '<p style="margin:0;">di</p><p style="margin:0 0 0 14pt;">Tempat</p></div>'
       + '<p style="margin:0 0 12pt;"><em>Assalamu’alaikum warahmatullahi wabarakatuh.</em></p>'
       + '<p style="margin:0 0 9pt;">Dengan hormat,</p>'
@@ -2201,14 +2225,14 @@ const PreviewRenderer = (() => {
       + ', kami bermaksud menyelenggarakan kegiatan ' + _officialValue(kegiatan.nama)
       + ' yang akan dilaksanakan pada:</p>'
       + _officialRows([
-        ['Hari, Tanggal', _officialWeekday(kegiatan.tanggal) + ', ' + tanggal],
+        ['Hari, Tanggal', _activityDateLabel(kegiatan)],
         ['Waktu', 'Pukul ' + waktu + ' WIB s.d. selesai'],
         ['Tempat', kegiatan.lokasi],
         ['Peserta', kegiatan.peserta],
       ])
       + '<p style="margin:0 0 12pt;text-align:justify;">Adapun kegiatan tersebut bertujuan untuk '
       + _officialValue(kegiatan.tujuan) + '.</p>'
-      + '<p style="margin:0 0 12pt;text-align:justify;">Sehubungan dengan hal tersebut, kami memberitahukan kepada Bapak/Ibu Orang Tua/Wali Siswa agar dapat mengetahui dan mendukung pelaksanaan kegiatan dimaksud, serta memberikan izin kepada putra/putrinya untuk mengikuti kegiatan tersebut sesuai dengan ketentuan yang telah ditetapkan oleh pihak sekolah/madrasah.</p>'
+      + '<p style="margin:0 0 12pt;text-align:justify;">Sehubungan dengan hal tersebut, kami memberitahukan kepada Bapak/Ibu Orang Tua/Wali Siswa agar dapat mengetahui dan mendukung pelaksanaan kegiatan dimaksud, serta memberikan izin kepada putra/putrinya untuk mengikuti kegiatan tersebut sesuai dengan ketentuan yang telah ditetapkan oleh pihak ' + _officialSatdik(data).toLowerCase() + '.</p>'
       + extraClauses
       + '<p style="margin:0 0 12pt;text-align:justify;">Kami mengharapkan perhatian dan kerja sama Bapak/Ibu untuk memastikan putra/putrinya mematuhi ketentuan tersebut demi kelancaran, ketertiban, dan keberhasilan pelaksanaan kegiatan.</p>'
       + '<p style="margin:0 0 12pt;text-align:justify;">Demikian surat pemberitahuan ini kami sampaikan. Atas perhatian, dukungan, dan kerja sama Bapak/Ibu, kami mengucapkan terima kasih.</p>'
@@ -2232,8 +2256,8 @@ const PreviewRenderer = (() => {
       + _officialRows([
         ['Nama', kepala.nama],
         ['NIP', kepala.nip || '—'],
-        ['Jabatan', 'Kepala Sekolah/Madrasah'],
-        ['Nama Sekolah/Madrasah', sekolah.nama],
+        ['Jabatan', 'Kepala ' + _officialSatdik(data)],
+        ['Nama ' + _officialSatdik(data), sekolah.nama],
         ['Alamat', sekolah.alamat],
       ])
       + '<p style="margin:0 0 8pt;">Dengan ini menerangkan bahwa:</p>'
@@ -2246,7 +2270,7 @@ const PreviewRenderer = (() => {
         ['Semester', siswa.semester],
         ['Tahun Pelajaran', siswa.tahunPelajaran],
       ])
-      + '<p style="margin:0 0 12pt;text-align:justify;">Adalah benar siswa yang terdaftar dan <strong>masih berstatus aktif</strong> pada sekolah/madrasah yang saya pimpin serta mengikuti kegiatan pembelajaran sebagaimana mestinya pada tahun pelajaran tersebut.</p>'
+      + '<p style="margin:0 0 12pt;text-align:justify;">Adalah benar siswa yang terdaftar dan <strong>masih berstatus aktif</strong> pada ' + _officialSatdik(data).toLowerCase() + ' yang saya pimpin serta mengikuti kegiatan pembelajaran sebagaimana mestinya pada tahun pelajaran tersebut.</p>'
       + '<p style="margin:0 0 12pt;text-align:justify;">Surat keterangan ini diterbitkan untuk digunakan sebagaimana mestinya sesuai dengan keperluan yang bersangkutan.</p>'
       + '<p style="margin:0 0 12pt;text-align:justify;">Demikian surat keterangan ini dibuat dengan sebenarnya agar dapat dipergunakan sebagaimana mestinya.</p>'
       + _officialSignature(data) + '</div>';
