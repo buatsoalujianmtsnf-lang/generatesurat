@@ -55,7 +55,7 @@ function makeElement(tagName) {
 }
 
 describe('Daftar template dikelompokkan menjadi accordion', () => {
-  it('membagi 14 template menjadi 4 kategori dengan urutan yang diminta', () => {
+  it('membagi 17 template menjadi 4 kategori dengan urutan yang diminta', () => {
     const { registry } = loadRegistry();
     const groups = registry.getGroupedTemplates();
     expect(groups.map(group => group.title)).toEqual([
@@ -70,9 +70,10 @@ describe('Daftar template dikelompokkan menjadi accordion', () => {
         'ijop-rekomendasi-kankemenag', 'ijop-sptjm-kankemenag'],
       ['rekap-nilai'],
       ['surat-izin', 'surat-permohonan-pindah', 'surat-keterangan-pindah',
-        'surat-pemberitahuan-kegiatan', 'surat-keterangan-siswa-aktif'],
+        'surat-pemberitahuan-kegiatan', 'surat-keterangan-siswa-aktif',
+        'surat-panggilan-orang-tua', 'surat-perjanjian-siswa', 'berita-acara-pertemuan-ortu'],
     ]);
-    expect(groups.reduce((total, group) => total + group.templates.length, 0)).toBe(14);
+    expect(groups.reduce((total, group) => total + group.templates.length, 0)).toBe(17);
   });
 
   it('mempertahankan pilihan aktif, dukungan keyboard, dan buka grup yang aktif', () => {
@@ -85,9 +86,9 @@ describe('Daftar template dikelompokkan menjadi accordion', () => {
     const groups = container.querySelectorAll('.template-group');
     expect(groups).toHaveLength(4);
     expect(groups.map(group => group.open)).toEqual([false, false, false, true]);
-    expect(groups.map(group => group.querySelectorAll('.template-card').length)).toEqual([3, 5, 1, 5]);
+    expect(groups.map(group => group.querySelectorAll('.template-card').length)).toEqual([3, 5, 1, 8]);
     const cards = container.querySelectorAll('.template-card');
-    expect(cards).toHaveLength(14);
+    expect(cards).toHaveLength(17);
     const active = cards.find(card => card.dataset.templateId === 'surat-izin');
     expect(active.className).toContain('active');
     expect(active.getAttribute('aria-pressed')).toBe('true');
