@@ -2360,9 +2360,18 @@ const PreviewRenderer = (() => {
 
   function _caseSignCell(title, name, nip, options = {}) {
     const blank = options.blank === undefined ? '20mm' : options.blank;
+    const url = typeof options.signatureDataUrl === 'string'
+      ? TemplateBeritaAcaraPertemuanOrtu.getSignatureDataUrl(options.signatureDataUrl) : '';
+    const img = url
+      ? '<img src="' + _esc(url) + '" alt="' + _esc(options.signatureAlt || 'Tanda tangan')
+        + '" style="display:block;max-width:100%;width:160px;height:40pt;object-fit:contain;" />'
+      : '';
+    const area = url
+      ? '<div style="height:' + blank + ';display:flex;align-items:center;justify-content:center;">' + img + '</div>'
+      : '<div style="height:' + blank + ';"></div>';
     return '<div class="doc-case__sign-cell" style="min-width:0;text-align:center;overflow-wrap:anywhere;break-inside:avoid;page-break-inside:avoid;">'
       + '<p style="margin:0;min-height:2.5em;">' + title + '</p>'
-      + '<div style="height:' + blank + ';"></div>'
+      + area
       + _officialSignerIdentity(name, nip)
       + '</div>';
   }
@@ -2380,9 +2389,15 @@ const PreviewRenderer = (() => {
     const roleName = index => parties[index]?.nama || '';
     const grid = '<div class="doc-case__sign-grid" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:10mm;row-gap:12pt;margin:10pt 0;break-inside:avoid;page-break-inside:avoid;">'
       + _caseSignCell(isMinutes ? roleTitle(0) : 'Mengetahui dan Menyetujui,<br>Orang Tua/Wali Siswa,',
-          isMinutes ? roleName(0) : wali, '')
+          isMinutes ? roleName(0) : wali, '', isMinutes ? {
+            signatureDataUrl: pen.tandaTanganOrangTuaDataUrl,
+            signatureAlt: 'Tanda tangan Orang Tua/Wali Siswa',
+          } : {})
       + _caseSignCell(isMinutes ? roleTitle(1) : 'Siswa yang Bersangkutan,',
-          isMinutes ? roleName(1) : siswa.nama, '')
+          isMinutes ? roleName(1) : siswa.nama, '', isMinutes ? {
+            signatureDataUrl: pen.tandaTanganSiswaDataUrl,
+            signatureAlt: 'Tanda tangan Siswa yang Bersangkutan',
+          } : {})
       + _caseSignCell(isMinutes ? roleTitle(2) : 'Wali Kelas ' + _caseValue(siswa.kelas) + ',',
           isMinutes ? roleName(2) : pen.waliKelas, pen.nipWaliKelas)
       + _caseSignCell(isMinutes ? roleTitle(3) : 'Guru BK/Bidang Kesiswaan,',
