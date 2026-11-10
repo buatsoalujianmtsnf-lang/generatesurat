@@ -85,7 +85,7 @@ describe('Tabler Icons: standardized local icon system', () => {
     const api = iconApi();
     for (const name of files) {
       const content = read('templates/' + name + '.js');
-      const icons = [...content.matchAll(/\bicon:\s*['"]([^'"]+)['"]/g)].map(x => x[1]);
+      const icons = [...content.matchAll(/(?:['"]?icon['"]?)\s*:\s*['"]([^'"]+)['"]/g)].map(x => x[1]);
       expect(icons.length, name).toBeGreaterThan(0);
       for (const icon of icons) expect(api.names.has(icon), name + ': ' + icon).toBe(true);
     }
