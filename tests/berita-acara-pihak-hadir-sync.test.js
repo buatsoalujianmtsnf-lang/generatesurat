@@ -143,6 +143,8 @@ describe('Attendance and signature synchronization in Berita Acara', () => {
     expect(missing.some(x => x.field === 'pihakHadir[1].nama')).toBe(true);
     const signer = tpl.formSections.find(section => section.id === 'penandatangan');
     expect(signer.fields.map(x => x.key)).toEqual([
+      'penandatangan.tandaTanganOrangTuaDataUrl',
+      'penandatangan.tandaTanganSiswaDataUrl',
       'penandatangan.nipWaliKelas',
       'penandatangan.nipGuruBk',
       'penandatangan.nipKepala',
