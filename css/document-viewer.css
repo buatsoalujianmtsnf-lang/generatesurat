@@ -9,14 +9,27 @@
 
 .preview-toolbar {
   min-width: 0;
+  max-width: 100%;
   gap: 10px;
+  /* On narrow editor panes, actions scroll inside the toolbar instead
+     of overflowing into the document or into adjacent controls. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  overscroll-behavior-x: contain;
 }
 
 .preview-toolbar__identity {
-  min-width: 0;
+  min-width: max-content;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.preview-toolbar__actions {
+  flex: 0 0 auto;
+  min-width: max-content;
 }
 
 .viewer-template-label {
@@ -82,8 +95,34 @@
   display: none;
 }
 
-.viewer-focus-toggle {
+/* Unlike the icon-only buttons, this control has a changing text label.
+   Never apply btn-square / .btn-icon fixed width to it. */
+.preview-toolbar__actions .viewer-focus-toggle.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: max-content;
+  min-width: max-content;
+  max-width: none;
+  min-height: 34px;
   margin-left: 2px;
+  padding: 7px 12px;
+  gap: 6px;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.preview-toolbar__actions .viewer-focus-toggle .viewer-focus-label {
+  display: inline-block;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.preview-toolbar__actions .viewer-focus-toggle .ti-icon {
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
 }
 
 .viewer-focus-mode {
@@ -160,12 +199,19 @@
     height: 40px;
   }
 
-  .viewer-focus-label {
+  .preview-toolbar__actions .viewer-focus-toggle .viewer-focus-label {
     display: none;
   }
 
-  .viewer-focus-toggle {
-    flex-shrink: 0;
+  /* Compact control on touch devices: icon-only with accessible aria-label. */
+  .preview-toolbar__actions .viewer-focus-toggle.btn {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0;
+    margin-left: 0;
+    gap: 0;
   }
 }
 
@@ -188,6 +234,13 @@
 }
 
 @media screen and (max-width: 767px) and (orientation: landscape) {
+  .preview-toolbar__actions .viewer-focus-toggle.btn {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+    min-height: 34px;
+  }
+
   .viewer-document-control,
   .viewer-page-input {
     min-height: 34px;
