@@ -155,6 +155,92 @@ describe('Attendance and signature synchronization in Berita Acara', () => {
     expect(read('sw.js')).toContain("CACHE_PREFIX + 'v48'");
   });
 
+
+  it('exposes two independent direct signature fields using the Surat Izin drawing widget', () => {
+    const { tpl } = setup();
+    const data = tpl.createDefaultData();
+    expect(data.penandatangan.tandaTanganOrangTuaDataUrl).toBe('');
+    expect(data.penandatangan.tandaTanganSiswaDataUrl).toBe('');
+    const fields = tpl.formSections.find(section => section.id === 'penandatangan').fields;
+    expect(fields.slice(0, 2).map(field => field.key)).toEqual([
+      'penandatangan.tandaTanganOrangTuaDataUrl',
+      'penandatangan.tandaTanganSiswaDataUrl',
+    ]);
+    for (const field of fields.slice(0, 2)) {
+      expect(field.type).toBe('signature');
+      expect(field.required).toBe(false);
+    }
+    const editor = read('js/form-renderer.js');
+    expect(editor).toContain("case 'signature':");
+    expect(editor).toContain('SignaturePad.mount(group');
+    expect(editor).toContain('onChange: imageData => _saveFieldValue');
+    const signaturePad = read('js/signature-pad.js');
+    expect(signaturePad).toContain("canvas.toDataURL('image/png')");
+    expect(signaturePad).toContain('signature-pad__undo');
+    expect(signaturePad).toContain('signature-pad__redo');
+    expect(signaturePad).toContain('signature-pad__clear');
+  });
+
+  it('renders each saved PNG only inside its matching parent/student signature box', () => {
+    const { tpl, renderer } = setup();
+    const data = tpl.createDefaultData();
+    data.siswa.namaOrangTua = 'Wali Nomor Satu';
+    data.siswa.nama = 'Siswa Nomor Dua';
+    const parentPng = 'data:image/png;base64,iVBORw0KGgo=';
+    const studentPng = 'data:image/png;base64,AAECAwQ=';
+    data.penandatangan.tandaTanganOrangTuaDataUrl = parentPng;
+    data.penandatangan.tandaTanganSiswaDataUrl = studentPng;
+    const html = renderer.buildDocumentHtml(tpl, data, {}, null, null);
+    const signature = html.slice(html.indexOf('class="doc-case__sign-grid"'));
+    const parentIndex = signature.indexOf('src="' + parentPng + '"');
+    const parentName = signature.indexOf('Wali Nomor Satu', parentIndex);
+    const studentIndex = signature.indexOf('src="' + studentPng + '"');
+    const studentName = signature.indexOf('Siswa Nomor Dua', studentIndex);
+    expect(parentIndex).toBeGreaterThan(-1);
+    expect(parentName).toBeGreaterThan(parentIndex);
+    expect(studentIndex).toBeGreaterThan(parentName);
+    expect(studentName).toBeGreaterThan(studentIndex);
+    expect(signature).toContain('alt="Tanda tangan Orang Tua/Wali Siswa"');
+    expect(signature).toContain('alt="Tanda tangan Siswa yang Bersangkutan"');
+    expect(signature.match(/object-fit:contain/g)).toHaveLength(2);
+  });
+
+  it('does not require drawn signatures and retains both manual signing spaces', () => {
+    const { tpl, renderer } = setup();
+    const data = tpl.createDefaultData();
+    const html = renderer.buildDocumentHtml(tpl, data, {}, null, null);
+    const grid = html.slice(html.indexOf('class="doc-case__sign-grid"'));
+    expect(grid).not.toContain('alt="Tanda tangan Orang Tua/Wali Siswa"');
+    expect(grid).not.toContain('alt="Tanda tangan Siswa yang Bersangkutan"');
+    expect((grid.match(/height:20mm/g) || []).length).toBeGreaterThanOrEqual(2);
+    data.penandatangan.tandaTanganOrangTuaDataUrl = 'data:image/png;base64,iVBORw0KGgo=';
+    const partiallySigned = renderer.buildDocumentHtml(tpl, data, {}, null, null);
+    expect(partiallySigned).toContain('alt="Tanda tangan Orang Tua/Wali Siswa"');
+    expect(partiallySigned).not.toContain('alt="Tanda tangan Siswa yang Bersangkutan"');
+  });
+
+  it('does not render malformed, oversized, or injected signature URLs', () => {
+    const { tpl, renderer } = setup();
+    const data = tpl.createDefaultData();
+    const badUrls = [
+      'javascript:alert(1)',
+      'data:image/svg+xml,<svg onload=alert(1)>',
+      'https://example.com/sign.png',
+      'data:image/png;base64,abc" onerror="alert(1)',
+      'data:image/png;base64,' + 'A'.repeat(350001),
+    ];
+    for (const bad of badUrls) {
+      data.penandatangan.tandaTanganOrangTuaDataUrl = bad;
+      data.penandatangan.tandaTanganSiswaDataUrl = bad;
+      expect(tpl.getSignatureDataUrl(bad)).toBe('');
+      const html = renderer.buildDocumentHtml(tpl, data, {}, null, null);
+      expect(html).not.toContain('alt="Tanda tangan Orang Tua/Wali Siswa"');
+      expect(html).not.toContain('alt="Tanda tangan Siswa yang Bersangkutan"');
+      expect(html).not.toContain('src="javascript:');
+      expect(html).not.toContain('<svg onload');
+    }
+  });
+
   it('escapes attendee statuses to prevent HTML injection in PDF and print markup', () => {
     const { tpl, renderer } = setup();
     const data = tpl.createDefaultData();
