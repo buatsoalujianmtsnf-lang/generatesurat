@@ -23,6 +23,8 @@ const REQUIRED_TEMPLATE_IDS = [
   'ijop-sptjm-kankemenag',
   'rekap-nilai',
   'surat-izin',
+  'surat-permohonan-pindah',
+  'surat-keterangan-pindah',
 ];
 
 function loadTemplateRegistry() {
@@ -62,7 +64,7 @@ describe('Application shell integration', () => {
     expect(position('js/icon-init.js')).toBe(scripts.length - 1);
   });
 
-  it('loads and registers all ten runtime templates with unique stable identifiers', () => {
+  it('loads and registers all runtime templates with unique stable identifiers', () => {
     const registry = loadTemplateRegistry();
     const templates = registry.getAll();
     const ids = templates.map(template => template.TEMPLATE_ID);
