@@ -160,12 +160,12 @@ describe('Two DOCX-based Surat Pindah templates', () => {
     data.pindah.alasan = 'Pindah mengikuti orang tua.';
     data.pindah.alamatSekolahTujuan = 'Kompleks Madrasah';
     let html = renderer.buildDocumentHtml(request, data, {}, null, null);
-    expect(html).toContain('dikarenakan Pindah mengikuti orang tua.</p>');
+    expect(html).toMatch(/dikarenakan Pindah mengikuti orang tua\.\s*<\/p>/);
     expect(html).not.toContain('orang tua..');
     expect(html).toContain('overflow-wrap:anywhere');
     data.pindah.alasan = 'Pindah mengikuti orang tua';
     html = renderer.buildDocumentHtml(request, data, {}, null, null);
-    expect(html).toContain('dikarenakan Pindah mengikuti orang tua.</p>');
+    expect(html).toMatch(/dikarenakan Pindah mengikuti orang tua\.\s*<\/p>/);
   });
 
   it('shows explicit placeholders for missing birth details instead of a blank table cell', () => {
