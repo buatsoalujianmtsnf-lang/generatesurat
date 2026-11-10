@@ -239,6 +239,17 @@ describe('Two DOCX-based Surat Pindah templates', () => {
     expect(html).toContain('……………………, ……………………');
   });
 
+  it('aligns the head name and NIP in the moving certificate on one left edge', () => {
+    const { certificate, renderer } = setup();
+    const data = certificate.createDefaultData();
+    data.kepala.nama = 'Nama Kepala Contoh';
+    data.kepala.nip = '197601012006041001';
+    const html = renderer.buildDocumentHtml(certificate, data, {}, null, null);
+    expect(html).toContain('class="doc-signature__identity"');
+    expect(html).toMatch(/doc-signature__identity"[^>]*text-align:left[^>]*>/);
+    expect(html).toMatch(/Nama Kepala Contoh<\/p><p[^>]*>NIP\. 197601012006041001<\/p>/);
+  });
+
   it('escapes user-supplied markup rather than injecting into the letter', () => {
     const { request, renderer } = setup();
     const data = request.createDefaultData();
