@@ -100,7 +100,10 @@ describe('Three student guidance and parent meeting documents', () => {
     expect(extra.itemFactory().id).toMatch(/^kesepakatan-/);
     const data = minutes.createDefaultData();
     data.pertemuan.tanggal = '2026-11-10';
-    data.pihakHadir = Array.from({ length: 8 }, (_, i) => ({ id: 'p' + i, nama: 'Peserta ' + (i + 1), jabatan: 'Peran ' + i }));
+    // Lima posisi penandatangan bersifat tetap; delapan peserta tambahan mengikuti setelahnya.
+    data.pihakHadir.push(...Array.from({ length: 8 }, (_, i) => ({
+      id: 'p' + i, nama: 'Peserta ' + (i + 1), jabatan: 'Peran ' + i,
+    })));
     data.kesepakatanTambahan = [
       { id: 'k1', teks: 'Mengikuti konseling' },
       { id: 'k2', teks: '' },
@@ -108,7 +111,7 @@ describe('Three student guidance and parent meeting documents', () => {
     ];
     const html = renderer.buildDocumentHtml(minutes, data, {}, null, null);
     for (let n = 1; n <= 8; n++) expect(html).toContain('Peserta ' + n);
-    expect(html).toContain('<li value="8"');
+    expect(html).toContain('<li value="13"');
     expect(html).toContain('Mengikuti konseling');
     expect(html).toContain('Evaluasi berkala');
     expect(html).not.toContain('<li value="3">Evaluasi berkala');
@@ -134,7 +137,7 @@ describe('Three student guidance and parent meeting documents', () => {
     expect(html).toContain('kerahasiaan informasi pribadi siswa');
   });
 
-  it('validates 10-digit NISN and date ordering and requires at least one attendee', () => {
+  it('validates NISN, date ordering and required identity of synced attendees', () => {
     const { agreement, minutes, validation } = setup();
     for (const template of [agreement, minutes]) {
       const data = template.createDefaultData();
@@ -147,7 +150,8 @@ describe('Three student guidance and parent meeting documents', () => {
     }
     const data = minutes.createDefaultData();
     const errors = validation.formTemplate(data, minutes).errors;
-    expect(errors.some(err => err.field === 'pihakHadir')).toBe(true);
+    expect(errors.some(err => err.field === 'pihakHadir[0].nama')).toBe(true);
+    expect(errors.some(err => err.field === 'pihakHadir[1].nama')).toBe(true);
   });
 
   it('escapes malicious user content and retains newline formatting', () => {
@@ -172,6 +176,6 @@ describe('Three student guidance and parent meeting documents', () => {
       expect(routes).toContain("'" + id + "'");
       expect(read('js/template-registry.js')).toContain("'" + id + "'");
     }
-    expect(sw).toContain("CACHE_PREFIX + 'v45'");
+    expect(sw).toContain("CACHE_PREFIX + 'v46'");
   });
 });
