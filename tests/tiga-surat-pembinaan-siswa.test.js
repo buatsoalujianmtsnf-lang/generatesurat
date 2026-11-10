@@ -100,7 +100,10 @@ describe('Three student guidance and parent meeting documents', () => {
     expect(extra.itemFactory().id).toMatch(/^kesepakatan-/);
     const data = minutes.createDefaultData();
     data.pertemuan.tanggal = '2026-11-10';
-    data.pihakHadir = Array.from({ length: 8 }, (_, i) => ({ id: 'p' + i, nama: 'Peserta ' + (i + 1), jabatan: 'Peran ' + i }));
+    // Lima posisi penandatangan bersifat tetap; delapan peserta tambahan mengikuti setelahnya.
+    data.pihakHadir.push(...Array.from({ length: 8 }, (_, i) => ({
+      id: 'p' + i, nama: 'Peserta ' + (i + 1), jabatan: 'Peran ' + i,
+    })));
     data.kesepakatanTambahan = [
       { id: 'k1', teks: 'Mengikuti konseling' },
       { id: 'k2', teks: '' },
@@ -108,7 +111,7 @@ describe('Three student guidance and parent meeting documents', () => {
     ];
     const html = renderer.buildDocumentHtml(minutes, data, {}, null, null);
     for (let n = 1; n <= 8; n++) expect(html).toContain('Peserta ' + n);
-    expect(html).toContain('<li value="8"');
+    expect(html).toContain('<li value="13"');
     expect(html).toContain('Mengikuti konseling');
     expect(html).toContain('Evaluasi berkala');
     expect(html).not.toContain('<li value="3">Evaluasi berkala');
