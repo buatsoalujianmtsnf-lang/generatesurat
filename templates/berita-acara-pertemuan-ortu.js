@@ -72,7 +72,9 @@ const TemplateBeritaAcaraPertemuanOrtu = (() => {
     "guruBk": "",
     "nipGuruBk": "",
     "kepala": "",
-    "nipKepala": ""
+    "nipKepala": "",
+    "tandaTanganOrangTuaDataUrl": "",
+    "tandaTanganSiswaDataUrl": ""
   }
 });
   const FIXED_ROLES = [
@@ -439,15 +441,36 @@ const TemplateBeritaAcaraPertemuanOrtu = (() => {
     "title": "H. Tanda Tangan — Nama dan Jabatan Otomatis dari Pihak yang Hadir",
     "icon": "signature",
     "fields": [
+      {
+        "key": "penandatangan.tandaTanganOrangTuaDataUrl",
+        "label": "Tanda Tangan Orang Tua/Wali Siswa",
+        "type": "signature",
+        "required": false,
+        "hint": "Bubuhkan tanda tangan langsung dengan tinta biru melalui jari, stylus, atau mouse. Kosongkan jika akan ditandatangani setelah dicetak."
+      },
+      {
+        "key": "penandatangan.tandaTanganSiswaDataUrl",
+        "label": "Tanda Tangan Siswa yang Bersangkutan",
+        "type": "signature",
+        "required": false,
+        "hint": "Siswa dapat menandatangani langsung dengan tinta biru melalui jari, stylus, atau mouse. Kosongkan untuk tanda tangan manual."
+      },
       { "key": "penandatangan.nipWaliKelas", "label": "NIP Pihak 3 (opsional)", "type": "text", "required": false },
       { "key": "penandatangan.nipGuruBk", "label": "NIP Pihak 4 (opsional)", "type": "text", "required": false },
       { "key": "penandatangan.nipKepala", "label": "NIP Pihak 5 (opsional)", "type": "text", "required": false }
     ]
   }
 ];
+  // Kontrak PNG mengikuti Surat Izin Tidak Masuk / SignaturePad.
+  // Data URL asing dan gambar berukuran berlebihan tidak boleh masuk PDF/Cetak.
+  function getSignatureDataUrl(value) {
+    if (typeof value !== 'string' || value.length > 350000) return '';
+    return /^data:image\/png;base64,[A-Za-z0-9+/]+={0,2}$/.test(value) ? value : '';
+  }
+
   const tableColumns = [];
   return {
-    TEMPLATE_ID, meta, createDefaultData, formSections, tableColumns,
+    TEMPLATE_ID, meta, createDefaultData, formSections, tableColumns, getSignatureDataUrl,
     createPihak, createKesepakatan, getPihakHadir, normalizePihakHadir,
   };
 })();
