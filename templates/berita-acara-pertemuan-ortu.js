@@ -113,7 +113,7 @@ const TemplateBeritaAcaraPertemuanOrtu = (() => {
       const old = raw[index] && typeof raw[index] === 'object' ? raw[index] : {};
       const id = uniqueId(old.id || ['pihak-orang-tua','pihak-siswa','pihak-wali-kelas','pihak-guru-bk','pihak-kepala'][index]);
       const name = index < 2 ? derivedNames[index]
-        : (typeof old.nama === 'string' ? old.nama : String(legacyNames[index] || ''));
+        : (String(old.nama || '').trim() ? String(old.nama) : String(legacyNames[index] || ''));
       const status = index < 2 ? role
         : (typeof old.jabatan === 'string' && old.jabatan.trim() ? old.jabatan : role);
       return { ...old, id, nama: name, jabatan: status };
