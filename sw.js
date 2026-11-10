@@ -3,7 +3,7 @@
    ============================================================= */
 
 const CACHE_PREFIX = 'generator-surat-platform-';
-const CACHE_NAME = CACHE_PREFIX + 'v44';
+const CACHE_NAME = CACHE_PREFIX + 'v45';
 const APP_SHELL = [
   './',
   './index.html',
@@ -50,6 +50,9 @@ const APP_SHELL = [
   './templates/surat-keterangan-pindah.js',
   './templates/surat-pemberitahuan-kegiatan.js',
   './templates/surat-keterangan-siswa-aktif.js',
+  './templates/surat-panggilan-orang-tua.js',
+  './templates/surat-perjanjian-siswa.js',
+  './templates/berita-acara-pertemuan-ortu.js',
   './js/template-registry.js',
   './js/landing.js',
   './js/ui.js',
