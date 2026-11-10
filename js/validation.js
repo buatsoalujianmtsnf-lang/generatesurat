@@ -412,6 +412,31 @@ const Validation = (() => {
       }
     }
 
+    // Siswa aktif: NISN, periode pendidikan, dan konsistensi tanggal surat.
+    if (template.TEMPLATE_ID === 'surat-keterangan-siswa-aktif') {
+      const nisnValue = String(getValue(formData, 'siswa.nisn') || '').trim();
+      if (nisnValue && !/^\d{10}$/.test(nisnValue)) {
+        errors.push({ field: 'siswa.nisn', message: 'NISN harus 10 digit angka.' });
+      }
+      const tahun = String(getValue(formData, 'siswa.tahunPelajaran') || '').trim();
+      const tahunMatch = /^(\d{4})[/-](\d{4})$/.exec(tahun);
+      if (tahun && (!tahunMatch || Number(tahunMatch[2]) !== Number(tahunMatch[1]) + 1)) {
+        errors.push({
+          field: 'siswa.tahunPelajaran',
+          message: 'Tahun Pelajaran harus berformat YYYY/YYYY dengan tahun berurutan.',
+        });
+      }
+      const tanggalSurat = getValue(formData, 'surat.tanggalSurat');
+      const tanggalLahir = getValue(formData, 'siswa.tanggalLahir');
+      if (isoDate(String(tanggalSurat || '')).valid && isoDate(String(tanggalLahir || '')).valid
+          && tanggalSurat && tanggalLahir && tanggalLahir > tanggalSurat) {
+        errors.push({
+          field: 'siswa.tanggalLahir',
+          message: 'Tanggal lahir siswa tidak boleh setelah tanggal surat.',
+        });
+      }
+    }
+
     return { valid: errors.length === 0, errors };
   }
 

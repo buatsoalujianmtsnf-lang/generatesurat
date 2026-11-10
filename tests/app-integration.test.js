@@ -25,6 +25,8 @@ const REQUIRED_TEMPLATE_IDS = [
   'surat-izin',
   'surat-permohonan-pindah',
   'surat-keterangan-pindah',
+  'surat-pemberitahuan-kegiatan',
+  'surat-keterangan-siswa-aktif',
 ];
 
 function loadTemplateRegistry() {
