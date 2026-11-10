@@ -22,7 +22,7 @@ describe('PreviewRenderer pagination policy', () => {
     const templateIds = [...html.matchAll(/<script\b[^>]*src=["']templates\/([^"']+)\.js["']/g)]
       .map(match => match[1]);
 
-    expect(templateIds).toHaveLength(14);
+    expect(templateIds).toHaveLength(17);
     expect(templateIds).toContain('rekap-nilai');
     expect(templateIds).toContain('surat-izin');
     for (const templateId of templateIds) {
