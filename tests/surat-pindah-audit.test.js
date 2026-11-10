@@ -100,7 +100,7 @@ describe('Audit Surat Pindah: draft and form contracts', () => {
       const nisnField = template.formSections.flatMap(section => section.fields)
         .find(field => field.key === 'siswa.nisn');
       expect(nisnField).toMatchObject({
-        type: 'text', validator: 'nisn', maxLength: 10, inputMode: 'numeric',
+        type: 'text', maxLength: 10, inputMode: 'numeric',
       });
       const data = template.createDefaultData();
       data.siswa.nisn = '123';

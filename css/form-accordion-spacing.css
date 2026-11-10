@@ -1,0 +1,87 @@
+/* =============================================================
+   Isi Surat — ritme vertikal untuk kartu accordion
+   Terisolasi pada tab-form; tidak mengubah layout surat/print.
+   ============================================================= */
+#tab-form {
+  --editor-card-gap: 16px;
+  --editor-card-gutter: 16px;
+  --editor-nested-gap: 10px;
+}
+
+/* Setiap accordion utama menjadi kartu terpisah dengan gap konsisten. */
+#tab-form #form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--editor-card-gap);
+  min-width: 0;
+  padding: var(--editor-card-gap) var(--editor-card-gutter);
+  box-sizing: border-box;
+}
+
+#tab-form #form-container > .form-section.card {
+  display: block;
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 14px 16px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Hindari aturan lama .form-section:last-child yang menghapus border bawah. */
+#tab-form #form-container > .form-section.card:last-child {
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Empty state mengikuti gutter yang sama dengan kartu. */
+#tab-form #form-container > .form-empty-state.card {
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+}
+
+/* Item berulang (siswa/peserta) memiliki spasi antar-subkartu yang rapi. */
+#tab-form [id^="repeatable-list-"] {
+  display: grid;
+  gap: var(--editor-nested-gap);
+  min-width: 0;
+}
+
+#tab-form [id^="repeatable-list-"] > .row-entry.card {
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+}
+
+/* Pengaturan Tabel berada di luar form-container: selaraskan secara eksplisit. */
+#tab-form #table-config-mount {
+  min-width: 0;
+  margin: 0 var(--editor-card-gutter) var(--editor-card-gap);
+}
+
+#tab-form #table-config-mount[hidden] {
+  display: none !important;
+  margin: 0;
+}
+
+#tab-form #table-config-mount > .tbl-cfg-accordion {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+@media screen and (max-width: 767px) {
+  #tab-form {
+    --editor-card-gap: 12px;
+    --editor-card-gutter: 12px;
+    --editor-nested-gap: 8px;
+  }
+
+  #tab-form #form-container > .form-section.card {
+    padding: 12px;
+  }
+}

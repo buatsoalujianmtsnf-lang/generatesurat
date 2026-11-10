@@ -104,6 +104,15 @@ const FormRenderer = (() => {
       }
     }
 
+    // Synchronize the attendance list when opening a current or legacy draft.
+    if (typeof tpl.normalizePihakHadir === 'function') {
+      const patch = tpl.normalizePihakHadir(formData);
+      if (patch) {
+        State.setFormData(templateId, patch);
+        formData = State.getFormData(templateId);
+      }
+    }
+
     tpl.formSections.forEach(section => {
       const sectionEl = _buildSection(section, formData, templateId);
       _containerEl.appendChild(sectionEl);
@@ -274,15 +283,17 @@ const FormRenderer = (() => {
     entry.dataset.itemId = item.id;
 
     const labelText = _getItemLabel(section, item, idx);
+    const isProtected = idx < (section.protectedCount || 0);
+    const isSynced = idx < (section.syncedCount || 0);
 
     entry.innerHTML = `
       <div class="row-entry__header collapse-title" role="button" tabindex="0" aria-expanded="true">
         <span class="row-entry__num">${idx + 1}</span>
         <span class="row-entry__label">${Utils.escapeHtml(labelText)}</span>
         <div class="row-entry__actions">
-          <button type="button" class="btn-icon entry-delete-btn btn btn-square btn-ghost btn-sm" title="Hapus" aria-label="Hapus">
+          ${isProtected ? '' : `<button type="button" class="btn-icon entry-delete-btn btn btn-square btn-ghost btn-sm" title="Hapus" aria-label="Hapus">
             <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-trash"></use></svg>
-          </button>
+          </button>`}
         </div>
         <svg class="ti-icon row-entry__chevron" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-chevron-down"></use></svg>
       </div>
@@ -302,12 +313,12 @@ const FormRenderer = (() => {
     };
 
     header.addEventListener('click', (e) => {
-      if (deleteBtn.contains(/** @type {Node} */ (e.target))) return;
+      if (deleteBtn?.contains(/** @type {Node} */ (e.target))) return;
       toggleEntry();
     });
 
     header.addEventListener('keydown', (/** @type {KeyboardEvent} */ e) => {
-      if (deleteBtn.contains(/** @type {Node} */ (e.target))) return;
+      if (deleteBtn?.contains(/** @type {Node} */ (e.target))) return;
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         toggleEntry();
@@ -315,7 +326,7 @@ const FormRenderer = (() => {
     });
 
     // Delete
-    deleteBtn.addEventListener('click', (e) => {
+    deleteBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
       UI.confirm(
         `Hapus ${section.itemLabel || 'Item'} #${idx + 1}`,
@@ -336,7 +347,18 @@ const FormRenderer = (() => {
 
     // Render fields
     _buildFieldsGroup(section.fields, item, templateId, body, item.id, section.id);
-
+    if (isSynced) {
+      for (const key of ['nama', 'jabatan']) {
+        const input = /** @type {HTMLInputElement|null} */ (
+          body.querySelector(`[data-field-key="${key}"] input`)
+        );
+        if (input) {
+          input.readOnly = true;
+          input.setAttribute('aria-readonly', 'true');
+          input.title = 'Terisi otomatis dari identitas siswa';
+        }
+      }
+    }
     return entry;
   }
 
@@ -635,7 +657,18 @@ const FormRenderer = (() => {
       if (fieldDef.clearDependent && value !== fieldDef.clearDependent.keepValue) {
         _setNestedValue(update, fieldDef.clearDependent.key, '');
       }
+      const attendeeIdentityChanged = templateId === 'berita-acara-pertemuan-ortu'
+        && ['siswa.nama', 'siswa.namaOrangTua'].includes(fieldDef.key);
+      // Save identity and derived attendee names in ONE history entry.
+      // Otherwise Undo may revert a derived row without reverting its source.
+      if (attendeeIdentityChanged) {
+        const template = TemplateRegistry.get(templateId);
+        const projected = Utils.deepMerge(current, update);
+        const attendeePatch = template?.normalizePihakHadir?.(projected);
+        if (attendeePatch) Object.assign(update, attendeePatch);
+      }
       State.setFormData(templateId, update);
+      if (attendeeIdentityChanged) _syncBeritaAcaraPihakHadir(templateId);
       if (fieldDef.key === 'header.modePengisian') {
         _syncRekapNilaiMuridFields(templateId);
       }
@@ -647,6 +680,34 @@ const FormRenderer = (() => {
         const body = document.getElementById(`section-body-${section.id}`);
         _syncConditionalFields(section.fields, State.getFormData(templateId), templateId, null, null, body);
       }
+    }
+  }
+
+  /**
+   * Synchronize first two attendees without recreating inputs or accordion state.
+   */
+  function _syncBeritaAcaraPihakHadir(templateId) {
+    const template = TemplateRegistry.get(templateId);
+    if (typeof template?.normalizePihakHadir !== 'function') return;
+    const current = State.getFormData(templateId);
+    const patch = template.normalizePihakHadir(current);
+    if (patch) State.setFormData(templateId, patch);
+    const items = (State.getFormData(templateId)?.pihakHadir || []).slice(0, 2);
+    const list = document.getElementById('repeatable-list-pihakHadir');
+    if (!list) return;
+    for (const [index, item] of items.entries()) {
+      const entry = list.querySelectorAll('.row-entry')[index];
+      if (!entry) continue;
+      for (const key of ['nama', 'jabatan']) {
+        const input = /** @type {HTMLInputElement|null} */ (
+          entry.querySelector(`[data-field-key="${key}"] input`)
+        );
+        if (input && input.value !== item[key]) input.value = item[key];
+      }
+      const label = entry.querySelector('.row-entry__label');
+      if (label) label.textContent = _getItemLabel(
+        template.formSections.find(section => section.id === 'pihakHadir'), item, index
+      );
     }
   }
 

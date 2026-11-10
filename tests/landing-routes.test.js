@@ -43,6 +43,8 @@ describe('Friendly routes and landing page', () => {
       'ijop-rekomendasi-pengawas', 'ijop-rekomendasi-kankemenag',
       'ijop-sptjm-kankemenag', 'rekap-nilai', 'surat-izin',
       'surat-permohonan-pindah', 'surat-keterangan-pindah',
+      'surat-pemberitahuan-kegiatan', 'surat-keterangan-siswa-aktif',
+      'surat-panggilan-orang-tua', 'surat-perjanjian-siswa', 'berita-acara-pertemuan-ortu',
     ];
     const paths = ids.map(id => routes.templateUrl(id));
     expect(new Set(paths).size).toBe(ids.length);

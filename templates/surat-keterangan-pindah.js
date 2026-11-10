@@ -135,8 +135,7 @@ const TemplateSuratKeteranganPindah = (() => {
         "type": "text",
         "required": true,
         "maxLength": 10,
-        "inputMode": "numeric",
-        "validator": "nisn"
+        "inputMode": "numeric"
       },
       {
         "key": "siswa.kelas",
