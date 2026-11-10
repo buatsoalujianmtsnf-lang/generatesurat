@@ -168,8 +168,8 @@ function createPreviewHarness(heights = [350, 350, 350], withTableConfig = false
 }
 
 describe('GS-005: pagination integration across all runtime templates', () => {
-  it('covers the ten real templates loaded by index.html', () => {
-    expect(scripts).toHaveLength(10);
+  it('covers all twelve real templates loaded by index.html', () => {
+    expect(scripts).toHaveLength(12);
     expect(scripts).toContain('templates/rekap-nilai.js');
     expect(scripts).toContain('templates/surat-izin.js');
   });
