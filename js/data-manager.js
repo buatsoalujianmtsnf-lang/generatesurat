@@ -560,9 +560,22 @@ const DataManager = (() => {
         if (!form || typeof form !== 'object' || Array.isArray(form)) {
           return { valid: false, reason: 'Struktur form template ' + templateId + ' tidak valid.' };
         }
-        for (const key of ['siswa', 'peserta']) {
-          if (key in form && form[key] !== undefined && !Array.isArray(form[key])) {
-            return { valid: false, reason: 'Daftar ' + key + ' pada template ' + templateId + ' harus berupa array.' };
+        // Per-template shape validation: student can be an object in letters
+        // and a repeatable array in student enrollment templates.
+        const template = typeof TemplateRegistry !== 'undefined'
+          ? TemplateRegistry.get(templateId) : null;
+        for (const section of template?.formSections || []) {
+          if (!section?.id || !Object.prototype.hasOwnProperty.call(form, section.id)) continue;
+          const value = form[section.id];
+          if (value === undefined) continue; // partial legacy backups
+          if (section.type === 'repeatable') {
+            if (!Array.isArray(value)) {
+              return { valid: false, reason: 'Daftar ' + section.id
+                + ' pada template ' + templateId + ' harus berupa array.' };
+            }
+          } else if (!value || typeof value !== 'object' || Array.isArray(value)) {
+            return { valid: false, reason: 'Bagian ' + section.id
+              + ' pada template ' + templateId + ' harus berupa object.' };
           }
         }
       }

@@ -1965,11 +1965,22 @@ const PreviewRenderer = (() => {
   }
 
   /* ── Surat pindah: memakai data dan redaksi dari dokumen DOCX acuan. ── */
+  // Do not render malformed imported dates as arbitrary unescaped text.
+  function _formatPindahDate(value) {
+    const raw = String(value ?? '');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return '……………………';
+    const [year, month, day] = raw.split('-').map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1
+        || date.getUTCDate() !== day) return '……………………';
+    return _formatTanggalPanjang(raw);
+  }
+
   function _renderPindahIdentityRows(siswa, includeSchool = false, schoolName = '') {
     const value = input => _esc(input || '………………………………');
     const born = [
       siswa.tempatLahir || '……………………',
-      siswa.tanggalLahir ? _formatTanggalPanjang(siswa.tanggalLahir) : '……………………',
+      siswa.tanggalLahir ? _formatPindahDate(siswa.tanggalLahir) : '……………………',
     ].join(', ');
     const entries = [
       ['Nama Lengkap', siswa.namaLengkap],
@@ -2019,7 +2030,7 @@ const PreviewRenderer = (() => {
     const pengirim = data?.pengirim || {};
     const namaSekolah = _esc(sekolah.nama || '………………………………');
     const kota = _esc(surat.kota || '……………………');
-    const tanggalSurat = _formatTanggalPanjang(surat.tanggalSurat);
+    const tanggalSurat = _formatPindahDate(surat.tanggalSurat);
     const namaTujuan = _esc(pindah.sekolahTujuan || '………………………………');
     const alamatTujuan = _esc(pindah.alamatSekolahTujuan || '………………………………');
     const alasanMentah = String(pindah.alasan || '').trim().replace(/\s+/g, ' ');
@@ -2077,8 +2088,8 @@ const PreviewRenderer = (() => {
     const namaSekolah = _esc(sekolah.nama || '………………………………');
     const lokasi = _esc(sekolah.kelurahanDesa || '……………………');
     const kota = _esc(surat.kota || '……………………');
-    const tanggal = _formatTanggalPanjang(surat.tanggalSurat);
-    const tanggalPermohonan = _formatTanggalPanjang(pindah.tanggalPermohonan);
+    const tanggal = _formatPindahDate(surat.tanggalSurat);
+    const tanggalPermohonan = _formatPindahDate(pindah.tanggalPermohonan);
     const namaOrangTua = _esc(pindah.namaOrangTuaWali || '………………………………');
     const kopHtml = _buildKopHtml(kop);
     return `
