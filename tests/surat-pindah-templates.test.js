@@ -116,6 +116,64 @@ describe('Two DOCX-based Surat Pindah templates', () => {
     }
   });
 
+  it('rejects malformed NISN but accepts a valid 10-digit value in both letters', () => {
+    const { request, certificate, validation } = setup();
+    for (const template of [request, certificate]) {
+      const data = template.createDefaultData();
+      data.siswa.nisn = '00012345';
+      expect(validation.formTemplate(data, template).errors.some(e =>
+        e.field === 'siswa.nisn' && e.message.includes('10 digit'))).toBe(true);
+      data.siswa.nisn = '0123456789';
+      expect(validation.formTemplate(data, template).errors.some(e =>
+        e.field === 'siswa.nisn')).toBe(false);
+      data.siswa.nisn = '12345a7890';
+      expect(validation.formTemplate(data, template).errors.some(e =>
+        e.field === 'siswa.nisn')).toBe(true);
+    }
+  });
+
+  it('rejects inconsistent chronological dates while allowing same-day documents', () => {
+    const { request, certificate, validation } = setup();
+    for (const template of [request, certificate]) {
+      const data = template.createDefaultData();
+      data.surat.tanggalSurat = '2026-11-10';
+      data.siswa.tanggalLahir = '2026-11-11';
+      expect(validation.formTemplate(data, template).errors.some(e =>
+        e.field === 'siswa.tanggalLahir')).toBe(true);
+      data.siswa.tanggalLahir = '2012-11-10';
+      expect(validation.formTemplate(data, template).errors.some(e =>
+        e.field === 'siswa.tanggalLahir')).toBe(false);
+    }
+    const data = certificate.createDefaultData();
+    data.surat.tanggalSurat = '2026-11-10';
+    data.pindah.tanggalPermohonan = '2026-11-11';
+    expect(validation.formTemplate(data, certificate).errors.some(e =>
+      e.field === 'pindah.tanggalPermohonan')).toBe(true);
+    data.pindah.tanggalPermohonan = '2026-11-10';
+    expect(validation.formTemplate(data, certificate).errors.some(e =>
+      e.field === 'pindah.tanggalPermohonan')).toBe(false);
+  });
+
+  it('renders a single period and keeps long text inside the paper content', () => {
+    const { request, renderer } = setup();
+    const data = request.createDefaultData();
+    data.pindah.alasan = 'Pindah mengikuti orang tua.';
+    data.pindah.alamatSekolahTujuan = 'Kompleks Madrasah';
+    let html = renderer.buildDocumentHtml(request, data, {}, null, null);
+    expect(html).toContain('dikarenakan Pindah mengikuti orang tua.</p>');
+    expect(html).not.toContain('orang tua..');
+    expect(html).toContain('overflow-wrap:anywhere');
+    data.pindah.alasan = 'Pindah mengikuti orang tua';
+    html = renderer.buildDocumentHtml(request, data, {}, null, null);
+    expect(html).toContain('dikarenakan Pindah mengikuti orang tua.</p>');
+  });
+
+  it('shows explicit placeholders for missing birth details instead of a blank table cell', () => {
+    const { request, renderer } = setup();
+    const html = renderer.buildDocumentHtml(request, request.createDefaultData(), {}, null, null);
+    expect(html).toContain('……………………, ……………………');
+  });
+
   it('escapes user-supplied markup rather than injecting into the letter', () => {
     const { request, renderer } = setup();
     const data = request.createDefaultData();
