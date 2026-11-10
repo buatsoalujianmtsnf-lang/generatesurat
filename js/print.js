@@ -13,47 +13,60 @@ const Print = (() => {
   const STYLE_ID = 'print-page-style';
 
   /* ── Cetak surat ── */
+  let _printing = false;
+
   async function printDocument() {
-    // Input, settings, KOP, dan preview memiliki debounce sendiri. Untuk aksi
-    // kritis, flush semua perubahan yang masih tertunda agar State menjadi
-    // sumber data terbaru sebelum validasi/cetak.
-    if (typeof Utils.flushDebounces === 'function') {
-      Utils.flushDebounces();
-    }
+    if (_printing) return false;
+
+    // Flush first: validasi, layout, dan data yang dicetak harus konsisten.
+    if (typeof Utils.flushDebounces === 'function') Utils.flushDebounces();
 
     const templateId = State.getActiveTemplate();
     if (!templateId) {
       UI.toast('Pilih template surat terlebih dahulu.', 'warning');
-      return;
+      return false;
     }
-
     const tpl = TemplateRegistry.get(templateId);
     if (!tpl) {
       UI.toast('Template tidak ditemukan.', 'error');
-      return;
+      return false;
     }
-
-    const formData = State.getFormData(templateId);
-    if (!formData) {
+    if (!State.getFormData(templateId)) {
       UI.toast('Data surat belum diisi.', 'warning');
-      return;
+      return false;
     }
 
-    // Untuk template multi-page, tunggu DOM pagination selesai. Ini mencegah
-    // window.print() mengambil DOM sementara setelah perubahan terakhir.
-    if (typeof PreviewRenderer !== 'undefined' && typeof PreviewRenderer.waitForReady === 'function') {
-      await PreviewRenderer.waitForReady();
+    _printing = true;
+    try {
+      // Pagination harus selesai sebelum mengambil DOM cetak.
+      if (typeof PreviewRenderer !== 'undefined' && typeof PreviewRenderer.waitForReady === 'function') {
+        await PreviewRenderer.waitForReady();
+      }
+      if (State.getActiveTemplate() !== templateId) {
+        UI.toast('Template berubah saat mempersiapkan cetak. Coba kembali.', 'warning');
+        return false;
+      }
+      if (typeof window.print !== 'function') {
+        UI.toast('Browser ini tidak mendukung dialog cetak.', 'error');
+        return false;
+      }
+
+      _applyPageStyle();
+
+      // Panggil langsung setelah preview siap. Menunda lagi dengan timer
+      // dapat kehilangan user activation (terutama browser mobile).
+      window.print();
+      return true;
+    } catch (error) {
+      console.error('[Print] Gagal membuka dialog cetak:', error);
+      UI.toast('Tidak dapat membuka dialog cetak. Periksa browser atau coba lagi.', 'error');
+      return false;
+    } finally {
+      _printing = false;
+      // Pada browser yang memblokir atau mengabaikan afterprint, cleanup
+      // tetap berjalan agar style @page tidak tertinggal di aplikasi.
+      setTimeout(_cleanupPageStyle, 5000);
     }
-
-    _applyPageStyle();
-
-    // Beri browser frame untuk menerapkan style print sebelum membuka dialog.
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        window.print();
-        setTimeout(_cleanupPageStyle, 1500);
-      }, 150);
-    });
   }
 
   /* ── Bangun dan injeksi @page style dari State.settings ── */
