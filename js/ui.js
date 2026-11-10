@@ -117,7 +117,10 @@ const UI = (() => {
       });
     }
 
+    // daisyUI v5 requires .modal-open; removing .hidden alone only changes display,
+    // leaving the modal invisible / without pointer events.
     overlay.classList.remove('hidden');
+    overlay.classList.add('modal-open');
     overlay.setAttribute('aria-hidden', 'false');
 
     // Close handlers
@@ -160,6 +163,7 @@ const UI = (() => {
     const { overlay } = _getModalEls();
     if (!overlay) return;
 
+    overlay.classList.remove('modal-open');
     overlay.classList.add('hidden');
     overlay.setAttribute('aria-hidden', 'true');
 
