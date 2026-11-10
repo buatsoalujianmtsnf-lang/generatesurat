@@ -349,7 +349,9 @@ const FormRenderer = (() => {
     _buildFieldsGroup(section.fields, item, templateId, body, item.id, section.id);
     if (isSynced) {
       for (const key of ['nama', 'jabatan']) {
-        const input = body.querySelector(`[data-field-key="${key}"] input`);
+        const input = /** @type {HTMLInputElement|null} */ (
+          body.querySelector(`[data-field-key="${key}"] input`)
+        );
         if (input) {
           input.readOnly = true;
           input.setAttribute('aria-readonly', 'true');
@@ -696,7 +698,9 @@ const FormRenderer = (() => {
       const entry = list.querySelectorAll('.row-entry')[index];
       if (!entry) continue;
       for (const key of ['nama', 'jabatan']) {
-        const input = entry.querySelector(`[data-field-key="${key}"] input`);
+        const input = /** @type {HTMLInputElement|null} */ (
+          entry.querySelector(`[data-field-key="${key}"] input`)
+        );
         if (input && input.value !== item[key]) input.value = item[key];
       }
       const label = entry.querySelector('.row-entry__label');
