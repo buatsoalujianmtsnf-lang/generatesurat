@@ -14,9 +14,24 @@ html[data-theme="dark"] {
 }
 /* Preserve existing client-side modal state and overlay layout.
    A native daisyUI dialog cannot replace this div without rewriting UI.showModal. */
-#modal-overlay.modal { position: fixed; inset: 0; overflow: auto; }
-#modal-overlay.modal.hidden { display: none !important; }
-#modal-overlay.modal:not(.hidden) { display: flex; }
+#modal-overlay.modal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  overflow: auto;
+}
+#modal-overlay.modal.hidden {
+  display: none !important;
+  pointer-events: none;
+}
+/* Active modal must beat daisyUI's default hidden/inert modal state.
+   UI.showModal toggles modal-open AND hidden as one synchronized transition. */
+#modal-overlay.modal.modal-open:not(.hidden) {
+  display: flex;
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
 #modal-overlay > .modal-box { max-width: min(94vw, 720px); width: 100%; margin: auto; }
 #modal-overlay .modal-action { display:flex; flex-wrap:wrap; gap:.6rem; justify-content:flex-end; }
 /* DaisyUI toast is a fixed-position stack; our existing notification item is

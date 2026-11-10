@@ -303,10 +303,12 @@ const App = (() => {
 
   /* ── Handler Reset ── */
   function _handleReset() {
+    // Reset aktif hanya setelah pengguna memilih tombol konfirmasi.
     // @ts-ignore
-    AppStorage.clear();
+    const quickStorageCleared = AppStorage.clear();
+    let draftClearResult = null;
     if (typeof DataManager !== 'undefined' && typeof DataManager.clearAllDrafts === 'function') {
-      DataManager.clearAllDrafts();
+      draftClearResult = DataManager.clearAllDrafts();
     }
     State.reset();
 
@@ -325,7 +327,11 @@ const App = (() => {
     UI.hideExpiredBanner();
     if (typeof Settings !== 'undefined') Settings.updateStorageStatus();
 
-    UI.toast('Data berhasil direset.', 'info');
+    if (quickStorageCleared === false || draftClearResult?.success === false) {
+      UI.toast('Data editor direset, tetapi sebagian data tersimpan belum berhasil dihapus. Periksa penyimpanan browser.', 'warning', 6500);
+    } else {
+      UI.toast('Data editor dan draft tersimpan berhasil direset.', 'success');
+    }
   }
 
   /* ── Handler data expired ── */
