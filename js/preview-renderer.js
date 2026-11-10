@@ -2362,18 +2362,27 @@ const PreviewRenderer = (() => {
     const wali = isMinutes ? siswa.namaOrangTua : data?.orangTua?.nama;
     const school = _caseValue(data?.sekolah?.nama);
     const headTitle = 'Kepala ' + _officialSatdik(data) + ' ' + school + ',';
+    // Berita Acara: all names and titles originate from the effective attendance
+    // list, not the old penandatangan name copies. Perjanjian remains unchanged.
+    const parties = isMinutes ? TemplateBeritaAcaraPertemuanOrtu.getPihakHadir(data) : [];
+    const roleTitle = index => _caseValue(parties[index]?.jabatan) + ',';
+    const roleName = index => parties[index]?.nama || '';
     const grid = '<div class="doc-case__sign-grid" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:10mm;row-gap:12pt;margin:10pt 0;break-inside:avoid;page-break-inside:avoid;">'
-      + _caseSignCell(isMinutes ? 'Orang Tua/Wali Siswa,' : 'Mengetahui dan Menyetujui,<br>Orang Tua/Wali Siswa,', wali, '')
-      + _caseSignCell('Siswa yang Bersangkutan,', siswa.nama, '')
-      + _caseSignCell('Wali Kelas ' + _caseValue(siswa.kelas) + ',', pen.waliKelas, pen.nipWaliKelas)
-      + _caseSignCell('Guru BK/Bidang Kesiswaan,', pen.guruBk, pen.nipGuruBk)
+      + _caseSignCell(isMinutes ? roleTitle(0) : 'Mengetahui dan Menyetujui,<br>Orang Tua/Wali Siswa,',
+          isMinutes ? roleName(0) : wali, '')
+      + _caseSignCell(isMinutes ? roleTitle(1) : 'Siswa yang Bersangkutan,',
+          isMinutes ? roleName(1) : siswa.nama, '')
+      + _caseSignCell(isMinutes ? roleTitle(2) : 'Wali Kelas ' + _caseValue(siswa.kelas) + ',',
+          isMinutes ? roleName(2) : pen.waliKelas, pen.nipWaliKelas)
+      + _caseSignCell(isMinutes ? roleTitle(3) : 'Guru BK/Bidang Kesiswaan,',
+          isMinutes ? roleName(3) : pen.guruBk, pen.nipGuruBk)
       + '</div>';
     return grid + '<div style="display:flex;justify-content:center;margin:12pt 0;break-inside:avoid;page-break-inside:avoid;">'
       + '<div style="text-align:center;min-width:55mm;max-width:90mm;">'
       + '<p style="margin:0;">' + (isMinutes ? 'Mengetahui,' : 'Mengesahkan,') + '</p>'
-      + '<p style="margin:0;">' + headTitle + '</p>'
+      + '<p style="margin:0;">' + (isMinutes ? roleTitle(4) : headTitle) + '</p>'
       + '<div style="height:20mm;"></div>'
-      + _officialSignerIdentity(pen.kepala, pen.nipKepala)
+      + _officialSignerIdentity(isMinutes ? roleName(4) : pen.kepala, pen.nipKepala)
       + '</div></div>';
   }
 
@@ -2489,7 +2498,7 @@ const PreviewRenderer = (() => {
     const k = data?.klarifikasi || {};
     const tindak = data?.tindakLanjut || {};
     const satuan = _officialSatdik(data).toLowerCase();
-    const pihak = Array.isArray(data?.pihakHadir) ? data.pihakHadir : [];
+    const pihak = TemplateBeritaAcaraPertemuanOrtu.getPihakHadir(data);
     const hadir = pihak.filter(item => item && (String(item.nama || '').trim() || String(item.jabatan || '').trim()));
     const extra = Array.isArray(data?.kesepakatanTambahan) ? data.kesepakatanTambahan
       .filter(item => item && String(item.teks || '').trim()).map(item => _caseValue(item.teks)) : [];
