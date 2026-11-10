@@ -654,11 +654,18 @@ const FormRenderer = (() => {
       if (fieldDef.clearDependent && value !== fieldDef.clearDependent.keepValue) {
         _setNestedValue(update, fieldDef.clearDependent.key, '');
       }
-      State.setFormData(templateId, update);
-      if (templateId === 'berita-acara-pertemuan-ortu'
-          && ['siswa.nama', 'siswa.namaOrangTua'].includes(fieldDef.key)) {
-        _syncBeritaAcaraPihakHadir(templateId);
+      const attendeeIdentityChanged = templateId === 'berita-acara-pertemuan-ortu'
+        && ['siswa.nama', 'siswa.namaOrangTua'].includes(fieldDef.key);
+      // Save identity and derived attendee names in ONE history entry.
+      // Otherwise Undo may revert a derived row without reverting its source.
+      if (attendeeIdentityChanged) {
+        const template = TemplateRegistry.get(templateId);
+        const projected = Utils.deepMerge(current, update);
+        const attendeePatch = template?.normalizePihakHadir?.(projected);
+        if (attendeePatch) Object.assign(update, attendeePatch);
       }
+      State.setFormData(templateId, update);
+      if (attendeeIdentityChanged) _syncBeritaAcaraPihakHadir(templateId);
       if (fieldDef.key === 'header.modePengisian') {
         _syncRekapNilaiMuridFields(templateId);
       }
