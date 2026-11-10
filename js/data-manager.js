@@ -560,9 +560,31 @@ const DataManager = (() => {
         if (!form || typeof form !== 'object' || Array.isArray(form)) {
           return { valid: false, reason: 'Struktur form template ' + templateId + ' tidak valid.' };
         }
-        for (const key of ['siswa', 'peserta']) {
-          if (key in form && form[key] !== undefined && !Array.isArray(form[key])) {
-            return { valid: false, reason: 'Daftar ' + key + ' pada template ' + templateId + ' harus berupa array.' };
+        // Setiap section mengikuti kontrak template, bukan asumsi nama field.
+        // "siswa" pada surat pindah adalah object tunggal; pada template
+        // registrasi, "siswa" justru merupakan daftar repeatable.
+        const template = typeof TemplateRegistry !== 'undefined'
+          ? TemplateRegistry.get(templateId) : null;
+        for (const section of template?.formSections || []) {
+          if (!section || !section.id || !Object.prototype.hasOwnProperty.call(form, section.id)) {
+            continue;
+          }
+          const value = form[section.id];
+          // Section yang tidak tersimpan pada backup lama boleh tidak ada,
+          // tetapi jika ada, bentuk datanya harus sesuai tipe section.
+          if (value === undefined) continue;
+          if (section.type === 'repeatable') {
+            if (!Array.isArray(value)) {
+              return {
+                valid: false,
+                reason: 'Daftar ' + section.id + ' pada template ' + templateId + ' harus berupa array.',
+              };
+            }
+          } else if (!value || typeof value !== 'object' || Array.isArray(value)) {
+            return {
+              valid: false,
+              reason: 'Bagian ' + section.id + ' pada template ' + templateId + ' harus berupa object.',
+            };
           }
         }
       }
