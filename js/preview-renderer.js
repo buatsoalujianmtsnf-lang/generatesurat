@@ -1988,7 +1988,7 @@ const PreviewRenderer = (() => {
       + entries.map(([label, value]) =>
         '<tr><td style="width:39%;vertical-align:top;padding:3pt 0 3pt 14mm;">'
         + _esc(label) + '</td><td style="width:5%;vertical-align:top;text-align:center;padding:3pt 0;">:</td>'
-        + '<td style="vertical-align:top;overflow-wrap:anywhere;padding:3pt 0;">'
+        + '<td style="vertical-align:top;white-space:pre-line;overflow-wrap:anywhere;padding:3pt 0;">'
         + _esc(value || '………………………………') + '</td></tr>'
       ).join('') + '</table>';
   }
