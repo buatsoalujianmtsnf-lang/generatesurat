@@ -385,6 +385,33 @@ const Validation = (() => {
       section.fields.forEach(fieldDef => validateField(fieldDef, formData));
     });
 
+    // Dua surat pindah memerlukan validasi lintas-field sebelum PDF/Cetak.
+    const isPindah = template.TEMPLATE_ID === 'surat-permohonan-pindah'
+      || template.TEMPLATE_ID === 'surat-keterangan-pindah';
+    if (isPindah) {
+      const nisnValue = getValue(formData, 'siswa.nisn');
+      if (nisnValue !== undefined && nisnValue !== null
+          && String(nisnValue).trim() !== ''
+          && !/^\d{10}$/.test(String(nisnValue).trim())) {
+        errors.push({ field: 'siswa.nisn', message: 'NISN harus 10 digit angka.' });
+      }
+      const issued = getValue(formData, 'surat.tanggalSurat');
+      const born = getValue(formData, 'siswa.tanggalLahir');
+      const validDate = value => typeof value === 'string'
+        && value !== '' && isoDate(value).valid;
+      if (validDate(issued) && validDate(born) && born > issued) {
+        errors.push({ field: 'siswa.tanggalLahir',
+          message: 'Tanggal lahir siswa tidak boleh setelah tanggal surat.' });
+      }
+      if (template.TEMPLATE_ID === 'surat-keterangan-pindah') {
+        const requested = getValue(formData, 'pindah.tanggalPermohonan');
+        if (validDate(issued) && validDate(requested) && requested > issued) {
+          errors.push({ field: 'pindah.tanggalPermohonan',
+            message: 'Tanggal permohonan orang tua/wali tidak boleh setelah tanggal surat keterangan.' });
+        }
+      }
+    }
+
     return { valid: errors.length === 0, errors };
   }
 
