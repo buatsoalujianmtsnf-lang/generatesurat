@@ -46,6 +46,6 @@ describe('Mobile editor navbar actions', () => {
   });
 
   it('refreshes the offline PWA shell for the navbar change', () => {
-    expect(read('sw.js')).toContain("CACHE_PREFIX + 'v42'");
+    expect(read('sw.js')).toContain("CACHE_PREFIX + 'v43'");
   });
 });
