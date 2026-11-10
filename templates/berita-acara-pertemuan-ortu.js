@@ -213,7 +213,7 @@ const TemplateBeritaAcaraPertemuanOrtu = (() => {
     "icon": "user",
     "type": "repeatable",
     "itemLabel": "Pihak yang Hadir",
-    "itemFactory": "createPihak",
+    itemFactory: createPihak,
     "required": true,
     "fields": [
       {
@@ -298,7 +298,7 @@ const TemplateBeritaAcaraPertemuanOrtu = (() => {
     "icon": "file-text",
     "type": "repeatable",
     "itemLabel": "Kesepakatan",
-    "itemFactory": "createKesepakatan",
+    itemFactory: createKesepakatan,
     "required": false,
     "fields": [
       {
