@@ -37,6 +37,8 @@ declare var TemplateRekapNilai: any;
 declare var TemplateSuratIzin: any;
 declare var TemplateSuratPermohonanPindah: any;
 declare var TemplateSuratKeteranganPindah: any;
+declare var TemplateSuratPemberitahuanKegiatan: any;
+declare var TemplateSuratKeteranganSiswaAktif: any;
 declare var About: any;
 declare var App: any;
 declare var Routes: any;
