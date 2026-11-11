@@ -1,8 +1,26 @@
-/* Landing page – isolated from the existing document editor */
-html[data-route-page="landing"] body {
-  overflow-x: hidden;
+/* Landing page scroll is independent from the full-viewport editor. */
+html[data-route-page="landing"] {
+  height: auto;
+  min-height: 100%;
+  overflow-x: clip;
   overflow-y: auto;
+  scroll-behavior: smooth;
+  scroll-padding-top: 16px;
+}
+html[data-route-page="landing"] body {
+  height: auto;
+  min-height: 100vh;
   min-height: 100svh;
+  overflow-x: clip;
+  overflow-y: visible;
+  overscroll-behavior-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+html[data-route-page="landing"] #landing-page {
+  position: relative;
+  height: auto;
+  min-height: 100svh;
+  overflow: visible;
 }
 html[data-route-page="landing"] #app,
 html[data-route-page="landing"] #modal-overlay,
@@ -20,7 +38,7 @@ html[data-route-page="editor"] #landing-page { display: none !important; }
   line-height: 1.6;
   color: var(--color-text);
   background: var(--color-bg);
-  overflow: clip;
+  overflow: visible;
 }
 .lp *, .lp *::before, .lp *::after { box-sizing: border-box; }
 .lp a { color: inherit; text-decoration: none; }
