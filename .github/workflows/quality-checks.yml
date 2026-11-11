@@ -152,3 +152,28 @@ jobs:
           path: artifacts/mon09/baseline.json
           if-no-files-found: warn
           retention-days: 14
+
+  pp04-browser:
+    name: PP-04 isolated Chromium preview protection UAT
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Verify Preview Surat protection on desktop, tablet and mobile emulation
+        run: npm run test:pp04:browser
+      - name: Archive dummy-only screenshot, Chromium print and UAT summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pp04-preview-protection-uat
+          path: artifacts/pp04-browser/
+          if-no-files-found: warn
+          retention-days: 14
