@@ -208,20 +208,32 @@
     min-height: max(0px, calc(100dvh - var(--header-height)));
     overflow: visible;
   }
+  /* The real zoom stage contributes thousands of layout pixels. Keep the
+     preview panel bound to the screen so the INNER #preview-viewport scrolls
+     instead of stretching the entire app/document shell. */
   #editor-drawer > .drawer-content {
     display: flex;
     width: 100%;
-    height: auto;
-    min-height: max(360px, calc(100dvh - var(--header-height)));
+    height: max(0px, calc(100dvh - var(--drawer-header-offset, var(--header-height))));
+    min-height: 0;
+    max-height: max(0px, calc(100dvh - var(--drawer-header-offset, var(--header-height))));
     overflow: hidden;
   }
   #editor-drawer > .drawer-content > .preview-panel {
     display: flex !important;
     flex: 1 1 auto;
     width: 100%;
-    min-height: max(360px, calc(100dvh - var(--header-height)));
-    height: auto;
-    max-height: none;
+    min-height: 0;
+    height: 100%;
+    max-height: 100%;
+    overflow: hidden;
+  }
+  #editor-drawer .preview-viewport {
+    flex: 1 1 auto;
+    height: 0;
+    min-height: 0;
+    overflow-x: auto;
+    overflow-y: auto;
   }
   #editor-drawer > .drawer-side,
   #editor-drawer[data-open="false"] > .drawer-side {
