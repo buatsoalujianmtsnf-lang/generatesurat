@@ -14,7 +14,10 @@
   <meta property="og:url" content="https://generatesuratku.vercel.app/tentang" />
   <meta name="theme-color" content="#1e3a5f" />
   <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg" />
+  <script src="/js/theme-init.js"></script>
   <link rel="stylesheet" href="/css/public-content.css" />
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/public-theme.js" defer></script>
   <!-- Share the app's local URL mapping; Vercel canonical URLs remain unchanged. -->
   <script src="/js/routes.js" defer></script>
 </head>
@@ -22,7 +25,7 @@
 <a class="skip" href="#konten-utama">Lewati navigasi ke konten</a>
 <header class="header"><div class="shell header-inner">
   <a class="brand" href="/"><img src="/assets/icons/logo.svg" alt="" width="34" height="34" />Generate Suratku</a>
-  <nav class="links" aria-label="Navigasi halaman publik"><a href="/">Beranda</a><a href="/panduan">Panduan</a><a href="/faq">FAQ</a><a href="/tentang" aria-current="page">Tentang</a><a class="cta" href="/editor">Buka Editor</a></nav>
+  <nav class="links" aria-label="Navigasi halaman publik"><a href="/">Beranda</a><a href="/panduan">Panduan</a><a href="/faq">FAQ</a><a href="/tentang" aria-current="page">Tentang</a><a class="cta" href="/editor">Buka Editor</a><button type="button" id="btn-theme-toggle" class="theme-toggle" data-theme="auto" title="Ganti tema tampilan" aria-label="Ganti tema tampilan"><span class="theme-toggle__icon" aria-hidden="true">◐</span><span class="theme-toggle__text">Tema</span></button></nav>
 </div></header>
 <main id="konten-utama" class="shell">
   <p class="breadcrumb"><a href="/">Beranda</a> / Tentang Generate Suratku</p>
