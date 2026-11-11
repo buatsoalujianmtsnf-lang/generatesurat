@@ -18,6 +18,7 @@ class FakeElement {
     this.textContent = '';
     this.value = '';
     this.focused = false;
+    this.open = false;
   }
   appendChild(el) { this.children.push(el); return el; }
   setAttribute(name, value) { this.attributes.set(name, String(value)); }
@@ -112,7 +113,7 @@ describe('Arc-inspired UI modernization', () => {
   it('pre-caches its own local stylesheet and increments PWA version', () => {
     const sw = read('sw.js');
     expect(sw).toContain("'./css/arc-inspired.css'");
-    expect(sw).toContain("CACHE_PREFIX + 'v60'");
+    expect(sw).toContain("CACHE_PREFIX + 'v61'");
     expect(sw).toContain("'./css/print.css'");
     expect(sw).toContain("'./css/daisyui-adapter.css'");
     expect(sw).not.toContain('uiarc.dev/r/');
@@ -126,6 +127,26 @@ describe('Arc-inspired UI modernization', () => {
     expect(html).toContain('class="arc-skip arc-skip--editor"');
     expect(html).toContain('id="koleksi"');
     expect(html).toContain('id="editor-panel"');
+  });
+
+  it('wraps every group card in a collapsed native accordion with nested templates', () => {
+    const app = bootLanding();
+    const groups = app.root.querySelectorAll('.lp-group');
+    expect(groups).toHaveLength(1);
+    const group = groups[0];
+    const accordions = group.querySelectorAll('.lp-group__accordion');
+    expect(accordions).toHaveLength(1);
+    const accordion = accordions[0];
+    expect(accordion.tagName).toBe('DETAILS');
+    expect(accordion.open).toBe(false);
+    expect(accordion.children[0].tagName).toBe('SUMMARY');
+    expect(accordion.querySelectorAll('.lp-group__body')).toHaveLength(1);
+    expect(accordion.querySelectorAll('.lp-template')).toHaveLength(2);
+    expect(accordion.querySelectorAll('.lp-group__link')).toHaveLength(1);
+    expect(accordion.querySelectorAll('.lp-group__link')[0].attributes.get('href'))
+      .toBe('/kategori/surat-menyurat-siswa');
+    expect(read('css/landing.css')).toContain('.lp-group__accordion > .lp-group__heading:focus-visible');
+    expect(read('css/landing.css')).toContain('.lp-group__accordion[open]');
   });
 
   it('renders each landing template as a collapsed, keyboard-friendly accordion', () => {
@@ -159,8 +180,11 @@ describe('Arc-inspired UI modernization', () => {
     expect(cards[1].hidden).toBe(false);
     expect(app.clear.hidden).toBe(false);
     expect(app.status.textContent).toContain('1 template ditemukan');
+    const groupAccordion = app.root.querySelectorAll('.lp-group__accordion')[0];
+    expect(groupAccordion.open).toBe(true);
     app.clear.emit('click');
     expect(app.search.value).toBe('');
+    expect(groupAccordion.open).toBe(false);
     expect(cards.every(el => !el.hidden)).toBe(true);
     expect(app.status.textContent).toContain('Pilih template');
     expect(app.document.activeElement).toBe(app.search);

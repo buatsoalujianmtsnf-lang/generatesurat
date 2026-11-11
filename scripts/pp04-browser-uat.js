@@ -177,8 +177,10 @@ try {
       templateCount: TemplateRegistry.count(),
       statusBadgeHidden: document.getElementById('preview-protection-status').hidden,
     }));
-    check(initial.flag === 'off' && !initial.status.enabled && initial.statusBadgeHidden,
-      device.name + ': feature must default OFF');
+    check(initial.flag === 'on' && initial.status.enabled
+      && initial.status.mode === 'strict' && initial.status.interactionsProtected
+      && initial.statusBadgeHidden,
+      device.name + ': preview protection must be active in strict mode by default');
     check(initial.templateCount === 18, device.name + ': expected 18 registered templates');
 
     // The real app preview/render/pagination pipeline on dummy default form data.
@@ -374,14 +376,116 @@ try {
         path: resolve(output, device.name + '-watermark.png'), fullPage: false,
       });
     }
+
+    // Landing UAT on the real browser: five native group-level accordions
+    // remain collapsed until activated; template-level details remain nested.
+    // Separate tab avoids the editor's unsaved-draft beforeunload dialog.
+    const landingPage = await browser.newPage();
+    await landingPage.setViewport({
+      width: device.width, height: device.height,
+      isMobile: device.isMobile, hasTouch: device.isMobile, deviceScaleFactor: 1,
+    });
+    await landingPage.setBypassServiceWorker(true);
+    await landingPage.setRequestInterception(true);
+    landingPage.on('request', req => {
+      if (new URL(req.url()).origin !== origin) { void req.abort(); return; }
+      void req.continue();
+    });
+    await landingPage.goto(origin + '/', { waitUntil: 'domcontentloaded', timeout: 35000 });
+    await landingPage.waitForFunction(() =>
+      document.querySelectorAll('#lp-template-groups > .lp-group').length === 5,
+    { timeout: 20000 });
+    const landingBaseline = await landingPage.evaluate(() => {
+      const groups = [...document.querySelectorAll('#lp-template-groups > .lp-group')];
+      const accordions = groups.map(group => group.querySelector('.lp-group__accordion'));
+      return {
+        groups: groups.length,
+        groupAccordions: accordions.length,
+        allNative: accordions.every(details => details?.tagName === 'DETAILS'
+          && details.firstElementChild?.tagName === 'SUMMARY'),
+        allClosed: accordions.every(details => details && !details.open),
+        nestedTemplates: groups.reduce((n, group) => n + group.querySelectorAll('.lp-template').length, 0),
+        nestedClosed: [...document.querySelectorAll('#lp-template-groups .lp-template')]
+          .every(details => !details.open),
+        groupLinks: groups.every(group => !!group.querySelector('.lp-group__link[href]')),
+        overflowPx: Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
+      };
+    });
+    check(landingBaseline.groups === 5 && landingBaseline.groupAccordions === 5
+      && landingBaseline.allNative && landingBaseline.allClosed
+      && landingBaseline.nestedTemplates === 18 && landingBaseline.nestedClosed
+      && landingBaseline.groupLinks,
+      device.name + ': landing group accordion baseline failed: ' + JSON.stringify(landingBaseline));
+    check(landingBaseline.overflowPx <= 24,
+      device.name + ': landing page has horizontal overflow ' + landingBaseline.overflowPx);
+
+    // Actual keyboard Enter toggles the group without navigating.
+    const firstSummary = await landingPage.$('#lp-template-groups .lp-group__accordion > summary');
+    check(Boolean(firstSummary), device.name + ': landing group summary not found');
+    await firstSummary.focus();
+    await landingPage.keyboard.press('Enter');
+    const afterEnter = await landingPage.evaluate(() =>
+      document.querySelector('#lp-template-groups .lp-group__accordion').open
+    );
+    check(afterEnter, device.name + ': pressing Enter did not open group');
+    await landingPage.keyboard.press('Enter');
+    const afterSecondEnter = await landingPage.evaluate(() =>
+      document.querySelector('#lp-template-groups .lp-group__accordion').open
+    );
+    check(!afterSecondEnter, device.name + ': pressing Enter did not collapse group');
+
+    // Search makes matching groups visible/open; clearing restores collapse.
+    const searched = await landingPage.evaluate(() => {
+      const search = document.getElementById('lp-template-search');
+      search.value = 'surat izin';
+      search.dispatchEvent(new Event('input', { bubbles: true }));
+      const groups = [...document.querySelectorAll('#lp-template-groups > .lp-group')];
+      const visible = groups.filter(group => !group.hidden);
+      return {
+        visibleGroups: visible.length,
+        openMatching: visible.every(group => group.querySelector('.lp-group__accordion')?.open),
+        matchedTemplates: visible.reduce((n, group) =>
+          n + [...group.querySelectorAll('.lp-template')].filter(card => !card.hidden).length, 0),
+      };
+    });
+    check(searched.visibleGroups >= 1 && searched.openMatching
+      && searched.matchedTemplates >= 1,
+      device.name + ': search did not reveal nested matches ' + JSON.stringify(searched));
+
+    const cleared = await landingPage.evaluate(() => {
+      const search = document.getElementById('lp-template-search');
+      search.value = '';
+      search.dispatchEvent(new Event('input', { bubbles: true }));
+      const groups = [...document.querySelectorAll('#lp-template-groups > .lp-group')];
+      return {
+        allVisible: groups.every(group => !group.hidden),
+        allCollapsed: groups.every(group => !group.querySelector('.lp-group__accordion')?.open),
+        allTemplatesVisible: [...document.querySelectorAll('#lp-template-groups .lp-template')]
+          .every(card => !card.hidden),
+      };
+    });
+    check(cleared.allVisible && cleared.allCollapsed && cleared.allTemplatesVisible,
+      device.name + ': clearing search did not restore collapsed category cards');
+    if (device.name === 'mobile-portrait') {
+      await landingPage.evaluate(() => document.getElementById('koleksi').scrollIntoView());
+      await landingPage.screenshot({
+        path: resolve(output, 'mobile-landing-group-accordion.png'), fullPage: false,
+      });
+    }
+
+    await landingPage.close();
     report.viewports.push({
       name: device.name, viewport: device.width + 'x' + device.height,
       status: 'PASS', pages: geometry.pageCount,
-      initialDisabled: true, watermarkAligned: true,
+      initialEnabled: true, watermarkAligned: true,
       strictMaskRestores: true, standardMode: true,
       interactionsScoped: true, exportedPayloadClean: true,
       serverSponsorGatePreserved: 'client guard only; server covered by existing suites',
-      printLayerHidden: true, pageErrors: [],
+      printLayerHidden: true,
+      landingGroupAccordions: landingBaseline.groupAccordions,
+      landingTemplates: landingBaseline.nestedTemplates,
+      landingSearch: true,
+      pageErrors: [],
     });
     console.info('[PP04 UAT PASS]', device.name, JSON.stringify({
       pages: geometry.pageCount, maxGeometryErrorPx: geometry.maxGeometryErrorPx,

@@ -153,6 +153,25 @@ html[data-route-page="editor"] #landing-page { display: none !important; }
 .lp-group__headline h3 {font-size:18px;margin:0 0 4px;line-height:1.25;letter-spacing:-.015em;}
 .lp-group__headline p {font-size:12px;color:var(--color-text-secondary);margin:0;line-height:1.5;}
 .lp-group__count {flex:none;background:var(--color-surface-2);border-radius:100px;padding:3px 8px;font-size:10px;white-space:nowrap;color:var(--color-text-secondary);}
+/* Accessible nested accordion for each group card; native details/summary. */
+.lp-group__accordion {display:block;min-width:0;width:100%;}
+.lp-group__accordion > .lp-group__heading {
+  display:flex;align-items:center;gap:13px;min-width:0;width:100%;
+  min-height:48px;padding:0;border:0;cursor:pointer;list-style:none;
+}
+.lp-group__accordion > .lp-group__heading::-webkit-details-marker {display:none;}
+.lp-group__accordion > .lp-group__heading::marker {content:'';}
+.lp-group__accordion > .lp-group__heading:focus-visible {
+  outline:3px solid var(--lp-blue);outline-offset:6px;border-radius:10px;
+}
+.lp-group__chevron {
+  flex:none;display:inline-flex;align-items:center;justify-content:center;
+  width:24px;height:24px;border-radius:50%;color:var(--lp-blue);
+  font-size:22px;line-height:1;transition:transform .2s ease;
+}
+.lp-group__accordion[open] > .lp-group__heading .lp-group__chevron {transform:rotate(180deg);}
+.lp-group__body {min-width:0;margin-top:16px;padding-top:10px;border-top:1px solid var(--color-border);}
+.lp-group__body > .lp-group__link {margin-top:8px;}
 .lp-group__templates {display:flex;flex-direction:column;gap:5px;padding:16px 0;}
 .lp-template {display:block;min-width:0;padding:0;border-radius:12px;overflow:hidden;transition:background .2s;}
 .lp-template:hover, .lp-template[open] {background:var(--color-surface-2);}
