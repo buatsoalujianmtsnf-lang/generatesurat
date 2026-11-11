@@ -597,6 +597,14 @@ try {
         editorClass: document.documentElement.dataset.routePage,
         rootInk: getComputedStyle(document.documentElement).getPropertyValue('--arc-ui-ink'),
         rootSurface: getComputedStyle(document.documentElement).getPropertyValue('--arc-ui-surface'),
+        titleInk: getComputedStyle(title).getPropertyValue('--arc-ui-ink'),
+        headerSurface: getComputedStyle(header).getPropertyValue('--arc-ui-surface'),
+        isPrintMedia: matchMedia('print').matches,
+        declaredBrand: [...document.styleSheets].filter(x => x.href?.includes('arc-inspired')).flatMap(x =>
+          [...x.cssRules].filter(rule => rule.selectorText?.includes('.app-header__brand .app-header__title'))
+            .map(rule => ({ selector:rule.selectorText, color:rule.style.color,
+              priority:rule.style.getPropertyPriority('color') }))
+        ),
         selectorMatch: title.matches('html[data-theme="dark"] .app-header .app-header__brand .app-header__title'),
         arcCssSheets: [...document.styleSheets].filter(x => x.href?.includes('arc-inspired')).map(x => ({
           href:x.href, disabled:x.disabled, rules:x.cssRules?.length || 0,
