@@ -35,7 +35,7 @@ describe('Preview Fokus/Keluar Fokus layout regression', () => {
 
   it('refreshes cached stylesheet for installed PWA users', () => {
     const sw = read('sw.js');
-    expect(sw).toContain("CACHE_PREFIX + 'v54'");
+    expect(sw).toContain("CACHE_PREFIX + 'v55'");
     expect(sw).toContain("'./css/document-viewer.css'");
   });
 });
