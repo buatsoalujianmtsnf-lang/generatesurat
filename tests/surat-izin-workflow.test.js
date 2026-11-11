@@ -54,6 +54,7 @@ function createHarness(usesKop) {
     Print: print,
     PdfExport: pdf,
     IzinDeclaration: consent,
+    SponsorExportGate: { run: vi.fn((_opts, invoke) => { invoke(null); return true; }) },
   };
   runInNewContext(source, context);
   const workflow = runInNewContext('Workflow', context);

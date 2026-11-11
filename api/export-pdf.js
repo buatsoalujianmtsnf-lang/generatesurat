@@ -13,6 +13,7 @@ import {
   validateContentLength,
   validatePdfPayload,
 } from './export-pdf-security.js';
+import { verifyPdfSponsorReceipt } from './sponsor-export-authorization.js';
 
 const MAX_HTML_BYTES = 3 * 1024 * 1024;
 const MAX_CSS_BYTES = 2 * 1024 * 1024;
@@ -107,7 +108,7 @@ export default async function handler(req, res) {
 
   res.setHeader('Access-Control-Allow-Origin', requestOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, X-Requested-With');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, X-Requested-With, X-Sponsor-Receipt');
   res.setHeader('Vary', 'Origin');
 
   if (req.method === 'OPTIONS') return res.status(204).end();
@@ -184,6 +185,13 @@ export default async function handler(req, res) {
       return res.status(503).json({
         error: 'Antrean ekspor PDF sedang penuh. Silakan coba kembali.',
       });
+    }
+
+    // SERVER AUTHORITY: direct POST /api/export-pdf cannot skip video when enabled.
+    // Consume the one-use PDF receipt atomically BEFORE starting Chromium.
+    const sponsorGrant = await verifyPdfSponsorReceipt(req.headers['x-sponsor-receipt']);
+    if (!sponsorGrant.ok) {
+      return res.status(sponsorGrant.status).json({ error: sponsorGrant.error });
     }
 
     activeRenders += 1;

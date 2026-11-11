@@ -3,7 +3,7 @@
    ============================================================= */
 
 const CACHE_PREFIX = 'generator-surat-platform-';
-const CACHE_NAME = CACHE_PREFIX + 'v52';
+const CACHE_NAME = CACHE_PREFIX + 'v53';
 const APP_SHELL = [
   './',
   './index.html',
@@ -72,6 +72,7 @@ const APP_SHELL = [
   './js/pdf-export.js',
   './js/sponsor-video-state.js',
   './js/sponsor-video-modal.js',
+  './js/sponsor-export-gate.js',
   './js/data-manager.js',
   './js/settings.js',
   './js/izin-declaration.js',

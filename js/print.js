@@ -15,7 +15,15 @@ const Print = (() => {
   /* ── Cetak surat ── */
   let _printing = false;
 
-  async function printDocument() {
+  /** @param {{sponsorAuthorized?: boolean}} [options] */
+  async function printDocument({ sponsorAuthorized = false } = {}) {
+    // Client-side only: browser menus/devtools cannot be reliably stopped.
+    // Server-authorized receipt is checked before this flag is set by MON-05.
+    if (typeof SponsorExportGate !== 'undefined' && SponsorExportGate.isRequired()
+      && sponsorAuthorized !== true) {
+      UI.toast('Tonton iklan sponsor melalui tombol Cetak sebelum melanjutkan.', 'warning');
+      return false;
+    }
     if (_printing) return false;
 
     // Flush first: validasi, layout, dan data yang dicetak harus konsisten.
@@ -55,7 +63,15 @@ const Print = (() => {
 
       // Panggil langsung setelah preview siap. Menunda lagi dengan timer
       // dapat kehilangan user activation (terutama browser mobile).
-      window.print();
+      if (typeof SponsorExportGate !== 'undefined' && SponsorExportGate.isRequired()) {
+        document.documentElement.dataset.sponsorPrintAuthorized = 'true';
+      }
+      try {
+        window.print();
+      } finally {
+        // Never leave an authorization marker behind for a later print action.
+        delete document.documentElement.dataset.sponsorPrintAuthorized;
+      }
       return true;
     } catch (error) {
       console.error('[Print] Gagal membuka dialog cetak:', error);
