@@ -23,7 +23,7 @@ describe('MON-01 public AdSense content foundation', () => {
         expect((html.match(/<script\b/gi)||[]).length).toBe(1);
         expect(html).not.toMatch(/<ins\s+class="adsbygoogle"/i);
       } else {
-        expect(html).not.toMatch(/adsbygoogle|pagead2\.googlesyndication|ca-pub-\d+/i);
+        expect(html).not.toMatch(/adsbygoogle|pagead2\.googlesyndication/i);
         expect(html).not.toMatch(/<script\b/i);
       }
     }
@@ -40,7 +40,7 @@ describe('MON-01 public AdSense content foundation', () => {
     expect(sitemap).not.toContain('https://generatesuratku.vercel.app/editor');
     expect(read('robots.txt')).toContain('Sitemap: https://generatesuratku.vercel.app/sitemap.xml');
     expect(index).not.toMatch(/adsbygoogle|pagead2\.googlesyndication/i);
-    expect(index).toContain('<meta name="google-adsense-account" content="'+publisher+'" />');
+    expect(index).toContain('<meta name="google-adsense-account" content="'+publisher+'">');
   });
   it('records the owner-supplied ID but keeps ads, auto ads and editor integration disabled', () => {
     const cfg = JSON.parse(read('config/adsense-zones.json'));

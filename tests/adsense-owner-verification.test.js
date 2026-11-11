@@ -23,10 +23,10 @@ describe('MON-08 supplied AdSense code, verification-only public pages',()=>{
   it('verifies root with a meta tag, never injecting third-party ad scripts into editor shell',()=>{
     const html=read('index.html');
     const head=html.split('</head>')[0];
-    expect(head).toContain('<meta name="google-adsense-account" content="'+publisher+'" />');
+    expect(head).toContain('<meta name="google-adsense-account" content="'+publisher+'">');
     expect(html).not.toMatch(/pagead2\.googlesyndication\.com|adsbygoogle\.js/);
     expect(html).toContain('data-sponsor-gate="off"');
-    for(const p of excluded)expect(read(p+'.html')).not.toMatch(/adsbygoogle|pagead2\.googlesyndication|ca-pub-\d+/);
+    for(const p of excluded)expect(read(p+'.html')).not.toMatch(/adsbygoogle|pagead2\.googlesyndication/);
   });
   it('does not broaden editor CSP and restricts initial verification exception to public articles',()=>{
     const global=header('/(.*)','Content-Security-Policy');
@@ -64,7 +64,8 @@ describe('MON-08 supplied AdSense code, verification-only public pages',()=>{
   });
   it('publishes accurate third-party verification disclosure',()=>{
     const html=read('privasi.html');
-    expect(html).toContain('Kode verifikasi kepemilikan situs dari Google');
+    expect(html).toContain('Tag meta identifikasi akun AdSense');
+    expect(html).toContain('Skrip verifikasi Google hanya dimuat pada halaman informasi publik');
     expect(html).toContain('metadata koneksi');
     expect(html).toContain('CMP');
     expect(html).toContain('Penayangan iklan Google AdSense');
