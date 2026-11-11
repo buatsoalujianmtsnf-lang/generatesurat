@@ -101,6 +101,9 @@ const App = (() => {
       Workflow.init();
     }
 
+    /* MON-05. Handler Ctrl+P/Cmd+P only in required mode. */
+    if (typeof SponsorExportGate !== "undefined") SponsorExportGate.init();
+
     /* 12. Bind header action buttons */
     _bindHeaderButtons();
 

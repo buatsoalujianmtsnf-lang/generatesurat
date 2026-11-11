@@ -306,57 +306,71 @@ const Workflow = (() => {
     return errors;
   }
 
-  function preparePrint() {
-    // Pastikan perubahan input/settings yang masih dalam debounce sudah masuk
-    // ke State sebelum preflight validation membaca data.
-    if (typeof Utils.flushDebounces === 'function') {
-      Utils.flushDebounces();
+  function _continueExport(action, source, templateId) {
+    if (typeof SponsorExportGate === 'undefined'
+      || typeof SponsorExportGate.run !== 'function') {
+      UI.toast('Pengelola ekspor tidak tersedia. Muat ulang aplikasi.', 'error');
+      return false;
     }
-
-    const errors = _collectPrintChecks();
-
-    if (errors.length === 0) {
-      if (typeof Print === 'undefined' || typeof Print.printDocument !== 'function') {
-        UI.toast('Fitur cetak belum siap. Silakan coba lagi.', 'error');
+    return SponsorExportGate.run({action, source}, grant => {
+      // User may change fields while the 15s video is playing: revalidate.
+      if (typeof Utils.flushDebounces === 'function') Utils.flushDebounces();
+      if (State.getActiveTemplate() !== templateId) {
+        UI.toast('Template berubah selama persiapan ekspor. Silakan mulai ulang.', 'warning');
         return false;
       }
-      if (State.getActiveTemplate() === 'surat-izin') {
-        // Fail closed: surat izin tidak dapat dicetak sebelum pernyataan disetujui.
-        return typeof IzinDeclaration !== 'undefined'
-          && IzinDeclaration.request('print', () => Print.printDocument());
+      const errors = _collectPrintChecks();
+      if (errors.length) {
+        _showDocumentIssues(errors, action === 'print' ? 'mencetak' : 'mengekspor PDF');
+        return false;
       }
-      Print.printDocument();
-      return true;
-    }
+      if (action === 'print') {
+        return Print.printDocument(grant ? {sponsorAuthorized:true} : {});
+      }
+      return PdfExport.exportDocument(grant ? {sponsorReceipt:grant.receipt} : {});
+    });
+  }
 
-    _showDocumentIssues(errors, 'mencetak');
-    return false;
+  function preparePrint(source = 'button') {
+    // Preflight -> special permission if Surat Izin -> sponsor -> print.
+    if (typeof Utils.flushDebounces === 'function') Utils.flushDebounces();
+    const errors = _collectPrintChecks();
+    if (errors.length) {
+      _showDocumentIssues(errors, 'mencetak');
+      return false;
+    }
+    if (typeof Print === 'undefined' || typeof Print.printDocument !== 'function') {
+      UI.toast('Fitur cetak belum siap. Silakan coba lagi.', 'error');
+      return false;
+    }
+    const templateId = State.getActiveTemplate();
+    const proceed = () => _continueExport('print', source, templateId);
+    if (templateId === 'surat-izin') {
+      // The parent/guardian declaration is still required on EVERY action.
+      return typeof IzinDeclaration !== 'undefined'
+        && IzinDeclaration.request('print', proceed);
+    }
+    return proceed();
   }
 
   function preparePdf() {
-    // Gunakan preflight yang sama seperti Cetak agar PDF tidak dibuat dari
-    // dokumen yang belum lengkap/valid.
-    if (typeof Utils.flushDebounces === 'function') {
-      Utils.flushDebounces();
-    }
-
+    if (typeof Utils.flushDebounces === 'function') Utils.flushDebounces();
     const errors = _collectPrintChecks();
-
-    if (errors.length === 0) {
-      if (typeof PdfExport === 'undefined' || typeof PdfExport.exportDocument !== 'function') {
-        UI.toast('Fitur ekspor PDF belum siap. Periksa koneksi internet lalu coba lagi.', 'error');
-        return false;
-      }
-      if (State.getActiveTemplate() === 'surat-izin') {
-        return typeof IzinDeclaration !== 'undefined'
-          && IzinDeclaration.request('pdf', () => PdfExport.exportDocument());
-      }
-      PdfExport.exportDocument();
-      return true;
+    if (errors.length) {
+      _showDocumentIssues(errors, 'mengekspor PDF');
+      return false;
     }
-
-    _showDocumentIssues(errors, 'mengekspor PDF');
-    return false;
+    if (typeof PdfExport === 'undefined' || typeof PdfExport.exportDocument !== 'function') {
+      UI.toast('Fitur ekspor PDF belum siap. Periksa koneksi internet lalu coba lagi.', 'error');
+      return false;
+    }
+    const templateId = State.getActiveTemplate();
+    const proceed = () => _continueExport('pdf', 'button', templateId);
+    if (templateId === 'surat-izin') {
+      return typeof IzinDeclaration !== 'undefined'
+        && IzinDeclaration.request('pdf', proceed);
+    }
+    return proceed();
   }
 
   function _showDocumentIssues(errors, actionLabel) {

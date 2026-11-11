@@ -77,3 +77,12 @@ declare var SponsorVideoModal: {
   cancel(): void;
   getState(): string;
 };
+
+/** MON-05 export gate and keyboard shortcut controller. */
+declare var SponsorExportGate: {
+  init():void;
+  run(options:{action:'print'|'pdf';source?:'button'|'keyboard'},invoke:(grant:{receipt:string,expiresAt:number}|null)=>unknown):boolean;
+  isRequired():boolean;
+  isPending():boolean;
+  onKeyboard(event:KeyboardEvent):void;
+};

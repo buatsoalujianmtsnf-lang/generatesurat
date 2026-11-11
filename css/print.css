@@ -436,3 +436,21 @@
 }
 
 /* ── Print page orientation: portrait/landscape handled via JS window.print() call ── */
+
+/* MON-05: best-effort safeguard for native Ctrl/Cmd+P and browser Print menu.
+ * Does not prevent screenshots, DevTools or custom browser implementations. */
+@media print {
+  html[data-sponsor-gate="required"]:not([data-sponsor-print-authorized="true"]) #surat-preview,
+  html[data-sponsor-gate="required"]:not([data-sponsor-print-authorized="true"]) .surat-page {
+    display: none !important;
+  }
+  html[data-sponsor-gate="required"]:not([data-sponsor-print-authorized="true"]) body::after {
+    content: "Gunakan tombol Cetak pada Generate Suratku dan selesaikan video sponsor terlebih dahulu.";
+    display: block !important;
+    margin: 24mm auto;
+    padding: 10mm;
+    color: #111;
+    font-size: 12pt;
+    text-align: center;
+  }
+}

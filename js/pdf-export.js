@@ -115,8 +115,14 @@ const PdfExport = (() => {
     if (label) label.textContent = isExporting ? 'Membuat PDF…' : 'PDF';
   }
 
-  async function exportDocument() {
+  /** @param {{sponsorReceipt?: string|null}} [options] */
+  async function exportDocument({ sponsorReceipt = null } = {}) {
     if (_exporting) return false;
+    if (typeof SponsorExportGate !== 'undefined' && SponsorExportGate.isRequired()
+      && (typeof sponsorReceipt !== 'string' || !/^[A-Za-z0-9_-]{40,90}$/.test(sponsorReceipt))) {
+      UI.toast('Selesaikan video sponsor sebelum mengunduh PDF.', 'warning');
+      return false;
+    }
 
     // @ts-ignore
     if (typeof Utils.flushDebounces === 'function') {
@@ -177,6 +183,7 @@ const PdfExport = (() => {
           'Content-Type': 'application/json',
           'Accept': 'application/pdf, application/json',
           'X-Requested-With': 'XMLHttpRequest',
+          ...(sponsorReceipt ? { 'X-Sponsor-Receipt': sponsorReceipt } : {}),
         },
         // Pastikan cookie/credentials tidak ikut terkirim ke endpoint PDF
         credentials: 'same-origin',
