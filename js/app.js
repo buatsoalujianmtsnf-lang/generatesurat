@@ -107,7 +107,7 @@ const App = (() => {
     /* 12. Bind header action buttons */
     _bindHeaderButtons();
 
-    /* 12a. Init About / tampilkan informasi wajib pada kunjungan pertama */
+    /* 12a. Init tombol Tentang / About (tanpa modal otomatis) */
     if (typeof About !== 'undefined') {
       About.init();
     }

@@ -6,31 +6,12 @@
 
 const About = (() => {
 
-  const CONSENT_KEY = 'generator-surat-about-consent-v1';
-
   let _initialized = false;
 
   const WA_NUMBER = '6283167428682';
   const WA_URL = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
     'Halo Kak Randi, saya ingin berkonsultasi tentang Generate Suratku.'
   )}`;
-
-  function _hasAccepted() {
-    try {
-      return localStorage.getItem(CONSENT_KEY) === 'accepted';
-    } catch {
-      return false;
-    }
-  }
-
-  function _saveAcceptance() {
-    try {
-      localStorage.setItem(CONSENT_KEY, 'accepted');
-      return true;
-    } catch {
-      return false;
-    }
-  }
 
   function _section(icon, title, content, open = false) {
     return `
@@ -44,28 +25,7 @@ const About = (() => {
       </details>`;
   }
 
-  function _buildBody({ firstVisit = false } = {}) {
-    const consentMarkup = firstVisit
-      ? `
-        <div class="about-consent-box">
-          <label class="about-consent">
-            <input id="about-consent-checkbox" type="checkbox" />
-            <span>
-              Saya sudah membaca dan menyetujui <strong>Syarat &amp; Ketentuan penggunaan aplikasi ini</strong>.
-            </span>
-          </label>
-          <p class="about-consent__hint">
-            Persetujuan ini disimpan di browser/perangkat Anda dan bukan merupakan akun. Data formulir
-            dikelola di browser; saat Anda menggunakan Ekspor PDF, HTML/CSS preview yang memuat isi surat
-            dikirim ke server Vercel untuk dirender menjadi PDF.
-          </p>
-        </div>`
-      : `
-        <div class="about-acknowledged">
-          <span class="about-acknowledged__icon" aria-hidden="true"><span data-tabler-icon="circle-check"></span></span>
-          <span>S&amp;K penggunaan aplikasi telah disetujui pada perangkat ini.</span>
-        </div>`;
-
+  function _buildBody() {
     return `
       <div class="about-modal-content">
 
@@ -272,55 +232,25 @@ const About = (() => {
           </div>
         `)}
 
-        ${consentMarkup}
-
       </div>`;
   }
 
-  function _show({ firstVisit = false } = {}) {
-    // @ts-ignore
+  function _show() {
+    // Informasi aplikasi hanya dibuka atas permintaan pengguna.
+    // Jangan memblokir kunjungan pertama dengan modal atau checkbox wajib.
     UI.showModal({
-      title: firstVisit ? 'Selamat Datang di Generate Suratku' : 'Tentang / About',
-      body: _buildBody({ firstVisit }),
-      footer: [
-        {
-          label: firstVisit ? 'Saya Setuju & Tutup' : 'Tutup',
-          class: firstVisit ? 'btn--primary' : 'btn--secondary',
-          closeOnClick: true,
-          onClick: firstVisit ? () => {
-            _saveAcceptance();
-          } : undefined,
-        },
-      ],
-      showCloseButton: !firstVisit,
-      closeOnBackdrop: !firstVisit,
-      closeOnEscape: !firstVisit,
-      initialFocusSelector: firstVisit ? '#about-consent-checkbox' : null,
-      onClose: () => {
-        // Tidak ada aksi tambahan. Saat kunjungan pertama, tombol close
-        // hanya bisa diaktifkan setelah checkbox dicentang.
-      },
+      title: 'Tentang / About',
+      body: _buildBody(),
+      footer: [{ label: 'Tutup', class: 'btn--secondary', closeOnClick: true }],
+      showCloseButton: true,
+      closeOnBackdrop: true,
+      closeOnEscape: true,
     });
-
     _bindAccordionBehavior();
-
-    const modalFooter = document.getElementById('modal-footer');
-    const closeBtn = modalFooter?.querySelector('button');
-    const consent = /** @type {HTMLInputElement|null} */ (document.getElementById('about-consent-checkbox'));
-
-    if (firstVisit && closeBtn && consent) {
-      closeBtn.disabled = !consent.checked;
-      consent.addEventListener('change', () => {
-        closeBtn.disabled = !consent.checked;
-      });
-
-      // Jaga agar modal pertama tidak dapat ditutup melalui klik luar/ESC.
-      // UI.showModal sudah menonaktifkan kedua jalur tersebut.
-    }
   }
 
   function open() {
-    _show({ firstVisit: false });
+    _show();
   }
 
   function _bindAccordionBehavior() {
@@ -363,9 +293,6 @@ const About = (() => {
     _initialized = true;
     _bindButton();
 
-    if (!_hasAccepted()) {
-      requestAnimationFrame(() => _show({ firstVisit: true }));
-    }
   }
 
   return {
