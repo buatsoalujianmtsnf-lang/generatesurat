@@ -74,7 +74,7 @@ const TemplateNotulensiRapat = (() => {
         options: [{ value: 'Madrasah', label: 'Madrasah' }, { value: 'Sekolah', label: 'Sekolah' }],
       }),
       field('sekolah.namaKepala', 'Nama Kepala Sekolah/Madrasah', 'text'),
-      field('sekolah.nipKepala', 'NIP Kepala (jika ada)', 'text'),
+      field('sekolah.nipKepala', 'NIP Kepala', 'text'),
     ], 'school'),
     section('rapat', 'A. Identitas Rapat', [
       field('rapat.namaJenis', 'Nama/Jenis Rapat', 'text', true),
@@ -107,7 +107,7 @@ const TemplateNotulensiRapat = (() => {
     repeat('keputusan', 'E. Hasil Keputusan Rapat', 'Keputusan', createKeputusan, [
       field('teks', 'Isi Keputusan', 'textarea'),
     ]),
-    repeat('tindakLanjut', 'F. Rencana Tindak Lanjut (Jika Ada)', 'Tindak Lanjut', createTindakLanjut, [
+    repeat('tindakLanjut', 'F. Rencana Tindak Lanjut', 'Tindak Lanjut', createTindakLanjut, [
       field('keputusan', 'Keputusan/Tindak Lanjut', 'textarea'),
       field('penanggungJawab', 'Penanggung Jawab', 'text'),
       field('batasWaktu', 'Batas Waktu', 'date'),
@@ -122,10 +122,10 @@ const TemplateNotulensiRapat = (() => {
       field('penutup.namaPenutup', 'Nama yang Menutup Rapat', 'text'),
     ]),
     section('pengesahan', 'I. Pengesahan dan Tanda Tangan', [
-      field('pengesahan.nipNotulis', 'NIP Notulis (jika ada)'),
-      field('pengesahan.nipPimpinan', 'NIP Pimpinan Rapat (jika ada)'),
+      field('pengesahan.nipNotulis', 'NIP Notulis'),
+      field('pengesahan.nipPimpinan', 'NIP Pimpinan Rapat'),
       field('pengesahan.namaPencatat', 'Petugas Pencatat Kehadiran'),
-      field('pengesahan.nipPencatat', 'NIP Petugas Pencatat (jika ada)'),
+      field('pengesahan.nipPencatat', 'NIP Petugas Pencatat'),
       field('pengesahan.tandaTanganNotulisDataUrl', 'Tanda Tangan Notulis', 'signature'),
       field('pengesahan.tandaTanganPimpinanDataUrl', 'Tanda Tangan Pimpinan Rapat', 'signature'),
       field('pengesahan.tandaTanganKepalaDataUrl', 'Tanda Tangan Kepala', 'signature'),
@@ -140,7 +140,7 @@ const TemplateNotulensiRapat = (() => {
       field('tandaTanganDataUrl', 'Tanda Tangan Peserta (jika hadir)', 'signature'),
     ], 'users'),
     section('catatanKehadiran', 'Lampiran — Catatan Kehadiran', [
-      field('catatanKehadiran', 'Catatan Kehadiran (Jika Ada)', 'textarea'),
+      field('catatanKehadiran', 'Catatan Kehadiran', 'textarea'),
     ]),
   ];
 
