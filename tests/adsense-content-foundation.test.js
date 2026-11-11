@@ -18,13 +18,17 @@ describe('MON-01 public AdSense content foundation', () => {
       const match = html.match(/<link rel="canonical" href="([^"]+)" \/>/);
       expect(match?.[1]).toBe('https://generatesuratku.vercel.app/' + slug);
       canonicalUrls.add(match[1]);
+      const scripts = html.match(/<script\b[^>]*>/gi) || [];
+      expect(scripts.filter(tag => tag.includes('src="/js/routes.js"'))).toHaveLength(1);
+      expect(scripts.every(tag => tag.includes('src="/js/routes.js"') ||
+        tag.includes('src="https://pagead2.googlesyndication.com/'))).toBe(true);
       if (googlePublicPages.has(slug)) {
         expect(html).toContain('src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+publisher+'"');
-        expect((html.match(/<script\b/gi)||[]).length).toBe(1);
+        expect(scripts).toHaveLength(2);
         expect(html).not.toMatch(/<ins\s+class="adsbygoogle"/i);
       } else {
         expect(html).not.toMatch(/adsbygoogle|pagead2\.googlesyndication/i);
-        expect(html).not.toMatch(/<script\b/i);
+        expect(scripts).toHaveLength(1);
       }
     }
     expect(canonicalUrls.size).toBe(pages.length);
