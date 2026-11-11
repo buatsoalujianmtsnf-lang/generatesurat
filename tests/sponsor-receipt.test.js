@@ -95,7 +95,7 @@ describe('MON-03 sponsor backend session/receipt',()=>{
     expect(receiptKey(receipt)).not.toContain(receipt);
   });
   it('needs elapsed time and monotonic visible playback before print receipt',async()=>{
-    const clock={time:startTime,tokens:[token,receipt]};
+    const clock={time:startTime,tokens:[token,'c'.repeat(43),receipt]};
     const svc=build(memoryRedis(),clock);
     const session=await svc.start({action:'print',source:'keyboard',ip:'203.0.113.1'});
     expect(session.sessionToken).toBe(token);
