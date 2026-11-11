@@ -50,7 +50,7 @@ describe('Generate Suratku brand and accordion defaults', () => {
 
   it('prints Kepala followed directly by the school name in requested letters', () => {
     const source = read('js/preview-renderer.js');
-    expect(source).toContain("'Kepala ' + _officialValue(sekolah.nama) + ',</p>'");
+    expect(source).toContain("Kepala ' + _officialValue(sekolah.nama) + ',</p>'");
     expect(source).toContain("const headTitle = 'Kepala ' + school + ',';");
     expect(source).not.toContain("'Kepala ' + _officialSatdik(data) + ' ' + _officialValue(sekolah.nama)");
   });
