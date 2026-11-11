@@ -62,6 +62,10 @@ const TemplateRegistry = (() => {
       ids: ['rekap-nilai'],
     },
     {
+      id: 'administrasi-rapat', title: 'Administrasi Rapat', icon: 'file-text',
+      ids: ['notulensi-rapat'],
+    },
+    {
       id: 'surat-menyurat-siswa', title: 'Surat Menyurat Siswa', icon: 'mail',
       ids: ['surat-izin', 'surat-permohonan-pindah', 'surat-keterangan-pindah',
         'surat-pemberitahuan-kegiatan', 'surat-keterangan-siswa-aktif',
@@ -298,6 +302,9 @@ const TemplateRegistry = (() => {
     }
     if (typeof TemplateBeritaAcaraPertemuanOrtu !== 'undefined') {
       register(TemplateBeritaAcaraPertemuanOrtu);
+    }
+    if (typeof TemplateNotulensiRapat !== 'undefined') {
+      register(TemplateNotulensiRapat);
     }
 
     /*
