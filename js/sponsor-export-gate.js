@@ -85,6 +85,8 @@ const SponsorExportGate = (() => {
       || String(event.key).toLowerCase() !== 'p') return;
     // Browser menus/system dialogs remain outside JavaScript control.
     event.preventDefault();
+    // Stop legacy bubble listeners from creating a duplicate print flow.
+    event.stopPropagation?.();
     if (event.repeat) return;
     if (typeof Workflow !== 'undefined' && typeof Workflow.preparePrint === 'function') {
       Workflow.preparePrint('keyboard');

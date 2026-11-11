@@ -3,7 +3,7 @@
    ============================================================= */
 
 const CACHE_PREFIX = 'generator-surat-platform-';
-const CACHE_NAME = CACHE_PREFIX + 'v53';
+const CACHE_NAME = CACHE_PREFIX + 'v54';
 const APP_SHELL = [
   './',
   './index.html',
@@ -133,6 +133,11 @@ self.addEventListener('activate', event => {
         .filter(key => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
         .map(key => caches.delete(key))
     );
+    // Drop any previously cached sponsor image/poster or API response.
+    const current = await caches.open(CACHE_NAME);
+    await Promise.all((await current.keys())
+      .filter(request => isSponsorPrivateRequest(request))
+      .map(request => current.delete(request)));
     await self.clients.claim();
   })());
 });
@@ -147,8 +152,16 @@ function isSameOrigin(request) {
   return new URL(request.url).origin === self.location.origin;
 }
 
-function isStaticAsset(request) {
+// Sponsor media, captions and API state must never persist in the PWA cache.
+function isSponsorPrivateRequest(request) {
   if (!isSameOrigin(request)) return false;
+  const pathname = new URL(request.url).pathname;
+  return pathname === '/api' || pathname.startsWith('/api/')
+    || pathname.startsWith('/assets/sponsors/');
+}
+
+function isStaticAsset(request) {
+  if (!isSameOrigin(request) || isSponsorPrivateRequest(request)) return false;
   if (STATIC_DESTINATIONS.has(request.destination)) return true;
 
   const pathname = new URL(request.url).pathname;
@@ -202,6 +215,7 @@ async function staleWhileRevalidate(request, event) {
 self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET' || !isSameOrigin(request)) return;
+  if (isSponsorPrivateRequest(request)) return;
 
   if (request.mode === 'navigate') {
     event.respondWith(networkFirst(request));

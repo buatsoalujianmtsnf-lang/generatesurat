@@ -245,6 +245,8 @@ const Platform = (() => {
 
   function _bindKeyboardShortcuts() {
     document.addEventListener('keydown', event => {
+      // MON-06: the capture-phase sponsor handler may already own this shortcut.
+      if (event.defaultPrevented) return;
       if (!(event.ctrlKey || event.metaKey)) return;
       if (event.altKey) return;
 
@@ -255,6 +257,8 @@ const Platform = (() => {
           App.save();
         }
       } else if (key === 'p') {
+        // Required sponsor mode uses one capture-phase handler only.
+        if (typeof SponsorExportGate !== 'undefined' && SponsorExportGate.isRequired()) return;
         event.preventDefault();
         if (typeof Workflow !== 'undefined' && typeof Workflow.preparePrint === 'function') {
           Workflow.preparePrint();
