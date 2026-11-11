@@ -92,7 +92,8 @@ const Landing = (() => {
     empty.hidden = true;
     groupRoot.appendChild(empty);
 
-    search.addEventListener('input', () => {
+    const clear = document.getElementById('lp-search-clear');
+    function updateResults() {
       const q = search.value.trim().toLocaleLowerCase('id-ID');
       let visibleCount = 0;
       for (const entry of entries) {
@@ -106,10 +107,36 @@ const Landing = (() => {
         group.toggleAttribute('hidden', !visibleCards);
       });
       empty.hidden = visibleCount > 0;
+      if (clear) clear.hidden = search.value.length === 0;
       if (searchResults) {
-        searchResults.textContent = visibleCount + ' template ditemukan';
+        searchResults.textContent = q
+          ? visibleCount + ' template ditemukan'
+          : 'Pilih template untuk mulai membuat surat';
+      }
+    }
+    search.addEventListener('input', updateResults);
+    clear?.addEventListener('click', () => {
+      search.value = '';
+      updateResults();
+      search.focus();
+    });
+    // Search shortcut is intentionally landing-only and never intercepts editor input.
+    document.addEventListener('keydown', event => {
+      if (!Routes.isLanding()) return;
+      const target = event.target;
+      const editing = Boolean(target?.isContentEditable) ||
+        /^(INPUT|TEXTAREA|SELECT)$/.test(target?.tagName || '');
+      if (event.key === '/' && !editing && !event.altKey && !event.ctrlKey && !event.metaKey) {
+        event.preventDefault();
+        search.focus();
+        search.scrollIntoView?.({ behavior: 'auto', block: 'center' });
+      } else if (event.key === 'Escape' && document.activeElement === search && search.value) {
+        event.preventDefault();
+        search.value = '';
+        updateResults();
       }
     });
+    if (search.value) updateResults();
   }
 
   if (document.readyState === 'loading') {
