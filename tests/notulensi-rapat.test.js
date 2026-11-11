@@ -133,7 +133,7 @@ describe('Notulensi Rapat dan lampiran daftar hadir dari dokumen Word', () => {
       section.title, ...(section.fields || []).map(field => field.label),
     ]);
     for (const value of [...titlesAndLabels, html]) {
-      expect(value).not.toMatch(/\\(jika ada\\)/i);
+      expect(value).not.toMatch(/\(jika ada\)/i);
     }
     const recap = html.split('C. REKAPITULASI KEHADIRAN')[1].split('D. CATATAN KEHADIRAN')[0];
     for (const label of ['Jumlah Peserta yang Diundang', 'Jumlah Peserta Tanpa Keterangan']) {
