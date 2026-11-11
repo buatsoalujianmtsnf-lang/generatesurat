@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
 
-const root=fileURLToPath(new URL('../',import.meta.url));
+const root=resolve(fileURLToPath(new URL('../',import.meta.url))); // Normalize trailing slash for traversal guard.
 const output=resolve(root,'artifacts/mon07-browser');
 const mime={
   '.html':'text/html; charset=utf-8',
