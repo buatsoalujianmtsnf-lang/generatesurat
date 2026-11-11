@@ -21,6 +21,11 @@
     display: none !important;
   }
 
+  /* Screen-only pointer drag deterrence; preserve selection, keyboard & editor. */
+  html[data-preview-protection="on"] #surat-preview img {
+    -webkit-user-drag: none;
+  }
+
   #preview-protection-layer .preview-protection-sheet {
     position: absolute;
     box-sizing: border-box;
