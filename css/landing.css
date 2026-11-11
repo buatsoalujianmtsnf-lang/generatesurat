@@ -261,3 +261,16 @@ html.dark-mode .lp__paper,html.dark-mode .lp__preview-badge {color:#25324b;}
 .lp__footer-links a { color:inherit; text-decoration:underline; text-underline-offset:3px; }
 .lp__links a:focus-visible, .lp__guide-card a:focus-visible, .lp__footer-links a:focus-visible { outline:3px solid #2563eb; outline-offset:4px; }
 @media (max-width:800px) { .lp__guide-grid { grid-template-columns:1fr; } }
+
+
+/* Theme-consistent guide cards: no white-on-white text in dark mode.
+   Uses the shared app tokens rather than a light-only --lp-surface fallback. */
+.lp .lp__guide-card {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+.lp .lp__guide-card h3 { color: var(--color-text); }
+.lp .lp__guide-card p { color: var(--color-text-secondary); }
+.lp .lp__guide-card .lp__guide-tag,
+.lp .lp__guide-card a { color: var(--color-primary); }

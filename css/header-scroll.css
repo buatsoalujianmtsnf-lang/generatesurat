@@ -69,6 +69,15 @@
     flex: 0 0 auto;
   }
 
+  /* Desktop: actions align to the right; safe fallback preserves scrolling
+     when the row is too wide at intermediate viewport sizes. */
+  @media (min-width: 1024px) {
+    .app-header__actions {
+      margin-left: auto;
+      justify-content: safe flex-end;
+    }
+  }
+
   /* Tampilan desktop memakai deretan tombol tanpa mengubah aksinya. */
   .app-header__actions .header-overflow-group {
     display: contents;

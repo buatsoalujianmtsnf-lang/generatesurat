@@ -157,18 +157,33 @@
   #editor-drawer > .drawer-content { display: block !important; }
 }
 @media (max-width: 1023px) {
-  /* Dedicated floating control stays reachable above the compact drawer. */
+  /* Edge-tab: away from the fixed workflow navigation at the bottom.
+     On compact screens it docks to the right edge, below app header,
+     remaining tappable both when the drawer is open and closed. */
   #editor-drawer > .editor-drawer__edge-button,
   #editor-drawer[data-open="false"] > .editor-drawer__edge-button {
     position: fixed;
-    top: auto;
-    right: max(16px, env(safe-area-inset-right));
-    bottom: max(20px, env(safe-area-inset-bottom));
+    top: clamp(102px, 34dvh, 236px);
+    right: 0;
+    bottom: auto;
     left: auto;
     z-index: 42;
-    min-height: 48px;
-    padding: 10px 14px;
-    border-radius: 14px;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 46px;
+    max-width: 46px;
+    min-height: 110px;
+    padding: 12px 6px;
+    border-radius: 14px 0 0 14px;
+    box-shadow: -4px 5px 16px rgba(15,23,42,.17);
+  }
+  #editor-drawer > .editor-drawer__edge-button .editor-drawer__toggle-label {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 11px;
+    line-height: 1.2;
+    letter-spacing: .025em;
   }
   /* Akses ke satu tombol toggle harus tetap berada di atas drawer, di bawah modal. */
   .app-header { position: sticky; top: 0; z-index: 36; }
@@ -252,6 +267,12 @@
   html.editor-drawer-open body { overflow: hidden !important; }
 }
 @media (max-width: 767px) and (orientation: landscape) {
+  #editor-drawer > .editor-drawer__edge-button,
+  #editor-drawer[data-open="false"] > .editor-drawer__edge-button {
+    top: clamp(82px, 28dvh, 126px);
+    min-height: 96px;
+    padding-block: 8px;
+  }
   #editor-drawer,
   #editor-drawer > .drawer-content {
     min-height: max(0px, calc(100dvh - 48px));

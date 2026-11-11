@@ -17,6 +17,7 @@ const Theme = (() => {
 
   /** @type {'light'|'dark'|'auto'} */
   let _current = 'auto';
+  let _initialized = false;
 
   /* ── Baca preferensi tersimpan ── */
   /** @returns {'auto'|'dark'|'light'} */
@@ -67,19 +68,16 @@ const Theme = (() => {
       };
       btn.setAttribute('title',      labels[theme] || 'Ganti tema');
       btn.setAttribute('aria-label', labels[theme] || 'Ganti tema');
+      const textLabel = btn.querySelector?.('.theme-toggle__text');
+      if (textLabel) textLabel.textContent = isDark() ? 'Mode gelap' : 'Mode terang';
     }
   }
 
-  /* ── Rotasi: auto → light → dark → auto ── */
-  function _nextTheme(current) {
-    const cycle = { auto: 'light', light: 'dark', dark: 'auto' };
-    return cycle[current] || 'auto';
-  }
-
-  /* ── Toggle: klik tombol merotasi tema ── */
+  /* Klik tunggal membalik tema visual yang sedang terlihat.
+     Jika preferensi awal = auto, hasil pertama selalu berbeda dari
+     warna sistem saat ini (tidak ada klik "kosong"). */
   function toggle() {
-    const next = _nextTheme(_current);
-    set(next);
+    set(isDark() ? 'light' : 'dark');
   }
 
   /* ── Set tema secara eksplisit ── */
@@ -105,6 +103,8 @@ const Theme = (() => {
 
   /* ── Init ── */
   function init() {
+    if (_initialized) return;
+    _initialized = true;
     // Terapkan tema seawal mungkin untuk menghindari FOUC (flash of unstyled content)
     _current = _loadSaved();
     _apply(_current);

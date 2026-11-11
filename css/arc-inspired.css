@@ -627,3 +627,10 @@ html[data-theme="dark"] .app-container .btn.btn--primary.btn-primary { backgroun
   .app-container .surat-page,
   .app-container .doc-content { background: #fff !important; color: #000 !important; box-shadow: none !important; }
 }
+
+
+/* High-contrast brand label on the editor's dark app bar, including
+   system-dark (html[data-theme="dark"] without .dark-mode). */
+html[data-theme="dark"] .app-header .app-header__brand .app-header__title {
+  color: #f6f3fb !important;
+}
