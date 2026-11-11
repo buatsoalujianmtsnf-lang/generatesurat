@@ -45,3 +45,8 @@ Prasyarat keseluruhan: `config/sponsor-policy.json.enabled=true`, `releasePhase=
 
 ## Jalur lanjutan
 MON-04 UI/player; MON-05 refactor cetak/PDF, konsumsi receipt PDF dan penanganan Ctrl/Cmd+P; MON-06 CSP/PWA/privasi; MON-07 UAT. MON-08 hanya aktif setelah kontrak nyata, Redis, approval dan seluruh tes lulus; auto-deploy tetap off.
+
+## Penguatan tambahan
+- Kunci sesi dan receipt memakai hash-tag Redis Cluster `{atomic}` agar `EVAL` dua key tetap berada di satu slot.
+- Endpoint menolak field JSON yang tidak termasuk kontrak masing-masing operasi, untuk mengurangi risiko data dokumen terkirim tanpa sengaja.
+- Uji tambahan receipt kedaluwarsa 120 detik, termasuk replay yang ditolak.

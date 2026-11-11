@@ -10,6 +10,7 @@ export const MIN_SERVER_ELAPSED_MS = 15_000;
 export const MIN_CREDITED_PLAYBACK_MS = 14_000;
 export const MIN_FINAL_POSITION_MS = 14_800;
 
+// Session and receipt share the {atomic} Redis Cluster hash slot for EVAL multi-key atomicity.
 export const PROGRESS_SCRIPT = String.raw`-- SPONSOR_PROGRESS_V1
 local old = redis.call('GET', KEYS[1])
 if not old then return 'EXPIRED' end
@@ -89,8 +90,8 @@ return n
 
 const TOKEN_RE = /^[A-Za-z0-9_-]{40,90}$/;
 export const tokenValid = token => typeof token === 'string' && TOKEN_RE.test(token);
-export const sessionKey = token => 'gs:sponsor:session:' + createHash('sha256').update(token).digest('hex');
-export const receiptKey = token => 'gs:sponsor:receipt:' + createHash('sha256').update(token).digest('hex');
+export const sessionKey = token => 'gs:sponsor:{atomic}:session:' + createHash('sha256').update(token).digest('hex');
+export const receiptKey = token => 'gs:sponsor:{atomic}:receipt:' + createHash('sha256').update(token).digest('hex');
 
 export function createSponsorLedger(command) {
   if (typeof command !== 'function') throw new Error('Redis command adapter required');

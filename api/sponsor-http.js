@@ -5,8 +5,14 @@ import { liveSponsorService, SponsorFault, sponsorIsReady } from './sponsor-serv
 
 const OPERATIONS = new Set(['start','progress','complete','authorizePrint']);
 const REQUEST_LIMIT = 2048;
+const ALLOWED_FIELDS = Object.freeze({
+  start:['action','source'],
+  progress:['sessionToken','positionMs','playing','visible'],
+  complete:['sessionToken','ended'],
+  authorizePrint:['receipt'],
+});
 
-export function validateSponsorRequest(req, env = process.env) {
+export function validateSponsorRequest(req, env = process.env, operation = null) {
   const headers = req.headers || {};
   if (req.method !== 'POST') throw new SponsorFault('METHOD_NOT_ALLOWED',405);
   if (String(headers['sec-fetch-site'] || '').toLowerCase() === 'cross-site') {
@@ -32,6 +38,10 @@ export function validateSponsorRequest(req, env = process.env) {
     || Buffer.byteLength(JSON.stringify(body),'utf8') > REQUEST_LIMIT) {
     throw new SponsorFault('BAD_REQUEST',400);
   }
+  if (operation && (!ALLOWED_FIELDS[operation]
+    || Object.keys(body).some(key => !ALLOWED_FIELDS[operation].includes(key)))) {
+    throw new SponsorFault('BAD_REQUEST',400);
+  }
   const ip=getClientIp(headers,req.socket?.remoteAddress || '');
   if (!ip) throw new SponsorFault('SPONSOR_UNAVAILABLE',503);
   return {body,ip};
@@ -47,7 +57,7 @@ export function sponsorEndpoint(operation) {
     try {
       // A disabled ad gate must not even contact Redis or accept sponsor receipts.
       if (!sponsorIsReady(process.env)) throw new SponsorFault('SPONSOR_UNAVAILABLE',503);
-      const {body,ip}=validateSponsorRequest(req);
+      const {body,ip}=validateSponsorRequest(req,process.env,operation);
       const svc=liveSponsorService();
       let output;
       if (operation === 'start') output=await svc.start({action:body.action,source:body.source,ip});

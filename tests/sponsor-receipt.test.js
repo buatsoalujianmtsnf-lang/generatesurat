@@ -92,6 +92,8 @@ describe('MON-03 sponsor backend session/receipt',()=>{
     expect(activeSponsor(startTime,cfg,campaigns)).toBeNull();
     expect(tokenValid(token)).toBe(true);
     expect(sessionKey(token)).not.toContain(token);
+    expect(sessionKey(token)).toContain('{atomic}');
+    expect(receiptKey(receipt)).toContain('{atomic}');
     expect(receiptKey(receipt)).not.toContain(receipt);
   });
   it('needs elapsed time and monotonic visible playback before print receipt',async()=>{
@@ -142,6 +144,15 @@ describe('MON-03 sponsor backend session/receipt',()=>{
     await expect(svc.progress({sessionToken:token,positionMs:0,playing:true,visible:true,ip:'203.0.113.1'}))
       .rejects.toMatchObject({code:'SESSION_EXPIRED'});
   });
+  it('rejects an expired PDF receipt after its 120-second lifetime',async()=>{
+    const clock={time:startTime,tokens:[token,receipt]};
+    const svc=build(memoryRedis(),clock);
+    await svc.start({action:'pdf',ip:'203.0.113.1'});
+    await playback(svc,clock,token);
+    await svc.complete({sessionToken:token,ended:true,ip:'203.0.113.1'});
+    clock.time+=120001;
+    expect(await svc.consumePdfReceipt({receipt})).toBe(false);
+  });
   it('does not credit hidden or buffered gaps and refuses seeking',async()=>{
     const clock={time:startTime,tokens:[token,receipt]};
     const svc=build(memoryRedis(),clock);
@@ -191,6 +202,10 @@ describe('MON-03 sponsor backend session/receipt',()=>{
     expect(()=>validateSponsorRequest({method:'POST',headers:{...headers,'sec-fetch-site':'cross-site'},body:{}}))
       .toThrowError(SponsorFault);
     expect(()=>validateSponsorRequest({method:'POST',headers:{...headers,'content-type':'text/plain'},body:{}}))
+      .toThrowError(SponsorFault);
+    expect(()=>validateSponsorRequest({method:'POST',headers,body:{action:'print',studentName:'sensitive'}},env,'start'))
+      .toThrowError(SponsorFault);
+    expect(()=>validateSponsorRequest({method:'POST',headers,body:{sessionToken:token,positionMs:0,playing:true,visible:true,studentId:'123'}},env,'progress'))
       .toThrowError(SponsorFault);
     expect(()=>validateSponsorRequest({method:'POST',headers,body:{excess:'A'.repeat(2200)}}))
       .toThrowError(SponsorFault);
