@@ -262,7 +262,7 @@ describe('PP-03 — preview-only interaction guard', () => {
 
   it('updates PWA cache when JS/CSS changes', () => {
     const sw = read('sw.js');
-    expect(sw).toContain("CACHE_PREFIX + 'v65'");
+    expect(sw).toContain("CACHE_PREFIX + 'v66'");
     expect(sw).toContain("'./js/preview-protection.js'");
     expect(sw).toContain("'./css/preview-protection.css'");
   });
