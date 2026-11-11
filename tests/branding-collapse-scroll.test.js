@@ -14,7 +14,8 @@ describe('Generate Suratku brand and accordion defaults', () => {
     expect(manifest.name).toBe('Generate Suratku');
     expect(manifest.short_name).toBe('Generate Suratku');
     expect(read('js/routes.js')).toContain('Editor Surat | Generate Suratku');
-    expect(read('js/about.js')).toContain('Selamat Datang di Generate Suratku');
+    expect(read('js/about.js')).toContain("title: 'Tentang / About'");
+    expect(read('js/about.js')).not.toContain('Selamat Datang di Generate Suratku');
     expect(read('js/platform.js')).toContain('Generate Suratku berhasil dipasang');
   });
 
@@ -57,7 +58,7 @@ describe('Generate Suratku brand and accordion defaults', () => {
 
   it('bumps the service worker to refresh cache for new assets', () => {
     const sw = read('sw.js');
-    expect(sw).toContain("CACHE_PREFIX + 'v54'");
+    expect(sw).toContain("CACHE_PREFIX + 'v55'");
     expect(sw).toContain("'./css/landing.css'");
     expect(sw).toContain("'./js/settings.js'");
   });
