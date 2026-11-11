@@ -608,7 +608,7 @@ const Settings = (() => {
       header.setAttribute('aria-controls', bodyId);
 
       if (!header.hasAttribute('aria-expanded')) {
-        header.setAttribute('aria-expanded', 'true');
+        header.setAttribute('aria-expanded', 'false');
       }
 
       const toggle = () => {
