@@ -29,8 +29,10 @@ describe('DaisyUI editor drawer sidebar', () => {
     expect(drawer).toContain('id="editor-drawer-button"');
     const css = read('css/editor-drawer.css');
     expect(css).toContain('#editor-drawer > .editor-drawer__edge-button');
-    expect(css).toContain('position: fixed;');
-    expect(css).toContain('z-index: 42;');
+    expect(css).toContain('.editor-drawer__toggle-slot--closed');
+    expect(css).toContain('.editor-drawer__toggle-slot--open');
+    expect(css).toContain('position: static;');
+    expect(css).not.toContain('top: clamp(136px, 42dvh, 340px)');
     expect(css).toContain('focus-visible');
   });
 
@@ -43,6 +45,14 @@ describe('DaisyUI editor drawer sidebar', () => {
       'btn-export-pdf','btn-print','viewer-page-first',
     ]) expect(html).toContain('id="' + id + '"');
     expect(html.match(/id="editor-drawer-button"/g)).toHaveLength(1);
+    expect(html).toContain('id="editor-drawer-toggle-slot-open"');
+    expect(html).toContain('id="editor-drawer-toggle-slot-closed"');
+    const previewPart = html.slice(html.indexOf('class="preview-toolbar__identity"'));
+    expect(previewPart.indexOf('id="editor-drawer-toggle-slot-closed"'))
+      .toBeLessThan(previewPart.indexOf('class="preview-toolbar__label">Preview Surat'));
+    const headingPart = html.slice(html.indexOf('class="editor-drawer__heading"'));
+    expect(headingPart.indexOf('<strong>Editor Surat</strong>'))
+      .toBeLessThan(headingPart.indexOf('id="editor-drawer-toggle-slot-open"'));
     for (const id of ['editor-drawer-preview-open','editor-drawer-close',
       'editor-drawer-preview','btn-editor-panel-mobile']) {
       expect(html).not.toContain('id="'+id+'"');
@@ -179,6 +189,9 @@ describe('DaisyUI editor drawer sidebar', () => {
     const js = read('js/editor-drawer.js');
     expect(js).toContain("const TRIGGER_ID = 'editor-drawer-button'");
     expect(js).toContain("trigger.addEventListener('click', toggleDrawer)");
+    expect(js).toContain("syncTriggerPlacement(compact, next, trigger)");
+    expect(js).toContain("'editor-drawer-toggle-slot-open'");
+    expect(js).toContain("'editor-drawer-toggle-slot-closed'");
     expect(js).not.toContain("querySelector('.editor-drawer__overlay')?.addEventListener");
     for (const id of ['editor-drawer-preview-open', 'editor-drawer-close',
       'editor-drawer-preview', 'btn-editor-panel-mobile']) {
@@ -187,6 +200,7 @@ describe('DaisyUI editor drawer sidebar', () => {
     const css = read('css/editor-drawer.css');
     expect(css).toContain('--drawer-header-offset');
     expect(css).toContain('z-index: 36');
+    expect(css).toContain('min-height: 40px');
   });
 
 });
