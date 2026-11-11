@@ -182,11 +182,22 @@ const DocumentViewer = (() => {
     }
 
     const safePage = Math.max(1, Math.min(pageNumber, pages.length));
-    pages[safePage - 1]?.scrollIntoView({
-      behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-      block: 'start',
-      inline: 'center',
-    });
+    // Scroll only the letter viewport. scrollIntoView() would also scroll
+    // outer ancestors (especially the mobile app shell), hiding the toolbar.
+    const page = pages[safePage - 1];
+    const viewportRect = _viewport.getBoundingClientRect();
+    const pageRect = page.getBoundingClientRect();
+    const maxScroll = Math.max(0, _viewport.scrollHeight - _viewport.clientHeight);
+    const top = safePage === 1 ? 0 : Math.max(0, Math.min(
+      _viewport.scrollTop + pageRect.top - viewportRect.top,
+      maxScroll
+    ));
+    const behavior = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ? 'auto' : 'smooth';
+    if (typeof _viewport.scrollTo === 'function') {
+      _viewport.scrollTo({ top, left: _viewport.scrollLeft, behavior });
+    } else {
+      _viewport.scrollTop = top;
+    }
 
     _setCurrentPageField(safePage);
     _updateNavigationButtons(safePage, pages.length);

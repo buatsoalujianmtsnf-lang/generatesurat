@@ -175,11 +175,11 @@ try {
       flag: document.documentElement.dataset.previewProtection,
       status: PreviewProtection.getStatus(),
       templateCount: TemplateRegistry.count(),
-      statusBadgeHidden: document.getElementById('preview-protection-status').hidden,
+      visibleBadgeRemoved: !document.getElementById('preview-protection-status'),
     }));
     check(initial.flag === 'on' && initial.status.enabled
       && initial.status.mode === 'strict' && initial.status.interactionsProtected
-      && initial.statusBadgeHidden,
+      && initial.visibleBadgeRemoved,
       device.name + ': preview protection must be active in strict mode by default');
     check(initial.templateCount === 18, device.name + ': expected 18 registered templates');
 
@@ -339,10 +339,9 @@ try {
     await page.emulateMediaType('print');
     const printState = await page.evaluate(() => ({
       layer: getComputedStyle(document.getElementById('preview-protection-layer')).display,
-      badge: getComputedStyle(document.getElementById('preview-protection-status')).display,
       paper: getComputedStyle(document.querySelector('#surat-preview > .surat-page')).display,
     }));
-    check(printState.layer === 'none' && printState.badge === 'none'
+    check(printState.layer === 'none'
       && printState.paper !== 'none', device.name + ': printed page leaks watermark overlay');
     if (device.name === 'desktop') {
       const pdf = await page.pdf({ printBackground: true, preferCSSPageSize: true });
@@ -359,10 +358,9 @@ try {
     const rollback = await page.evaluate(() => ({
       status: PreviewProtection.getStatus(),
       overlayHidden: document.getElementById('preview-protection-layer').hidden,
-      badgeHidden: document.getElementById('preview-protection-status').hidden,
     }));
     check(!rollback.status.enabled && !rollback.status.interactionsProtected
-      && rollback.overlayHidden && rollback.badgeHidden,
+      && rollback.overlayHidden,
     device.name + ': rollback did not clear protection');
     check(pageErrors.length === 0, device.name + ': uncaught errors ' + pageErrors.join('; '));
 
@@ -474,6 +472,92 @@ try {
     }
 
     await landingPage.close();
+
+    // Regression: the editor control is an independent, visible work-area
+    // toggle at every breakpoint, and remains usable after state changes.
+    const drawerProbe = await page.evaluate(() => {
+      const button = document.getElementById('editor-drawer-button');
+      const root = document.getElementById('editor-drawer');
+      const rect = button.getBoundingClientRect();
+      const initial = root.dataset.open;
+      const isVisible = rect.width > 24 && rect.height >= 40
+        && rect.left >= 0 && rect.top >= 0
+        && rect.right <= innerWidth + 1 && rect.bottom <= innerHeight + 1
+        && getComputedStyle(button).visibility === 'visible';
+      const outsideNavbar = !button.closest('.app-header')
+        && !button.closest('.preview-toolbar');
+      button.click();
+      const changed = root.dataset.open !== initial
+        && button.getAttribute('aria-expanded') === root.dataset.open;
+      button.click();
+      return {
+        isVisible, outsideNavbar, changed,
+        restored: root.dataset.open === initial,
+        hasStatusBadge: !!document.getElementById('preview-protection-status'),
+      };
+    });
+    check(drawerProbe.isVisible && drawerProbe.outsideNavbar
+      && drawerProbe.changed && drawerProbe.restored && !drawerProbe.hasStatusBadge,
+      device.name + ': editor edge action / status removal regression: ' + JSON.stringify(drawerProbe));
+
+    // Use four dummy paper sheets to cover real page navigation, even if the
+    // currently selected template normally renders as only one page.
+    await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
+    await page.evaluate(() => {
+      const preview = document.getElementById('surat-preview');
+      const viewport = document.getElementById('preview-viewport');
+      preview.replaceChildren();
+      preview.classList.add('surat-preview--document');
+      preview.dataset.pageCount = '4';
+      for (let i = 0; i < 4; i++) {
+        const paper = document.createElement('div');
+        paper.className = 'surat-page';
+        paper.style.cssText = 'width:210mm;height:297mm;min-height:297mm;flex:0 0 auto';
+        paper.dataset.pageNumber = String(i + 1);
+        preview.appendChild(paper);
+      }
+      viewport.scrollTop = 0;
+      DocumentViewer.refresh();
+    });
+    await rafTwo(page);
+    const navBefore = await page.evaluate(() => ({
+      toolbarTop: document.querySelector('.preview-toolbar').getBoundingClientRect().top,
+      windowY: window.scrollY,
+      viewportY: document.getElementById('preview-viewport').scrollTop,
+      scrollable: document.getElementById('preview-viewport').scrollHeight
+        > document.getElementById('preview-viewport').clientHeight + 50,
+    }));
+    await page.evaluate(() => document.getElementById('viewer-page-last').click());
+    await rafTwo(page);
+    const navLast = await page.evaluate(() => ({
+      toolbarTop: document.querySelector('.preview-toolbar').getBoundingClientRect().top,
+      windowY: window.scrollY,
+      viewportY: document.getElementById('preview-viewport').scrollTop,
+      pageInput: document.getElementById('viewer-page-current').value,
+      toolbarVisible: (() => {
+        const toolbar = document.querySelector('.preview-toolbar');
+        const panel = document.getElementById('preview-panel');
+        const rect = toolbar.getBoundingClientRect(), container = panel.getBoundingClientRect();
+        return rect.height >= 30 && rect.top >= container.top - 2
+          && rect.bottom <= container.bottom + 2;
+      })(),
+    }));
+    check(navBefore.scrollable && navLast.viewportY > navBefore.viewportY + 250
+      && navLast.pageInput === '4'
+      && Math.abs(navLast.toolbarTop - navBefore.toolbarTop) < 2
+      && Math.abs(navLast.windowY - navBefore.windowY) < 2
+      && navLast.toolbarVisible,
+      device.name + ': page navigation scrolled the toolbar or wrong ancestor: '
+      + JSON.stringify({ navBefore, navLast }));
+    await page.evaluate(() => document.getElementById('viewer-page-first').click());
+    await rafTwo(page);
+    const navFirst = await page.evaluate(() => ({
+      top: document.getElementById('preview-viewport').scrollTop,
+      pageInput: document.getElementById('viewer-page-current').value,
+    }));
+    check(navFirst.top < 3 && navFirst.pageInput === '1',
+      device.name + ': first-page navigation did not reset preview scroll');
+
     report.viewports.push({
       name: device.name, viewport: device.width + 'x' + device.height,
       status: 'PASS', pages: geometry.pageCount,
@@ -485,6 +569,9 @@ try {
       landingGroupAccordions: landingBaseline.groupAccordions,
       landingTemplates: landingBaseline.nestedTemplates,
       landingSearch: true,
+      editorEdgeControl: true,
+      toolbarStableOnPageNavigation: true,
+      statusLabelRemoved: true,
       pageErrors: [],
     });
     console.info('[PP04 UAT PASS]', device.name, JSON.stringify({

@@ -12,13 +12,15 @@ describe('Navbar editor desktop dan mobile', () => {
     const header = html.slice(start, end);
     expect(header).toContain('role="group" aria-label="Tindakan editor"');
     for (const id of [
-      'btn-export-pdf', 'btn-print', 'btn-header-more', 'editor-drawer-button',
+      'btn-export-pdf', 'btn-print', 'btn-header-more',
       'btn-install-app', 'btn-update-app', 'btn-about', 'btn-theme-toggle',
       'btn-undo', 'btn-redo', 'btn-save', 'btn-export-data',
       'btn-import-data', 'btn-reset',
     ]) {
       expect(header).toContain('id="' + id + '"');
     }
+    expect(header).not.toContain('id="editor-drawer-button"');
+    expect(html.slice(end)).toContain('id="editor-drawer-button"');
     expect(header).toContain('id="header-overflow-group"');
     expect(header).toContain('aria-controls="header-overflow-group"');
     expect(header).toContain('aria-expanded="false"');

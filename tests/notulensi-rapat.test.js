@@ -199,6 +199,6 @@ describe('Notulensi Rapat dan lampiran daftar hadir dari dokumen Word', () => {
     expect(sw).toContain("'./templates/notulensi-rapat.js'");
     expect(read('js/template-registry.js')).toContain('register(TemplateNotulensiRapat)');
     expect(read('js/routes.js')).toContain("'notulensi-rapat': 'notulensi-rapat'");
-    expect(sw).toContain("CACHE_PREFIX + 'v61'");
+    expect(sw).toContain("CACHE_PREFIX + 'v62'");
   });
 });

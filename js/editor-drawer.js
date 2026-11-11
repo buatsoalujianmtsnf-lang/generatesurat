@@ -1,4 +1,4 @@
-/* DaisyUI drawer state and accessibility; one shared navbar trigger. */
+/* DaisyUI drawer state and accessibility; one dedicated in-workspace edge trigger. */
 const EditorDrawer = (() => {
   const QUERY = '(max-width: 1023px)';
   const MOBILE_QUERY = '(max-width: 767px)';
@@ -38,7 +38,7 @@ const EditorDrawer = (() => {
     editor.setAttribute('aria-hidden', String(!next));
     document.documentElement.classList.toggle('editor-drawer-open', compact && next);
 
-    // Only ONE control exists: desktop inline action; mobile inside Lainnya.
+    // One visible action outside the app navbar on all screen sizes.
     const trigger = document.getElementById(TRIGGER_ID);
     if (trigger) {
       const label = next ? 'Tutup Editor' : 'Buka Editor';
@@ -53,10 +53,7 @@ const EditorDrawer = (() => {
       (editor.querySelector('.editor-tab.active') || editor).focus?.();
     }
     if (!next && options.returnFocus) {
-      const anchor = isMobile()
-        ? document.getElementById('btn-header-more')
-        : trigger;
-      (anchor || restoreFocus)?.focus?.();
+      (trigger || restoreFocus)?.focus?.();
     }
   }
 
@@ -112,8 +109,8 @@ const EditorDrawer = (() => {
       )].filter(el => !el.hidden && !el.closest('[hidden]') && el.getClientRects().length > 0);
       if (!items.length) return;
       const first = items[0], last = items[items.length - 1];
-      // The header action remains part of keyboard navigation while the drawer is open.
-      const anchor = isMobile() ? document.getElementById('btn-header-more') : trigger;
+      // Keep focus cycling through the dedicated edge trigger (not the header menu).
+      const anchor = trigger;
       if (event.shiftKey && document.activeElement === first && anchor) {
         event.preventDefault(); anchor.focus();
       } else if (!event.shiftKey && document.activeElement === last && anchor) {

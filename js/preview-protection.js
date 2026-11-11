@@ -14,8 +14,6 @@ const PreviewProtection = (() => {
   let preview = null;
   /** @type {HTMLElement|null} */
   let layer = null;
-  /** @type {HTMLElement|null} */
-  let statusEl = null;
   let initialized = false;
   let enabled = false;
   let masked = false;
@@ -64,21 +62,10 @@ const PreviewProtection = (() => {
     return tileImage;
   }
 
-  function _syncStatus() {
-    if (!statusEl) return;
-    statusEl.hidden = !enabled || pageGeometry.length === 0;
-    if (statusEl.hidden) return;
-    const label = statusEl.querySelector?.('.preview-protection-status__label');
-    if (label) label.textContent = masked ? 'Preview disamarkan' : 'Preview berwatermark';
-    else statusEl.textContent = masked ? 'Preview disamarkan' : 'Preview berwatermark';
-    statusEl.title = 'Watermark membantu melindungi pratinjau; screenshot dan perekaman layar sistem operasi tidak dapat diblokir sepenuhnya.';
-  }
-
   /** Runs synchronously on visibilitychange; background tabs may suspend RAF. */
   function _syncMask() {
     masked = enabled && _mode() === 'strict' && _isHidden();
     layer?.classList?.toggle('is-masked', masked);
-    _syncStatus();
   }
 
   function _onVisibilityChange() {
@@ -92,7 +79,6 @@ const PreviewProtection = (() => {
       layer.replaceChildren();
       layer.hidden = true;
     }
-    _syncStatus();
   }
 
   function _renderGeometry() {
@@ -153,7 +139,6 @@ const PreviewProtection = (() => {
     layer.replaceChildren(fragment);
     pageGeometry = nextGeometry;
     layer.hidden = nextGeometry.length === 0;
-    _syncStatus();
   }
 
   function _schedule() {
@@ -298,12 +283,11 @@ const PreviewProtection = (() => {
     viewport = document.getElementById('preview-viewport');
     preview = document.getElementById('surat-preview');
     layer = document.getElementById('preview-protection-layer');
-    statusEl = document.getElementById('preview-protection-status');
 
     if (!wrapper || !viewport || !preview || !layer
         || preview.parentElement !== wrapper
         || layer.parentElement !== wrapper) {
-      wrapper = viewport = preview = layer = statusEl = null;
+      wrapper = viewport = preview = layer = null;
       return false;
     }
     initialized = true;
@@ -332,7 +316,7 @@ const PreviewProtection = (() => {
   function destroy() {
     _stop();
     initialized = false;
-    wrapper = viewport = preview = layer = statusEl = null;
+    wrapper = viewport = preview = layer = null;
   }
 
   /** Exposes no document content or personal data. */

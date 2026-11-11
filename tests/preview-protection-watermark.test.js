@@ -124,7 +124,6 @@ describe('PP-02 watermark & strict background-tab masking', () => {
     expect(h.api.init()).toBe(true);
     h.flush();
     expect(h.api.getStatus()).toMatchObject({ enabled: false, masked: false, pageCount: 0, mode: 'off' });
-    expect(h.status.hidden).toBe(true);
     expect(h.layer.hidden).toBe(true);
     expect(h.layer.sheets).toHaveLength(0);
     expect(h.observers).toHaveLength(0);
@@ -147,8 +146,6 @@ describe('PP-02 watermark & strict background-tab masking', () => {
     expect(svg).toMatch(/PRATINJAU · [A-Z0-9]{6} · \d{2}:\d{2}/);
     expect(h.preview.outerHTML).toBe(h.previewHtml);
     expect(h.preview.outerHTML).not.toContain('preview-protection-sheet');
-    expect(h.status.hidden).toBe(false);
-    expect(h.status.textContent).toBe('Preview berwatermark');
     expect(h.api.getStatus()).toMatchObject({ mode: 'strict', pageCount: 2, masked: false });
   });
 
@@ -162,7 +159,6 @@ describe('PP-02 watermark & strict background-tab masking', () => {
     h.emit('document', 'visibilitychange');
     expect(h.api.getStatus().masked).toBe(true);
     expect(h.layer.classList.contains('is-masked')).toBe(true);
-    expect(h.status.textContent).toBe('Preview disamarkan');
     expect(h.layer.sheets).toBe(sheets); // class changes before deferred re-render
     h.document.visibilityState = 'visible';
     h.document.hidden = false;
@@ -170,7 +166,6 @@ describe('PP-02 watermark & strict background-tab masking', () => {
     expect(h.api.getStatus().masked).toBe(false);
     expect(h.layer.classList.contains('is-masked')).toBe(false);
     h.flush();
-    expect(h.status.textContent).toBe('Preview berwatermark');
   });
 
   it('supports watermark-only standard mode without masking', () => {
@@ -200,7 +195,6 @@ describe('PP-02 watermark & strict background-tab masking', () => {
     h.flush();
     expect(h.layer.hidden).toBe(true);
     expect(h.layer.sheets).toHaveLength(0);
-    expect(h.status.hidden).toBe(true);
     h.preview.dataset.pageCount = '2';
     h.observers[0].callback();
     h.flush();
@@ -236,7 +230,6 @@ describe('PP-02 watermark & strict background-tab masking', () => {
     expect(h.layer.classList.contains('is-masked')).toBe(false);
     expect(h.layer.hidden).toBe(true);
     expect(h.layer.sheets).toHaveLength(0);
-    expect(h.status.hidden).toBe(true);
     expect(h.subscriptions.size).toBe(0);
     expect(h.observers.every(ob => ob.disconnect.mock.calls.length === 1)).toBe(true);
 
@@ -261,9 +254,10 @@ describe('PP-02 watermark & strict background-tab masking', () => {
     const sponsor = read('js/sponsor-export-gate.js');
     expect(html).toContain('data-preview-protection="on"');
     expect(html).toContain('data-preview-protection-mode="strict"');
-    expect(html).toContain('id="preview-protection-status"');
-    expect(html).toContain('class="preview-protection-status__label"');
-    expect(js).toContain("statusEl.querySelector?.('.preview-protection-status__label')");
+    expect(html).not.toContain('id="preview-protection-status"');
+    expect(html).not.toContain('Preview berwatermark');
+    expect(js).not.toContain('statusEl');
+    expect(css).not.toContain('#preview-protection-status');
     expect(html).toMatch(/id="surat-preview"[\s\S]*?id="preview-protection-layer"/);
     expect(css).toContain('@media screen');
     expect(css).toContain('@media print');
@@ -276,9 +270,9 @@ describe('PP-02 watermark & strict background-tab masking', () => {
     expect(sponsor).toContain("document.addEventListener('keydown', onKeyboard, true)");
   });
 
-  it('keeps the PP-02 assets precached in the v61 PWA shell', () => {
+  it('keeps the PP-02 assets precached in the v62 PWA shell', () => {
     const sw = read('sw.js');
-    expect(sw).toContain("CACHE_PREFIX + 'v61'");
+    expect(sw).toContain("CACHE_PREFIX + 'v62'");
     expect(sw).toContain("'./js/preview-protection.js'");
     expect(sw).toContain("'./css/preview-protection.css'");
   });

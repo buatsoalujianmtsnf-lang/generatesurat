@@ -16,8 +16,7 @@
     -webkit-user-select: none;
   }
 
-  #preview-protection-layer[hidden],
-  #preview-protection-status[hidden] {
+  #preview-protection-layer[hidden] {
     display: none !important;
   }
 
@@ -61,32 +60,14 @@
     letter-spacing: 0.025em;
   }
 
-  #preview-panel #preview-protection-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    flex: 0 0 auto;
-    white-space: nowrap;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--color-text-secondary, #475467);
-    border-color: var(--color-border, #D0D5DD);
-    background: var(--color-surface-2, #F9FAFB);
-  }
 
-  #preview-panel #preview-protection-status .ti-icon {
-    width: 15px;
-    height: 15px;
-    flex: 0 0 auto;
-  }
 }
 
 /* Explicit isolation for browser printing and server PDF stylesheets.
    CSS itself is collected by PdfExport, but no protection DOM is collected. */
 @media print {
   #preview-protection-layer,
-  #preview-protection-layer .preview-protection-sheet,
-  #preview-protection-status {
+  #preview-protection-layer .preview-protection-sheet {
     display: none !important;
   }
 }
