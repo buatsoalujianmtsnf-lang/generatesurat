@@ -32,7 +32,7 @@ describe('PP-00 — existing preview / print / PDF baseline contracts', () => {
   it('loads all 17 editor templates and retains async pagination readiness', () => {
     const templates = [...index.matchAll(/<script\b[^>]*src="(templates\/[^"]+\.js)"/g)]
       .map(match => match[1]);
-    expect(templates).toHaveLength(17);
+    expect(templates).toHaveLength(18);
     expect(new Set(templates).size).toBe(templates.length);
     for (const path of templates) {
       expect(existsSync(new URL('../' + path, import.meta.url)), path).toBe(true);

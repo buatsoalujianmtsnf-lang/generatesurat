@@ -3,7 +3,7 @@
    ============================================================= */
 
 const CACHE_PREFIX = 'generator-surat-platform-';
-const CACHE_NAME = CACHE_PREFIX + 'v57';
+const CACHE_NAME = CACHE_PREFIX + 'v58';
 const APP_SHELL = [
   './',
   './index.html',
@@ -12,6 +12,7 @@ const APP_SHELL = [
   './css/components.css',
   './css/kop-editor.css',
   './css/preview.css',
+  './css/preview-protection.css',
   './css/ui-modern.css',
   './css/responsive.css',
   './css/workflow.css',
@@ -69,6 +70,7 @@ const APP_SHELL = [
   './js/table-config.js',
   './js/table-config-ui.js',
   './js/preview-renderer.js',
+  './js/preview-protection.js',
   './js/print.js',
   './js/pdf-export.js',
   './js/sponsor-video-state.js',
