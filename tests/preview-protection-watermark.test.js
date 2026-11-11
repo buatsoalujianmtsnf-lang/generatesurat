@@ -276,9 +276,9 @@ describe('PP-02 watermark & strict background-tab masking', () => {
     expect(sponsor).toContain("document.addEventListener('keydown', onKeyboard, true)");
   });
 
-  it('keeps the PP-02 assets precached in the v59 PWA shell', () => {
+  it('keeps the PP-02 assets precached in the v60 PWA shell', () => {
     const sw = read('sw.js');
-    expect(sw).toContain("CACHE_PREFIX + 'v59'");
+    expect(sw).toContain("CACHE_PREFIX + 'v60'");
     expect(sw).toContain("'./js/preview-protection.js'");
     expect(sw).toContain("'./css/preview-protection.css'");
   });
