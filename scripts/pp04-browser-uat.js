@@ -594,6 +594,13 @@ try {
         headerColor: getComputedStyle(header).backgroundColor,
         htmlTheme: document.documentElement.dataset.theme,
         htmlClasses: document.documentElement.className,
+        editorClass: document.documentElement.dataset.routePage,
+        rootInk: getComputedStyle(document.documentElement).getPropertyValue('--arc-ui-ink'),
+        rootSurface: getComputedStyle(document.documentElement).getPropertyValue('--arc-ui-surface'),
+        selectorMatch: title.matches('html[data-theme="dark"] .app-header .app-header__brand .app-header__title'),
+        arcCssSheets: [...document.styleSheets].filter(x => x.href?.includes('arc-inspired')).map(x => ({
+          href:x.href, disabled:x.disabled, rules:x.cssRules?.length || 0,
+        })),
         navbarAlign: getComputedStyle(actionBar).justifyContent,
       };
     });
