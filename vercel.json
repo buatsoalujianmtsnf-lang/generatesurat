@@ -99,5 +99,8 @@
       "source": "/DPUdanRegis",
       "destination": "/index"
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": false
+  }
 }

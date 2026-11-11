@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "enabled": false,
+  "mode": "manual-responsive-display",
+  "publisherId": null,
+  "requireSiteApproval": true,
+  "autoAds": false,
+  "contentOnly": true,
+  "allowedRoutes": [
+    "/",
+    "/panduan",
+    "/panduan-cetak-pdf",
+    "/faq"
+  ],
+  "deniedRoutePrefixes": [
+    "/editor",
+    "/surat/",
+    "/kategori/",
+    "/api/"
+  ],
+  "deniedRoutes": [
+    "/privasi",
+    "/ketentuan",
+    "/tentang",
+    "/DPUdanRegis"
+  ],
+  "units": [
+    {
+      "id": "home-after-guides",
+      "route": "/",
+      "containerId": "ads-home-after-guides",
+      "enabled": false,
+      "slotId": null
+    },
+    {
+      "id": "guide-after-content",
+      "route": "/panduan",
+      "containerId": "ads-guide-after-content",
+      "enabled": false,
+      "slotId": null
+    },
+    {
+      "id": "pdf-guide-after-content",
+      "route": "/panduan-cetak-pdf",
+      "containerId": "ads-pdf-guide-after-content",
+      "enabled": false,
+      "slotId": null
+    }
+  ],
+  "policyNotes": "Belum ada skrip maupun iklan Google. Aktivasi memerlukan Publisher ID asli, persetujuan situs, CMP bila relevan, serta CSP terpisah dan QA MON-06/MON-08."
+}

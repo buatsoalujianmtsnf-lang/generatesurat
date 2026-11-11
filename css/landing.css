@@ -219,3 +219,16 @@ html.dark-mode .lp__paper,html.dark-mode .lp__preview-badge {color:#25324b;}
   .lp__stat strong {font-size:20px;}
 }
 @media (prefers-reduced-motion:reduce) {.lp * {transition:none!important;}}
+
+/* MON-01: tautan konten publik; tidak mengubah panel editor. */
+.lp__guide-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; margin-top:24px; }
+.lp__guide-card { border:1px solid var(--lp-border,#d9e4f2); border-radius:20px; background:var(--lp-surface,#fff); padding:24px; box-shadow:0 8px 28px rgba(29,61,109,.07); min-width:0; }
+.lp__guide-card h3 { font-size:1.18rem; margin:10px 0; line-height:1.3; }
+.lp__guide-card p { line-height:1.7; margin:0 0 18px; }
+.lp__guide-card a { color:#1d4ed8; font-weight:700; text-underline-offset:4px; }
+.lp__guide-tag { color:#1d4ed8; font-weight:700; font-size:.8rem; letter-spacing:.02em; }
+.lp__footer-meta { display:flex; flex-direction:column; gap:12px; min-width:0; }
+.lp__footer-links { display:flex; flex-wrap:wrap; gap:8px 18px; }
+.lp__footer-links a { color:inherit; text-decoration:underline; text-underline-offset:3px; }
+.lp__links a:focus-visible, .lp__guide-card a:focus-visible, .lp__footer-links a:focus-visible { outline:3px solid #2563eb; outline-offset:4px; }
+@media (max-width:800px) { .lp__guide-grid { grid-template-columns:1fr; } }
