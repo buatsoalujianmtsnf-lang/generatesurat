@@ -721,6 +721,14 @@ try {
         paper.dataset.pageNumber = String(i + 1);
         preview.appendChild(paper);
       }
+      // The fixture replaces natural pages without calling PreviewRenderer.
+      // Synchronize its synthetic stage, otherwise the viewport still has the
+      // scroll height of the previous real one-page template.
+      const stage = document.getElementById('preview-scroll-stage');
+      const wrapper = document.getElementById('preview-canvas-wrapper');
+      const zoom = State.getUi().previewZoom || 1;
+      stage.style.width = Math.ceil(wrapper.offsetWidth * zoom) + 32 + 'px';
+      stage.style.height = Math.ceil(preview.scrollHeight * zoom) + 48 + 'px';
       viewport.scrollTop = 0;
       DocumentViewer.refresh();
     });
