@@ -250,7 +250,7 @@
 
 @media screen and (max-width: 374px) {
   .app-header__brand {
-    max-width: min(40vw, 140px);
+    max-width: min(35vw, 132px);
   }
 
   .app-header__title {
