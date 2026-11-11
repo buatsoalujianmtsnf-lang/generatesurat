@@ -3,7 +3,7 @@
    ============================================================= */
 
 const CACHE_PREFIX = 'generator-surat-platform-';
-const CACHE_NAME = CACHE_PREFIX + 'v50';
+const CACHE_NAME = CACHE_PREFIX + 'v51';
 const APP_SHELL = [
   './',
   './index.html',
@@ -26,6 +26,7 @@ const APP_SHELL = [
   './css/tabler-icons.css',
   './css/editor-drawer.css',
   './css/form-accordion-spacing.css',
+  './css/arc-inspired.css',
   './css/platform.css',
   './css/document-viewer.css',
   './css/print.css',
