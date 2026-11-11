@@ -1,5 +1,6 @@
-/* PP-01: structural (invisible) overlay, scoped to the Preview Surat canvas.
-   Actual watermark and masking are deferred to PP-02. */
+/* PP-02 — Watermark dinamis dan masking hanya pada area Preview Surat.
+   Tidak mengubah #surat-preview, isi surat, atau alur Cetak/PDF. */
+
 @media screen {
   #preview-canvas-wrapper {
     position: relative;
@@ -15,7 +16,8 @@
     -webkit-user-select: none;
   }
 
-  #preview-protection-layer[hidden] {
+  #preview-protection-layer[hidden],
+  #preview-protection-status[hidden] {
     display: none !important;
   }
 
@@ -23,15 +25,63 @@
     position: absolute;
     box-sizing: border-box;
     pointer-events: none;
-    background: transparent;
     border: 0;
+    background-color: transparent;
+    background-repeat: repeat;
+    background-size: 360px 180px;
+    background-position: 0 0;
+    overflow: hidden;
+  }
+
+  /* Strict mode: only the physical paper rectangles are obscured.
+     This is a visibility precaution, NOT screen-recorder detection. */
+  #preview-protection-layer.is-masked .preview-protection-sheet {
+    background-image: none !important;
+    background-color: #F2F4F8 !important;
+  }
+
+  #preview-protection-layer.is-masked .preview-protection-sheet::after {
+    content: "PRATINJAU DISEMBUNYIKAN\A Kembali ke tab untuk melihat surat";
+    white-space: pre-line;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 22px;
+    box-sizing: border-box;
+    text-align: center;
+    color: #344054;
+    font: 600 16px/1.65 Arial, sans-serif;
+    letter-spacing: 0.025em;
+  }
+
+  #preview-panel #preview-protection-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-text-secondary, #475467);
+    border-color: var(--color-border, #D0D5DD);
+    background: var(--color-surface-2, #F9FAFB);
+  }
+
+  #preview-panel #preview-protection-status .ti-icon {
+    width: 15px;
+    height: 15px;
+    flex: 0 0 auto;
   }
 }
 
-/* Safe even when the outer UI is reset to display:block for printing. */
+/* Explicit isolation for browser printing and server PDF stylesheets.
+   CSS itself is collected by PdfExport, but no protection DOM is collected. */
 @media print {
   #preview-protection-layer,
-  .preview-protection-sheet {
+  #preview-protection-layer .preview-protection-sheet,
+  #preview-protection-status {
     display: none !important;
   }
 }
