@@ -471,7 +471,7 @@ try {
       });
     }
 
-    await landingPage.close();
+    // Keep this independent landing tab open for additional dark-theme checks.
 
     // Regression: the editor control is an independent, visible work-area
     // toggle at every breakpoint, and remains usable after state changes.
@@ -645,6 +645,7 @@ try {
     check(guideContrast.length === 3 && guideContrast.every(x =>
       x.heading >= 4.5 && x.description >= 4.5 && x.tag >= 4.5),
       device.name + ': landing guide text illegible in dark mode ' + JSON.stringify(guideContrast));
+    await landingPage.close();
 
     // All six information pages share the same persisted theme and can
     // switch light/dark independently without changing their routes.
