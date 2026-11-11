@@ -25,6 +25,7 @@ export function monitoringEnabled(env=process.env, config=defaultConfig) {
     && typeof env.UPSTASH_REDIS_REST_URL==='string' && !!env.UPSTASH_REDIS_REST_URL
     && typeof env.UPSTASH_REDIS_REST_TOKEN==='string' && !!env.UPSTASH_REDIS_REST_TOKEN;
 }
+/** @param {{route:string,status:number,durationMs:number,now?:number}} sample */
 export function makeMon09Sample({route,status,durationMs,now=Date.now()},config=defaultConfig) {
   if (!ROUTES.has(route) || !config.routes?.includes(route)) return null;
   if (!Number.isInteger(status) || status<200 || status>599
@@ -67,7 +68,10 @@ export function createMon09RedisCommand(env=process.env, fetchImpl=fetch, config
     }
   };
 }
-/** Always best effort: no error can change authorization or HTTP response. */
+/** Always best effort: no error can change authorization or HTTP response.
+ * @param {{route:string,status:number,durationMs:number,now?:number}} outcome
+ * @param {{env?:NodeJS.ProcessEnv,config?:any,command?:((args:string[])=>Promise<unknown>)}} [options]
+ */
 export async function recordMon09Outcome({route,status,durationMs,now},
   {env=process.env,config=defaultConfig,command}={}) {
   if (!monitoringEnabled(env,config)) return false;
