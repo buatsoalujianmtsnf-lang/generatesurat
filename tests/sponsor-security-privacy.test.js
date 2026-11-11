@@ -51,7 +51,7 @@ describe('MON-06 CSP, privacy and failure controls',()=>{
     expect(api).toContain("res.setHeader('Retry-After','15')");
     expect(api).toContain("res.setHeader('Pragma','no-cache')");
     const gate=read('js/sponsor-export-gate.js');
-    expect(gate).toContain('signal: AbortSignal.timeout(8000)');
+    expect(gate).toContain('controller.abort()');
   });
   it('clears the temporary browser print marker on afterprint or timeout',()=>{
     const printer=read('js/print.js');

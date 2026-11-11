@@ -53,7 +53,10 @@ describe('MON-04 sponsor modal and verified state',()=>{
     expect(sw).toContain("'./js/sponsor-video-modal.js'");
     expect(sw).toContain("'./css/sponsor-video.css'");
     expect(sw).toContain("CACHE_PREFIX + 'v54'");
-    expect(sw).not.toContain("assets/sponsors/");
+    // The worker now explicitly BLOCKS this path from cache: mentioning the
+    // route in a deny rule is correct, but pre-caching sponsor media is not.
+    expect(sw).toContain("pathname.startsWith('/assets/sponsors/')");
+    expect(sw).not.toMatch(/'\.\/assets\/sponsors\//);
     expect(s).not.toMatch(/window\.print\(|PdfExport\.exportDocument\(|adsbygoogle|localStorage|sessionStorage/);
     expect(s).toContain("redirect:'error'");
     expect(s).toContain("cache:'no-store'");

@@ -148,14 +148,18 @@ self.addEventListener('message', event => {
   }
 });
 
+function requestUrl(request) {
+  // CacheStorage.keys() returns Request in browsers; the test adapter uses URL strings.
+  return new URL(typeof request === 'string' ? request : request.url);
+}
 function isSameOrigin(request) {
-  return new URL(request.url).origin === self.location.origin;
+  return requestUrl(request).origin === self.location.origin;
 }
 
 // Sponsor media, captions and API state must never persist in the PWA cache.
 function isSponsorPrivateRequest(request) {
   if (!isSameOrigin(request)) return false;
-  const pathname = new URL(request.url).pathname;
+  const pathname = requestUrl(request).pathname;
   return pathname === '/api' || pathname.startsWith('/api/')
     || pathname.startsWith('/assets/sponsors/');
 }
