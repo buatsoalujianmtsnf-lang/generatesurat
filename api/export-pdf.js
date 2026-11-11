@@ -14,6 +14,7 @@ import {
   validatePdfPayload,
 } from './export-pdf-security.js';
 import { verifyPdfSponsorReceipt } from './sponsor-export-authorization.js';
+import { recordMon09Outcome } from './mon09-metrics.js';
 
 const MAX_HTML_BYTES = 3 * 1024 * 1024;
 const MAX_CSS_BYTES = 2 * 1024 * 1024;
@@ -90,7 +91,7 @@ function buildDocumentHtml(html, css, widthMm, heightMm) {
     '</head><body>' + safeHtml + '</body></html>';
 }
 
-export default async function handler(req, res) {
+async function handlePdfRequest(req, res) {
   res.setHeader('Cache-Control', 'no-store, max-age=0');
   res.setHeader('X-Robots-Tag', 'noindex, nofollow');
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -297,5 +298,28 @@ export default async function handler(req, res) {
       }
     }
     if (renderSlotAcquired) activeRenders = Math.max(0, activeRenders - 1);
+  }
+}
+
+/**
+ * MON-09: observe only final HTTP outcome + latency, never the PDF payload,
+ * filename, origin, user identity, IP, receipt or school/student metadata.
+ * Monitoring is disabled until two separate server-side flags are enabled.
+ * A telemetry failure cannot alter the rendered document or receipt decision.
+ */
+export default async function handler(req,res) {
+  const startedAt=Date.now();
+  let unhandled=false;
+  try {
+    return await handlePdfRequest(req,res);
+  } catch(error) {
+    unhandled=true;
+    throw error;
+  } finally {
+    await recordMon09Outcome({
+      route:'pdf-export',
+      status:unhandled?500:(Number.isInteger(res.statusCode)?res.statusCode:500),
+      durationMs:Date.now()-startedAt,
+    });
   }
 }
