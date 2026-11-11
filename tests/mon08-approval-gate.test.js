@@ -97,12 +97,14 @@ describe('MON-08 independent provider and controlled launch approval',()=>{
     const r=assessMon08(p);
     expect(r.hazards).toContain('AUTO_ADS_MUST_STAY_OFF');
   });
-  it('keeps ads.txt absent until the actual account and site status are verified',()=>{
+  it('accepts owner-supplied ads.txt while withholding Google authorization until independently verified',()=>{
     const p=inputs();
     expect(p.zones.publisherId).toBe('pub-4751617120862559');
     expect(p.rollout.google.verificationOnly).toBe(true);
     expect(p.rollout.google.requestedState).toBe('off');
-    expect(p.adsTxt).not.toMatch(/^google\.com,\s*pub-\d{16},/m);
+    expect(p.adsTxt.trim()).toBe('google.com, pub-4751617120862559, DIRECT, f08c47fec0942fa0');
+    expect(p.evidence.google.adsTxtStatus).not.toBe('AUTHORIZED');
+    expect(p.evidence.google.adsTxtEvidenceRef).toBeNull();
     expect(json('docs/mon08-approval-evidence.json').google.siteStatusEvidenceRef).toBeNull();
   });
 });

@@ -60,7 +60,9 @@ describe('MON-08 supplied AdSense code, verification-only public pages',()=>{
     expect(JSON.parse(read('config/mon09-monitoring.json')).enabled).toBe(false);
     expect(JSON.parse(read('config/sponsor-policy.json')).enabled).toBe(false);
     expect(conf.git.deploymentEnabled).toBe(false);
-    expect(read('ads.txt')).not.toMatch(/^google\.com,\s*pub-\d{16},/m);
+    expect(read('ads.txt').trim()).toBe('google.com, pub-4751617120862559, DIRECT, f08c47fec0942fa0');
+    expect(approvals.google.adsTxtStatus).not.toBe('AUTHORIZED');
+    expect(approvals.google.adsTxtEvidenceRef).toBeNull();
   });
   it('publishes accurate third-party verification disclosure',()=>{
     const html=read('privasi.html');

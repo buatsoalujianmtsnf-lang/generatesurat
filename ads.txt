@@ -1,2 +1,1 @@
-# Belum ada ID penayang Google AdSense; tambahkan baris resmi dari akun setelah situs disetujui.
-# File ini hanya landasan MON-01 dan belum mengotorisasi penjualan inventaris.
+google.com, pub-4751617120862559, DIRECT, f08c47fec0942fa0

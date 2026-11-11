@@ -12,7 +12,7 @@
     "siteStatusCheckedAt": null,
     "domainOwnershipVerified": false,
     "domainOwnershipEvidenceRef": null,
-    "adsTxtStatus": "NOT_CONFIGURED",
+    "adsTxtStatus": "FILE_CONFIGURED_UNVERIFIED",
     "adsTxtEvidenceRef": null,
     "policyCenterStatus": "NOT_REVIEWED",
     "policyCenterEvidenceRef": null,
@@ -50,5 +50,5 @@
     "manualDeploymentApprovalRef": null,
     "manualRollbackEvidenceRef": null
   },
-  "note": "NO_GO: No Google account approval evidence, publisher ID, contract/video, production Redis or manual UAT. Do not mark approved unless verified in the actual provider account."
+  "note": "NO_GO: Owner supplied publisher and ads.txt seller line and the repository is configured, but Google site approval, public crawler verification, signed sponsor/video rights, Redis UAT, CMP review, and operator acceptance remain unverified. adsTxtStatus is NOT authorized until Google confirms it in Sites and evidence is attached."
 }

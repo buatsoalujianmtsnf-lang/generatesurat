@@ -65,3 +65,10 @@ Tidak ada random canary % di browser karena implementasi saat ini memakai satu f
 - Semua tujuh halaman HTML memiliki satu tag meta pemilik AdSense dengan ID yang diberikan akun. `index.html` juga melayani `/editor` dan rute template, sehingga rute tersebut mendapat tag meta **tanpa** skrip iklan.
 - Skrip `adsbygoogle.js` tetap terbatas pada `/panduan`, `/panduan-cetak-pdf`, dan `/faq`. Tidak ada perluasan CSP, penempatan iklan, slot, atau aktivasi kampanye. Google Sites `Ready` masih harus diverifikasi sendiri.
 - Auto-deploy Vercel, fitur video sponsor, dan MON-09 tetap nonaktif. Perubahan ini harus melewati PR/CI dan deployment manual terpisah.
+
+
+## Pembaruan ads.txt dari pemilik akun — 11 November 2026
+- Pemilik akun memberikan baris seller resmi: `google.com, pub-4751617120862559, DIRECT, f08c47fec0942fa0`. File `ads.txt` pada root repositori diperbarui hanya berisi baris ini; tidak ada duplikasi, placeholder atau komentar lama yang menyatakan publisher belum diketahui.
+- Setelah **merge dan deployment manual** ke Production, periksa respons publik di `https://generatesuratku.vercel.app/ads.txt` (HTTP 200, teks persis sesuai baris) dan tinjau status `ads.txt` pada Google AdSense → Sites. Hanya Google yang dapat menyatakan apakah parser menerima file tersebut dan apakah situs dalam status Ready.
+- `docs/mon08-approval-evidence.json.google.adsTxtStatus` menjadi `FILE_CONFIGURED_UNVERIFIED` dengan `adsTxtEvidenceRef: null`, **bukan** `AUTHORIZED`. Kode yang ditambahkan merupakan pernyataan penjual terotorisasi yang disampaikan pemilik akun; tidak berarti Google telah mengonfirmasi status atau menyetujui penayangan.
+- `config/adsense-zones.json.enabled=false`, `autoAds=false`, `config/mon08-rollout.json.decision=NO_GO`, sponsor video, MON-09, dan Vercel auto-deploy tetap nonaktif. Aktivasi iklan masih memerlukan status Sites Ready, Policy Center, CMP bila relevan, uji CSP dan persetujuan operator.
