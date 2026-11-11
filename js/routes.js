@@ -21,6 +21,11 @@ const Routes = (() => {
     'notulensi-rapat': 'notulensi-rapat',
   });
   const GROUP_IDS = ['registrasi-dpu', 'ijop', 'pengolahan-nilai', 'surat-menyurat-siswa', 'administrasi-rapat'];
+  // Standalone content pages are real .html files on a static local server.
+  // Only Vercel's cleanUrls serves their extensionless canonical paths.
+  const PUBLIC_PAGES = new Set([
+    '/panduan', '/panduan-cetak-pdf', '/faq', '/tentang', '/privasi', '/ketentuan',
+  ]);
   const ID_BY_SLUG = Object.fromEntries(
     Object.entries(TEMPLATE_SLUGS).map(([id, slug]) => [slug, id])
   );
@@ -47,6 +52,7 @@ const Routes = (() => {
 
   function href(path) {
     if (!isLocal()) return path; // URL kanonis di Vercel tidak berubah.
+    if (PUBLIC_PAGES.has(path)) return path + '.html';
     // Pertahankan /index.html bila localhost dibuka sebagai file eksplisit.
     const pathname = window.location.pathname;
     const entry = pathname.endsWith('/index.html') ? pathname : '/';
