@@ -23,6 +23,7 @@ const SponsorExportGate = (() => {
       credentials: 'same-origin',
       redirect: 'error',
       cache: 'no-store',
+      signal: AbortSignal.timeout(8000),
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({ receipt }),
     });

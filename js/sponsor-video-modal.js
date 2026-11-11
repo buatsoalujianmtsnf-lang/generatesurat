@@ -43,6 +43,7 @@ const SponsorVideoModal = (() => {
       INVALID_PLAYBACK:'Posisi atau kecepatan pemutaran tidak valid. Mulai ulang penayangan.',
       TOO_MANY_REQUESTS:'Terlalu banyak permintaan. Silakan coba kembali kemudian.',
       NETWORK_ERROR:'Koneksi ke layanan iklan gagal. Periksa internet lalu coba lagi.',
+      MEDIA_STALLED:'Video tidak dapat dimuat atau macet terlalu lama. Periksa koneksi atau pemblokir konten, lalu coba lagi.',
     };
     return messages[error] || 'Iklan belum dapat diverifikasi. Silakan coba kembali atau batalkan.';
   }
@@ -78,6 +79,15 @@ const SponsorVideoModal = (() => {
   }
   function stopTimer(ctx) {
     if (ctx.interval !== null) { clearInterval(ctx.interval); ctx.interval=null; }
+    if (ctx.stallTimer !== null) { clearTimeout(ctx.stallTimer); ctx.stallTimer=null; }
+    if (ctx.mediaLoadTimer !== null) { clearTimeout(ctx.mediaLoadTimer); ctx.mediaLoadTimer=null; }
+  }
+  function armStallTimer(ctx) {
+    if (!live(ctx) || ctx.stallTimer !== null) return;
+    ctx.stallTimer=setTimeout(() => {
+      ctx.stallTimer=null;
+      if (live(ctx) && ctx.state==='playing') fail(ctx,'MEDIA_STALLED');
+    },12000);
   }
   function clearMedia() {
     const e = elements();
@@ -156,6 +166,10 @@ const SponsorVideoModal = (() => {
       e.video.src=result.mediaPath;
       e.video.load();
       setState(ctx,'READY');
+      ctx.mediaLoadTimer=setTimeout(() => {
+        ctx.mediaLoadTimer=null;
+        if(live(ctx,attempt) && ctx.state==='ready' && !ctx.mediaReady) fail(ctx,'MEDIA_STALLED');
+      },12000);
     } catch(error){if(live(ctx,attempt))fail(ctx,error?.message||'NETWORK_ERROR');}
   }
   async function heartbeat(ctx,ended=false) {
@@ -241,6 +255,7 @@ const SponsorVideoModal = (() => {
       if(!Number.isFinite(e.video.duration)||Math.abs(e.video.duration-DURATION)>0.6){
         fail(ctx,'INVALID_PLAYBACK');return;
       }
+      if(ctx.mediaLoadTimer!==null){clearTimeout(ctx.mediaLoadTimer);ctx.mediaLoadTimer=null;}
       ctx.mediaReady=true;render(ctx);
     });
     e.video.addEventListener('error',()=>{if(current&&current.state!=='starting')fail(current,'NETWORK_ERROR');});
@@ -261,6 +276,17 @@ const SponsorVideoModal = (() => {
       if(!ctx||ctx.state!=='playing'||e.video.ended)return;
       setState(ctx,'PAUSE');
       void heartbeat(ctx).catch(()=>{});
+    });
+    e.video.addEventListener('waiting',()=>{
+      const ctx=current;
+      if(ctx && ctx.state==='playing'){
+        e.status.textContent='Video sedang memuat… Pemutaran yang terhenti tidak dihitung.';
+        armStallTimer(ctx);
+      }
+    });
+    e.video.addEventListener('playing',()=>{
+      const ctx=current;
+      if(ctx && ctx.stallTimer!==null){clearTimeout(ctx.stallTimer);ctx.stallTimer=null;render(ctx);}
     });
     e.video.addEventListener('timeupdate',()=>{if(current)render(current);});
     e.video.addEventListener('ended',()=>{if(current)void ended(current);});
@@ -294,6 +320,7 @@ const SponsorVideoModal = (() => {
       const ctx={
         action,source,resolve,returnFocus:document.activeElement,
         state:'idle',attempt:1,abort:new AbortController(),interval:null,pending:null,
+        stallTimer:null,mediaLoadTimer:null,
         sessionToken:null,mediaReady:false,hasCaptions:false,sponsorName:'',problem:'',
       };
       current=ctx;

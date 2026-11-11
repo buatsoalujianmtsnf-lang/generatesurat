@@ -239,6 +239,9 @@ const PdfExport = (() => {
       if (msg.startsWith('rate-limit:')) {
         userMessage = msg.slice('rate-limit:'.length).trim() ||
           'Terlalu banyak permintaan ekspor PDF. Tunggu sebentar lalu coba lagi.';
+      } else if (msg.includes('video sponsor') || msg.includes('Izin PDF')
+          || msg.includes('Verifikasi sponsor') || msg.includes('Layanan sponsor')) {
+        userMessage = msg;
       } else if (msg.includes('403') || msg.includes('Origin')) {
         userMessage = 'Ekspor PDF ditolak server. Pastikan aplikasi diakses dari domain yang terdaftar.';
       } else if (msg.includes('413') || msg.includes('besar')) {
