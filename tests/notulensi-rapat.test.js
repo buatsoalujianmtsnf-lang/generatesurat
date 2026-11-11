@@ -88,17 +88,57 @@ describe('Notulensi Rapat dan lampiran daftar hadir dari dokumen Word', () => {
     expect(html).toContain('3 orang');
   });
 
-  it('memulai daftar hadir dengan minimal 20 baris dan bertambah untuk daftar panjang', () => {
+  it('menyesuaikan tabel tindak lanjut tepat dengan jumlah entri form, termasuk saat kosong', () => {
     const { tpl, renderer } = setup();
     const data = tpl.createDefaultData();
-    let html = renderer.buildDocumentHtml(tpl, data, {}, null, null);
-    let annexTable = html.split('B. DAFTAR KEHADIRAN PESERTA')[1].split('C. REKAPITULASI KEHADIRAN')[0];
-    expect((annexTable.match(/<tr>/g) || []).length).toBe(21);
-    data.peserta = Array.from({ length: 22 }, (_, index) =>
-      ({ id: String(index + 1), nama: 'Peserta ' + (index + 1), status: 'Hadir' }));
-    html = renderer.buildDocumentHtml(tpl, data, {}, null, null);
-    annexTable = html.split('B. DAFTAR KEHADIRAN PESERTA')[1].split('C. REKAPITULASI KEHADIRAN')[0];
-    expect((annexTable.match(/<tr>/g) || []).length).toBe(23);
+    for (const count of [0, 1, 3, 6, 24]) {
+      data.tindakLanjut = Array.from({ length: count }, (_, index) => ({
+        id: 'follow-' + index, keputusan: 'Keputusan ' + (index + 1),
+        penanggungJawab: index % 2 ? '' : 'Petugas ' + (index + 1), batasWaktu: '',
+      }));
+      const html = renderer.buildDocumentHtml(tpl, data, {}, null, null);
+      const section = html.split('F. RENCANA TINDAK LANJUT')[1].split('Mekanisme Monitoring')[0];
+      expect((section.match(/<tr>/g) || []).length).toBe(count + 1); // header + data
+      if (count) expect(section).toContain('Keputusan ' + count);
+    }
+    data.tindakLanjut = [{ id: 'new-blank', keputusan: '', penanggungJawab: '', batasWaktu: '' }];
+    const blank = renderer.buildDocumentHtml(tpl, data, {}, null, null)
+      .split('F. RENCANA TINDAK LANJUT')[1].split('Mekanisme Monitoring')[0];
+    expect((blank.match(/<tr>/g) || []).length).toBe(2);
+  });
+
+  it('menyesuaikan tabel daftar hadir tepat dengan entri form, bukan minimum 20 baris', () => {
+    const { tpl, renderer } = setup();
+    const data = tpl.createDefaultData();
+    for (const count of [0, 1, 2, 20, 22, 31]) {
+      data.peserta = Array.from({ length: count }, (_, index) =>
+        ({ id: String(index + 1), nama: 'Peserta ' + (index + 1), status: 'Hadir' }));
+      const html = renderer.buildDocumentHtml(tpl, data, {}, null, null);
+      const section = html.split('B. DAFTAR KEHADIRAN PESERTA')[1].split('C. REKAPITULASI KEHADIRAN')[0];
+      expect((section.match(/<tr>/g) || []).length).toBe(count + 1); // header + data
+      if (count) expect(section).toContain('Peserta ' + count);
+    }
+    data.peserta = [{ id: 'new-blank', nama: '', jabatan: '', status: 'Hadir' }];
+    const blank = renderer.buildDocumentHtml(tpl, data, {}, null, null)
+      .split('B. DAFTAR KEHADIRAN PESERTA')[1].split('C. REKAPITULASI KEHADIRAN')[0];
+    expect((blank.match(/<tr>/g) || []).length).toBe(2);
+    expect(tpl.getAttendanceSummary(data).terdata).toBe(0);
+  });
+
+  it('menghapus keterangan jika ada dan menjaga label panjang rekapitulasi satu baris', () => {
+    const { tpl, renderer } = setup();
+    const data = tpl.createDefaultData();
+    const html = renderer.buildDocumentHtml(tpl, data, {}, null, null);
+    const titlesAndLabels = tpl.formSections.flatMap(section => [
+      section.title, ...(section.fields || []).map(field => field.label),
+    ]);
+    for (const value of [...titlesAndLabels, html]) {
+      expect(value).not.toMatch(/\\(jika ada\\)/i);
+    }
+    const recap = html.split('C. REKAPITULASI KEHADIRAN')[1].split('D. CATATAN KEHADIRAN')[0];
+    for (const label of ['Jumlah Peserta yang Diundang', 'Jumlah Peserta Tanpa Keterangan']) {
+      expect(recap).toMatch(new RegExp('white-space:nowrap;[^"]*">' + label + '<\\/td>'));
+    }
   });
 
   it('mempertahankan urutan acara, topik, keputusan, tindak lanjut, dan catatan', () => {
