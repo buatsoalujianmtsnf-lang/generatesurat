@@ -49,7 +49,10 @@ const Landing = (() => {
     for (const group of groups) {
       const section = element('section', 'lp-group');
       section.id = 'lp-' + group.id;
-      const head = element('div', 'lp-group__heading');
+      // Native group-level accordion: every category is collapsed on first paint.
+      // Nested template-level <details> remain intact inside this group.
+      const accordion = element('details', 'lp-group__accordion');
+      const head = element('summary', 'lp-group__heading');
       const icon = element('span', 'lp-group__icon', group.icon);
       icon.setAttribute('aria-hidden', 'true');
       const titleWrap = element('div', 'lp-group__headline');
@@ -58,7 +61,10 @@ const Landing = (() => {
       head.appendChild(icon);
       head.appendChild(titleWrap);
       head.appendChild(element('span', 'lp-group__count', String(group.templates.length) + ' template'));
-      section.appendChild(head);
+      const chevron = element('span', 'lp-group__chevron', '⌄');
+      chevron.setAttribute('aria-hidden', 'true');
+      head.appendChild(chevron);
+      accordion.appendChild(head);
 
       const cards = element('div', 'lp-group__templates');
       for (const template of group.templates) {
@@ -92,10 +98,13 @@ const Landing = (() => {
             .toLocaleLowerCase('id-ID'),
         });
       }
-      section.appendChild(cards);
+      const body = element('div', 'lp-group__body');
+      body.appendChild(cards);
       const footer = element('a', 'lp-group__link', 'Buka semua template kelompok ini');
       footer.setAttribute('href', Routes.href(Routes.categoryUrl(group.id)));
-      section.appendChild(footer);
+      body.appendChild(footer);
+      accordion.appendChild(body);
+      section.appendChild(accordion);
       groupRoot.appendChild(section);
     }
 
@@ -116,6 +125,10 @@ const Landing = (() => {
         const visibleCards = Array.from(group.querySelectorAll('.lp-template'))
           .some(link => !link.hasAttribute('hidden'));
         group.toggleAttribute('hidden', !visibleCards);
+        // Match results should be reachable without opening each category by hand.
+        // Clearing the query restores the requested collapsed state.
+        const accordion = group.querySelectorAll('.lp-group__accordion')[0];
+        if (accordion) accordion.open = Boolean(q && visibleCards);
       });
       empty.hidden = visibleCount > 0;
       if (clear) clear.hidden = search.value.length === 0;
