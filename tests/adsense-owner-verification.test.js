@@ -17,10 +17,10 @@ describe('MON-08 supplied AdSense code, verification-only public pages',()=>{
       expect(head).toContain('src="'+script+'"');
       expect(head).toMatch(/<script\s+async\s+src="https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js\?client=ca-pub-4751617120862559"\s+crossorigin="anonymous"><\/script>/);
       const scripts = tags(html);
-      expect(scripts).toHaveLength(5);
+      expect(scripts).toHaveLength(6);
       expect(scripts.filter(tag => tag.includes('src="'+script+'"'))).toHaveLength(1);
       expect(scripts.filter(tag => tag.includes('src="/js/routes.js"'))).toHaveLength(1);
-      const themeScripts = ['/js/routes.js', '/js/theme-init.js', '/js/theme.js', '/js/public-theme.js'];
+      const themeScripts = ['/js/routes.js', '/js/theme-init.js', '/js/theme.js', '/js/public-theme.js', '/js/page-zoom-guard.js'];
       expect(scripts.every(tag => tag.includes('src="'+script+'"') ||
         themeScripts.some(asset => tag.includes('src="'+asset+'"')))).toBe(true);
       for (const asset of themeScripts) {
