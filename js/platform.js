@@ -13,7 +13,7 @@
 const Platform = (() => {
 
   const APP_VERSION = '2026.11.09';
-  const UPDATE_MESSAGE = 'Versi baru Generator Surat tersedia.';
+  const UPDATE_MESSAGE = 'Versi baru Generate Suratku tersedia.';
   const OFFLINE_MESSAGE = 'Mode offline aktif. Data lokal dan fitur yang sudah tersimpan tetap dapat digunakan.';
   const ONLINE_MESSAGE = 'Koneksi internet kembali tersedia.';
 
@@ -100,7 +100,7 @@ const Platform = (() => {
       _showInstallButton(false);
       _syncPlatformState();
       if (typeof UI !== 'undefined') {
-        UI.toast('Generator Surat berhasil dipasang sebagai aplikasi.', 'success', 4500);
+        UI.toast('Generate Suratku berhasil dipasang sebagai aplikasi.', 'success', 4500);
       }
     });
   }

@@ -163,13 +163,13 @@ const FormRenderer = (() => {
 
     wrap.innerHTML = `
       <div class="form-section__header collapse-title" role="button" tabindex="0"
-        aria-expanded="true" data-section="${section.id}">
+        aria-expanded="false" data-section="${section.id}">
         <span class="form-section__title card-title">
           <span>${typeof AppIcons !== 'undefined' ? AppIcons.svg(section.icon || 'file-text') : Utils.escapeHtml(section.icon || '')} ${Utils.escapeHtml(section.title)}</span>
         </span>
-        <svg class="ti-icon form-section__toggle" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-chevron-down"></use></svg>
+        <svg class="ti-icon form-section__toggle collapsed" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-chevron-down"></use></svg>
       </div>
-      <div class="form-section__body card-body" id="section-body-${section.id}"></div>`;
+      <div class="form-section__body card-body collapsed" id="section-body-${section.id}"></div>`;
 
     const header  = wrap.querySelector('.form-section__header');
     const body    = wrap.querySelector('.form-section__body');
@@ -261,6 +261,7 @@ const FormRenderer = (() => {
       const chev = entry.querySelector('.row-entry__chevron');
       if (body) { body.classList.add('is-open'); }
       if (chev) { chev.classList.add('is-open'); }
+      entry.querySelector('.row-entry__header')?.setAttribute('aria-expanded', 'true');
 
       // Scroll ke bawah
       setTimeout(() => entry.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
@@ -287,7 +288,7 @@ const FormRenderer = (() => {
     const isSynced = idx < (section.syncedCount || 0);
 
     entry.innerHTML = `
-      <div class="row-entry__header collapse-title" role="button" tabindex="0" aria-expanded="true">
+      <div class="row-entry__header collapse-title" role="button" tabindex="0" aria-expanded="false">
         <span class="row-entry__num">${idx + 1}</span>
         <span class="row-entry__label">${Utils.escapeHtml(labelText)}</span>
         <div class="row-entry__actions">

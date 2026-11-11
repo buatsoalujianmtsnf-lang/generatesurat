@@ -2175,7 +2175,7 @@ const PreviewRenderer = (() => {
     return '<div style="display:flex;justify-content:flex-end;margin-top:16pt;break-inside:avoid;page-break-inside:avoid;">'
       + '<div style="min-width:53mm;max-width:80mm;text-align:center;overflow-wrap:anywhere;">'
       + '<p style="margin:0;">' + _officialValue(surat.kabupatenKota) + ', ' + _esc(tanggal) + '</p>'
-      + '<p style="margin:2pt 0 0;">Kepala ' + _officialSatdik(data) + ' ' + _officialValue(sekolah.nama) + ',</p>'
+      + '<p style="margin:2pt 0 0;">Kepala ' + _officialValue(sekolah.nama) + ',</p>'
       + '<div style="height:21mm;"></div>'
       + _officialSignerIdentity(kepala.nama, kepala.nip)
       + '</div></div>';
@@ -2381,7 +2381,7 @@ const PreviewRenderer = (() => {
     const siswa = data?.siswa || {};
     const wali = isMinutes ? siswa.namaOrangTua : data?.orangTua?.nama;
     const school = _caseValue(data?.sekolah?.nama);
-    const headTitle = 'Kepala ' + _officialSatdik(data) + ' ' + school + ',';
+    const headTitle = 'Kepala ' + school + ',';
     // Berita Acara: all names and titles originate from the effective attendance
     // list, not the old penandatangan name copies. Perjanjian remains unchanged.
     const parties = isMinutes ? TemplateBeritaAcaraPertemuanOrtu.getPihakHadir(data) : [];

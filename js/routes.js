@@ -101,8 +101,8 @@ const Routes = (() => {
     const template = templateId && typeof TemplateRegistry !== 'undefined'
       ? TemplateRegistry.get(templateId) : null;
     document.title = template
-      ? template.meta.name + ' | Generator Surat Madrasah'
-      : 'Editor Surat | Generator Surat Madrasah';
+      ? template.meta.name + ' | Generate Suratku'
+      : 'Editor Surat | Generate Suratku';
   }
 
   function initEditor(selectTemplate) {

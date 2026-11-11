@@ -125,11 +125,11 @@ describe('PWA platform lifecycle', () => {
     p.registration.waiting = p.waitingWorker;
     await p.window.dispatch('load');
     expect(p.elements.get('btn-update-app').hidden).toBe(false);
-    const updateMessages = p.toast.mock.calls.filter(([message]) => message === 'Versi baru Generator Surat tersedia.');
+    const updateMessages = p.toast.mock.calls.filter(([message]) => message === 'Versi baru Generate Suratku tersedia.');
     expect(updateMessages).toHaveLength(1);
     await p.document.dispatch('visibilitychange');
     await p.window.dispatch('online');
-    expect(p.toast.mock.calls.filter(([message]) => message === 'Versi baru Generator Surat tersedia.')).toHaveLength(1);
+    expect(p.toast.mock.calls.filter(([message]) => message === 'Versi baru Generate Suratku tersedia.')).toHaveLength(1);
   });
 
   it('sends skip-waiting only after the user selects update', async () => {
