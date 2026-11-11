@@ -70,7 +70,9 @@ const Print = (() => {
         window.print();
       } finally {
         // Never leave an authorization marker behind for a later print action.
-        delete document.documentElement.dataset.sponsorPrintAuthorized;
+        if (document.documentElement?.dataset) {
+          delete document.documentElement.dataset.sponsorPrintAuthorized;
+        }
       }
       return true;
     } catch (error) {
