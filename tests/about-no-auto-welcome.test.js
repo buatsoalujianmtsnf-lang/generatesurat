@@ -74,7 +74,7 @@ describe('first-visit welcome modal removal',()=>{
     expect(code).not.toMatch(/requestAnimationFrame|about-consent-checkbox/);
     expect(css).not.toMatch(/\.about-consent-box|\.about-acknowledged/);
     expect(app).toContain('About.init()');
-    expect(sw).toContain("CACHE_PREFIX + 'v62'");
+    expect(sw).toContain("CACHE_PREFIX + 'v63'");
     expect(sw).toContain("'./js/about.js'");
     expect(sw).toContain("'./css/about.css'");
   });
