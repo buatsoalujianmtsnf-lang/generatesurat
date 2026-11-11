@@ -38,6 +38,7 @@ const TemplateNotulensiRapat = (() => {
     },
     tujuan: [],
     acara: [],
+    pembukaan: '',
     pembahasan: [createPembahasan(), createPembahasan()],
     keputusan: [],
     tindakLanjut: [],
@@ -94,14 +95,14 @@ const TemplateNotulensiRapat = (() => {
     repeat('acara', 'C. Susunan Acara', 'Acara', createAcara, [
       field('teks', 'Nama Acara (antara Pembukaan dan Penutup)', 'text'),
     ]),
+    section('pembukaan', 'Arahan Pimpinan Rapat', [
+      field('pembukaan', 'Pembukaan dan Arahan Pimpinan', 'textarea'),
+    ]),
     repeat('pembahasan', 'D. Jalannya Rapat dan Hasil Pembahasan', 'Pokok Pembahasan', createPembahasan, [
       field('topik', 'Topik', 'text'),
       field('uraian', 'Uraian Pembahasan', 'textarea'),
       field('tanggapan', 'Tanggapan/Usulan Peserta', 'textarea'),
       field('kesimpulan', 'Kesimpulan Pembahasan', 'textarea'),
-    ]),
-    section('pembukaan', 'Arahan Pimpinan Rapat', [
-      field('pembukaan', 'Pembukaan dan Arahan Pimpinan', 'textarea'),
     ]),
     repeat('keputusan', 'E. Hasil Keputusan Rapat', 'Keputusan', createKeputusan, [
       field('teks', 'Isi Keputusan', 'textarea'),
