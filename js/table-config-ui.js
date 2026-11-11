@@ -103,7 +103,7 @@ const TableConfigUI = (() => {
     }
 
     const previousToggle = _mountEl.querySelector('#tbl-cfg-toggle');
-    const wasCollapsed = previousToggle?.getAttribute('aria-expanded') === 'false';
+    const wasCollapsed = !previousToggle || previousToggle.getAttribute('aria-expanded') === 'false';
     _templateId = templateId;
     _visibleColumnSignature = _getVisibleColumnSignature(templateId);
     _mountEl.innerHTML = _buildAccordionHtml(templateId);
@@ -171,20 +171,20 @@ const TableConfigUI = (() => {
         <div class="tbl-cfg-accordion__header">
           <button type="button"
             class="tbl-cfg-accordion__toggle"
-            aria-expanded="true"
+            aria-expanded="false"
             aria-controls="tbl-cfg-body"
             id="tbl-cfg-toggle">
             <span class="tbl-cfg-accordion__toggle-icon" aria-hidden="true">
               <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-layout-sidebar"></use></svg>
             </span>
             <span class="tbl-cfg-accordion__toggle-title">Pengaturan Tabel</span>
-            <span class="tbl-cfg-accordion__chevron" aria-hidden="true">
+            <span class="tbl-cfg-accordion__chevron is-collapsed" aria-hidden="true">
               <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-chevron-down"></use></svg>
             </span>
           </button>
           ${resetAllBtn}
         </div>
-        <div class="tbl-cfg-accordion__body" id="tbl-cfg-body"
+        <div class="tbl-cfg-accordion__body is-collapsed" id="tbl-cfg-body"
           role="region" aria-labelledby="tbl-cfg-toggle">
           ${tablesHtml}
         </div>
@@ -235,7 +235,7 @@ const TableConfigUI = (() => {
 
   function _buildColorPanel(templateId, tableId, colors) {
     const sectionKey = tableId + '-colors';
-    const isOpen = _openSections[sectionKey] !== false;
+    const isOpen = _openSections[sectionKey] === true;
     const sectionId = 'tbl-sec-' + _esc(tableId) + '-colors';
     const headerColor = colors?.header || '#FFFFFF';
     const bodyColor = colors?.body || '#FFFFFF';
@@ -331,7 +331,7 @@ const TableConfigUI = (() => {
   ════════════════════════════════════════════════ */
   function _buildWidthPanel(templateId, tableId, columns, columnWidths) {
     const sectionKey = `${tableId}-width`;
-    const isOpen     = _openSections[sectionKey] !== false; // default open
+    const isOpen     = _openSections[sectionKey] === true; // default open
     const sectionId  = `tbl-sec-${_esc(tableId)}-width`;
     const byKey      = columnWidths?.byKey || {};
 
@@ -471,7 +471,7 @@ const TableConfigUI = (() => {
   ════════════════════════════════════════════════ */
   function _buildSectionPanel(templateId, tableId, section, columns, colsConfig) {
     const sectionKey   = `${tableId}-${section}`;
-    const isOpen       = _openSections[sectionKey] !== false;
+    const isOpen       = _openSections[sectionKey] === true;
     const sectionLabel = section === 'header' ? 'Header Tabel' : 'Isi Tabel';
     const sectionIcon  = section === 'header' ? 'pinned' : 'writing';
     const sectionId    = `tbl-sec-${_esc(tableId)}-${section}`;
@@ -783,7 +783,7 @@ const TableConfigUI = (() => {
     if (sectionToggle) {
       const sectionKey = sectionToggle.dataset.sectionKey;
       if (sectionKey) {
-        _openSections[sectionKey] = !(_openSections[sectionKey] !== false);
+        _openSections[sectionKey] = !(_openSections[sectionKey] === true);
         _toggleSection(sectionKey, sectionToggle);
       }
       return;
@@ -1425,7 +1425,7 @@ const TableConfigUI = (() => {
      TOGGLE SECTION (in-place, no full re-render)
   ════════════════════════════════════════════════ */
   function _toggleSection(sectionKey, toggleBtn) {
-    const isNowOpen     = _openSections[sectionKey] !== false;
+    const isNowOpen     = _openSections[sectionKey] === true;
     const sectionBodyId = toggleBtn.getAttribute('aria-controls');
 
     toggleBtn.setAttribute('aria-expanded', isNowOpen ? 'true' : 'false');
