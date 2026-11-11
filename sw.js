@@ -3,10 +3,16 @@
    ============================================================= */
 
 const CACHE_PREFIX = 'generator-surat-platform-';
-const CACHE_NAME = CACHE_PREFIX + 'v62';
+const CACHE_NAME = CACHE_PREFIX + 'v63';
 const APP_SHELL = [
   './',
   './index.html',
+  './panduan.html',
+  './panduan-cetak-pdf.html',
+  './faq.html',
+  './tentang.html',
+  './privasi.html',
+  './ketentuan.html',
   './manifest.webmanifest',
   './css/main.css',
   './css/components.css',
@@ -20,6 +26,7 @@ const APP_SHELL = [
   './css/about.css',
   './css/dark-mode.css',
   './css/landing.css',
+  './css/public-content.css',
   './css/header-scroll.css',
   './css/signature-modal.css',
   './css/izin-declaration.css',
@@ -33,6 +40,7 @@ const APP_SHELL = [
   './css/document-viewer.css',
   './css/print.css',
   './js/theme-init.js',
+  './js/public-theme.js',
   './js/routes.js',
   './js/utils.js',
   './js/app-icons.js',

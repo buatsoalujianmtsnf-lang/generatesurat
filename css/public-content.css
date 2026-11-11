@@ -85,7 +85,7 @@ footer { background:var(--page-surface); border-top:1px solid var(--line); paddi
   padding:8px 12px;
   border:1px solid var(--line);
   border-radius:10px;
-  font:650 .88rem/1.2 inherit;
+  font-weight:650; font-size:.88rem; line-height:1.2; font-family:inherit;
   color:var(--ink);
   background:var(--panel-alt);
   cursor:pointer;
