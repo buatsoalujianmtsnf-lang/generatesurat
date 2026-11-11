@@ -29,7 +29,7 @@ describe('MON-06 CSP, privacy and failure controls',()=>{
     expect(sw).toContain("pathname.startsWith('/assets/sponsors/')");
     expect(sw).toContain("pathname.startsWith('/api/')");
     expect(sw).toContain('if (isSponsorPrivateRequest(request)) return;');
-    expect(sw).toContain("CACHE_PREFIX + 'v64'");
+    expect(sw).toContain("CACHE_PREFIX + 'v65'");
     expect(sw).not.toMatch(/'\.\/assets\/sponsors\//);
   });
   it('does not run two keyboard print actions for a single event',()=>{

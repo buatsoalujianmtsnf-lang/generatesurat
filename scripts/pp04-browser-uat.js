@@ -322,6 +322,96 @@ try {
     check(geometry.maxGeometryErrorPx < 3 && geometry.sheetCount === geometry.pageCount,
       device.name + ': zoom breaks watermark geometry');
 
+
+    // All routes: attempt Ctrl-wheel / Ctrl+Plus gestures. These browser-level
+    // events must be cancelled; preview zoom buttons themselves remain usable.
+    const pageZoomGuard = await page.evaluate(() => {
+      function dispatch(event) { document.dispatchEvent(event); return event.defaultPrevented; }
+      const wheel = dispatch(new WheelEvent('wheel', {
+        bubbles: true, cancelable: true, ctrlKey: true, deltaY: -50,
+      }));
+      const key = dispatch(new KeyboardEvent('keydown', {
+        bubbles: true, cancelable: true, ctrlKey: true, key: '+', code: 'Equal',
+      }));
+      const normalWheel = dispatch(new WheelEvent('wheel', {
+        bubbles: true, cancelable: true, deltaY: 50,
+      }));
+      const mobileGesture = new Event('gesturestart', { bubbles: true, cancelable: true });
+      const gesture = dispatch(mobileGesture);
+      return { installed: !!window.__pageZoomGuardInstalled,
+        wheel, key, normalWheel, gesture,
+        viewportPolicy: document.querySelector('meta[name="viewport"]')?.content };
+    });
+    check(pageZoomGuard.installed && pageZoomGuard.wheel && pageZoomGuard.key
+      && pageZoomGuard.gesture && !pageZoomGuard.normalWheel
+      && pageZoomGuard.viewportPolicy.includes('user-scalable=no'),
+      device.name + ': page zoom guard failed ' + JSON.stringify(pageZoomGuard));
+
+    // Transformed papers must be laid out with a real scrollable footprint;
+    // browser screenshot assertions alone cannot detect unreachable left edges.
+    await page.evaluate(() => {
+      document.getElementById('preview-canvas-wrapper').style.transition = 'none';
+    });
+    const stageMeasurements = [];
+    for (const zoom of [0.35, 0.65, 1, 1.5, 2.5]) {
+      await page.evaluate(value => State.setZoom(value), zoom);
+      await rafTwo(page);
+      const measured = await page.evaluate(() => {
+        const viewport = document.getElementById('preview-viewport');
+        const stage = document.getElementById('preview-scroll-stage');
+        const wrapper = document.getElementById('preview-canvas-wrapper');
+        const paper = document.querySelector('#surat-preview > .surat-page');
+        const pageRect = paper.getBoundingClientRect();
+        const viewRect = viewport.getBoundingClientRect();
+        const stageRect = stage.getBoundingClientRect();
+        const scaledNaturalW = wrapper.offsetWidth * (State.getUi().previewZoom || 1);
+        const expectedFootprintW = Math.ceil(scaledNaturalW) + 32;
+        viewport.scrollLeft = 0;
+        const firstRect = paper.getBoundingClientRect();
+        const maxScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+        viewport.scrollLeft = maxScroll;
+        const lastRect = paper.getBoundingClientRect();
+        return {
+          zoom: State.getUi().previewZoom,
+          viewWidth: viewport.clientWidth,
+          stageWidth: stageRect.width,
+          expectedFootprintW,
+          overflowX: maxScroll,
+          leftReachable: firstRect.left >= viewRect.left - 2,
+          rightReachable: lastRect.right <= viewRect.right + 2,
+          rootScrollWidth: document.documentElement.scrollWidth,
+          windowWidth: window.innerWidth,
+          zoomLabel: document.getElementById('zoom-level-text').textContent,
+        };
+      });
+      stageMeasurements.push(measured);
+      check(Math.abs(measured.stageWidth - measured.expectedFootprintW) < 3
+        && measured.leftReachable && measured.rightReachable
+        && measured.zoomLabel === Math.round(zoom * 100) + '%'
+        && measured.rootScrollWidth <= measured.windowWidth + 24
+        && (measured.expectedFootprintW <= measured.viewWidth
+          || measured.overflowX > 20),
+        device.name + ': zoom stage has unreachable content: ' + JSON.stringify(measured));
+    }
+    // Both toolbar buttons change document zoom, not visualViewport.scale.
+    const toolbarZoom = await page.evaluate(() => {
+      const before = State.getUi().previewZoom;
+      const scale = window.visualViewport?.scale || 1;
+      document.getElementById('btn-zoom-out').click();
+      const afterOut = State.getUi().previewZoom;
+      document.getElementById('btn-zoom-in').click();
+      return {
+        before, afterOut, afterIn: State.getUi().previewZoom,
+        scale, afterScale: window.visualViewport?.scale || 1,
+      };
+    });
+    check(toolbarZoom.afterOut < toolbarZoom.before
+      && Math.abs(toolbarZoom.afterIn - toolbarZoom.before) < .001
+      && toolbarZoom.scale === toolbarZoom.afterScale,
+      device.name + ': toolbar zoom changes page scale or fails ' + JSON.stringify(toolbarZoom));
+    await page.evaluate(() => State.setZoom(0.65));
+    await rafTwo(page);
+
     if (device.name === 'desktop') {
       const ids = await page.evaluate(() => TemplateRegistry.getAll().map(t => t.TEMPLATE_ID));
       for (const id of ids) {
@@ -631,6 +721,14 @@ try {
         paper.dataset.pageNumber = String(i + 1);
         preview.appendChild(paper);
       }
+      // The fixture replaces natural pages without calling PreviewRenderer.
+      // Synchronize its synthetic stage, otherwise the viewport still has the
+      // scroll height of the previous real one-page template.
+      const stage = document.getElementById('preview-scroll-stage');
+      const wrapper = document.getElementById('preview-canvas-wrapper');
+      const zoom = State.getUi().previewZoom || 1;
+      stage.style.width = Math.ceil(wrapper.offsetWidth * zoom) + 32 + 'px';
+      stage.style.height = Math.ceil(preview.scrollHeight * zoom) + 48 + 'px';
       viewport.scrollTop = 0;
       DocumentViewer.refresh();
     });
@@ -758,6 +856,8 @@ try {
       interactionsScoped: true, exportedPayloadClean: true,
       serverSponsorGatePreserved: 'client guard only; server covered by existing suites',
       printLayerHidden: true,
+      pageZoomGuard: true,
+      zoomStageAcrossFiveLevels: true,
       landingGroupAccordions: landingBaseline.groupAccordions,
       landingTemplates: landingBaseline.nestedTemplates,
       landingSearch: true,

@@ -20,7 +20,7 @@ describe('MON-01 public AdSense content foundation', () => {
       canonicalUrls.add(match[1]);
       const scripts = html.match(/<script\b[^>]*>/gi) || [];
       expect(scripts.filter(tag => tag.includes('src="/js/routes.js"'))).toHaveLength(1);
-      const localScripts = ['/js/routes.js', '/js/theme-init.js', '/js/theme.js', '/js/public-theme.js'];
+      const localScripts = ['/js/routes.js', '/js/theme-init.js', '/js/theme.js', '/js/public-theme.js', '/js/page-zoom-guard.js'];
       expect(scripts.every(tag => localScripts.some(asset => tag.includes('src="' + asset + '"')) ||
         tag.includes('src="https://pagead2.googlesyndication.com/'))).toBe(true);
       for (const asset of localScripts) {
@@ -28,11 +28,11 @@ describe('MON-01 public AdSense content foundation', () => {
       }
       if (googlePublicPages.has(slug)) {
         expect(html).toContain('src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+publisher+'"');
-        expect(scripts).toHaveLength(5);
+        expect(scripts).toHaveLength(6);
         expect(html).not.toMatch(/<ins\s+class="adsbygoogle"/i);
       } else {
         expect(html).not.toMatch(/adsbygoogle|pagead2\.googlesyndication/i);
-        expect(scripts).toHaveLength(4);
+        expect(scripts).toHaveLength(5);
       }
     }
     expect(canonicalUrls.size).toBe(pages.length);

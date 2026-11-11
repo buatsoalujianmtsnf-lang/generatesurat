@@ -60,10 +60,24 @@
     /* Hilangkan background abu-abu viewport saat cetak */
   }
 
+  .preview-scroll-stage {
+    display: block !important;
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
   .preview-canvas-wrapper {
     transform: none !important;
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
     display: block !important;
     width: auto !important;
+    height: auto !important;
   }
 
   /* ── Surat Preview / Multi-page document ── */
