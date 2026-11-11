@@ -6,7 +6,7 @@ const TemplateNotulensiRapat = (() => {
     id: TEMPLATE_ID,
     name: 'Notulensi Rapat dan Daftar Hadir',
     description: 'Notulensi lengkap dengan pembahasan, keputusan, tindak lanjut dan lampiran daftar hadir peserta rapat.',
-    icon: 'clipboard-text',
+    icon: 'clipboard-list',
     orientation: 'portrait',
     paperSize: 'a4',
     category: 'administrasi-rapat',
