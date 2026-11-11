@@ -3,8 +3,9 @@
    Browser settings, assistive technology and OS-level magnification cannot be
    reliably overridden by a website. Avoid blocking ordinary scroll and typing. */
 (() => {
-  if (window.__pageZoomGuardInstalled) return;
-  window.__pageZoomGuardInstalled = true;
+  const guardWindow = /** @type {Window & { __pageZoomGuardInstalled?: boolean }} */ (window);
+  if (guardWindow.__pageZoomGuardInstalled) return;
+  guardWindow.__pageZoomGuardInstalled = true;
 
   const cancel = (event) => {
     if (event.cancelable) event.preventDefault();
