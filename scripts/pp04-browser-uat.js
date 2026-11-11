@@ -96,6 +96,22 @@ const server = createServer(async (req, res) => {
 function check(value, label) {
   if (!value) throw Error('[PP04 browser] ' + label);
 }
+
+/* WCAG relative luminance for opaque CSS rgb() colors. */
+function contrastRatio(foreground, background) {
+  function luminance(color) {
+    const channels = color.match(/[\d.]+/g)?.slice(0, 3)?.map(Number) || [];
+    if (channels.length !== 3) return NaN;
+    const components = channels.map(c => {
+      const v = c / 255;
+      return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * components[0] + 0.7152 * components[1] + 0.0722 * components[2];
+  }
+  const a = luminance(foreground), b = luminance(background);
+  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+}
+
 const rafTwo = async page => page.evaluate(() =>
   new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
 );
@@ -182,6 +198,25 @@ try {
       && initial.visibleBadgeRemoved,
       device.name + ': preview protection must be active in strict mode by default');
     check(initial.templateCount === 18, device.name + ': expected 18 registered templates');
+
+    // Theme switch must invert the EFFECTIVE mode in one click, not
+    // auto -> light (visually unchanged) -> dark as before.
+    const themeEditor = await page.evaluate(() => {
+      Theme.set('light');
+      const button = document.getElementById('btn-theme-toggle');
+      button.click();
+      const afterOne = document.documentElement.dataset.theme;
+      const brand = document.querySelector('.app-header__title');
+      const brandColor = getComputedStyle(brand).color;
+      const labelVisible = getComputedStyle(brand).display !== 'none';
+      button.click();
+      const afterTwo = document.documentElement.dataset.theme;
+      Theme.set('light');
+      return { afterOne, afterTwo, brandColor, labelVisible };
+    });
+    check(themeEditor.afterOne === 'dark' && themeEditor.afterTwo === 'light'
+      && themeEditor.labelVisible && Number(themeEditor.brandColor.match(/\d+/)?.[0]) >= 220,
+      device.name + ': editor theme/branding failed ' + JSON.stringify(themeEditor));
 
     // The real app preview/render/pagination pipeline on dummy default form data.
     await page.evaluate(async () => {
@@ -471,6 +506,28 @@ try {
       });
     }
 
+
+    // Help cards "Mulai dari sini", "Hasil dokumen", and "Bantuan" must
+    // remain legible in dark mode; measure real computed foreground/background.
+    const helpColors = await landingPage.evaluate(() => {
+      Theme.set('dark');
+      const cards = [...document.querySelectorAll('.lp__guide-card')];
+      const result = cards.map(card => ({
+        label: card.querySelector('.lp__guide-tag')?.textContent,
+        foreground: getComputedStyle(card.querySelector('p')).color,
+        heading: getComputedStyle(card.querySelector('h3')).color,
+        background: getComputedStyle(card).backgroundColor,
+        link: getComputedStyle(card.querySelector('a')).color,
+      }));
+      Theme.set('light');
+      return result;
+    });
+    check(helpColors.length === 3 && helpColors.every(item =>
+      contrastRatio(item.foreground, item.background) >= 4.5
+      && contrastRatio(item.heading, item.background) >= 4.5
+      && contrastRatio(item.link, item.background) >= 4.5),
+      device.name + ': landing help cards dark contrast failed ' + JSON.stringify(helpColors));
+
     await landingPage.close();
 
     // Regression: the editor control is an independent, visible work-area
@@ -499,6 +556,28 @@ try {
     check(drawerProbe.isVisible && drawerProbe.outsideNavbar
       && drawerProbe.changed && drawerProbe.restored && !drawerProbe.hasStatusBadge,
       device.name + ': editor edge action / status removal regression: ' + JSON.stringify(drawerProbe));
+
+
+    // On compact viewports the docked editor handle must not overlap the
+    // Previous/Next workflow action strip, in either drawer state.
+    if (device.width <= 1023) {
+      const mobileCollision = await page.evaluate(() => {
+        const root = document.getElementById('editor-drawer');
+        const button = document.getElementById('editor-drawer-button');
+        const original = root.dataset.open;
+        if (original !== 'true') button.click();
+        const a = button.getBoundingClientRect();
+        const b = document.getElementById('workflow-actions').getBoundingClientRect();
+        const intersect = a.left < b.right && a.right > b.left
+          && a.top < b.bottom && a.bottom > b.top;
+        if (original !== 'true') button.click();
+        return { intersect, buttonTop: a.top, buttonBottom: a.bottom,
+          workflowTop: b.top, workflowBottom: b.bottom, workflowHeight: b.height };
+      });
+      check(!mobileCollision.intersect && mobileCollision.workflowHeight > 30,
+        device.name + ': docked editor handle covers workflow actions '
+        + JSON.stringify(mobileCollision));
+    }
 
     // Use four dummy paper sheets to cover real page navigation, even if the
     // currently selected template normally renders as only one page.
@@ -558,6 +637,54 @@ try {
     check(navFirst.top < 3 && navFirst.pageInput === '1',
       device.name + ': first-page navigation did not reset preview scroll');
 
+
+    // Public informational routes share the same stored theme and offer a
+    // single-click switch; no inline scripts or third-party app state used.
+    if (device.name === 'desktop' || device.name === 'mobile-portrait') {
+      const article = await browser.newPage();
+      await article.setViewport({
+        width: device.width, height: device.height,
+        isMobile: device.isMobile, hasTouch: device.isMobile, deviceScaleFactor: 1,
+      });
+      await article.setBypassServiceWorker(true);
+      await article.setRequestInterception(true);
+      article.on('request', req => {
+        if (new URL(req.url()).origin !== origin) { void req.abort(); return; }
+        void req.continue();
+      });
+      const names = ['panduan', 'faq', 'tentang', 'privasi', 'ketentuan', 'panduan-cetak-pdf'];
+      for (const slug of names) {
+        await article.goto(origin + '/' + slug + '.html', {
+          waitUntil: 'domcontentloaded', timeout: 35000,
+        });
+        await article.waitForFunction(() =>
+          typeof Theme !== 'undefined' && !!document.getElementById('btn-theme-toggle'),
+          { timeout: 12000 }
+        );
+        const palette = await article.evaluate(() => {
+          Theme.set('dark');
+          const card = document.querySelector('.article');
+          const foreground = getComputedStyle(card.querySelector('p')).color;
+          const background = getComputedStyle(card).backgroundColor;
+          const toggle = document.getElementById('btn-theme-toggle');
+          toggle.click();
+          const afterLight = document.documentElement.dataset.theme;
+          toggle.click();
+          const afterDark = document.documentElement.dataset.theme;
+          return {
+            foreground, background, afterLight, afterDark,
+            title: getComputedStyle(card.querySelector('h1')).color,
+            htmlTheme: document.documentElement.dataset.theme,
+          };
+        });
+        check(palette.afterLight === 'light' && palette.afterDark === 'dark'
+          && contrastRatio(palette.foreground, palette.background) >= 4.5
+          && contrastRatio(palette.title, palette.background) >= 4.5,
+          device.name + '/' + slug + ': public dark mode failed ' + JSON.stringify(palette));
+      }
+      await article.close();
+    }
+
     report.viewports.push({
       name: device.name, viewport: device.width + 'x' + device.height,
       status: 'PASS', pages: geometry.pageCount,
@@ -570,6 +697,10 @@ try {
       landingTemplates: landingBaseline.nestedTemplates,
       landingSearch: true,
       editorEdgeControl: true,
+      mobileWorkflowUnobstructed: true,
+      oneClickThemeToggle: true,
+      darkLandingCardsReadable: true,
+      publicDarkPagesChecked: device.name === 'desktop' || device.name === 'mobile-portrait',
       toolbarStableOnPageNavigation: true,
       statusLabelRemoved: true,
       pageErrors: [],
