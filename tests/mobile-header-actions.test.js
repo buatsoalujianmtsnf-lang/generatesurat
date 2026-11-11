@@ -22,10 +22,12 @@ describe('Mobile editor navbar actions', () => {
   it('keeps all remaining actions inside the single overflow group', () => {
     expect(menu).toBeTruthy();
     for (const id of [
-      'editor-drawer-button', 'btn-install-app', 'btn-update-app',
+      'btn-install-app', 'btn-update-app',
       'btn-about', 'btn-theme-toggle', 'btn-undo', 'btn-redo',
       'btn-save', 'btn-export-data', 'btn-import-data', 'btn-reset',
     ]) expect(menu).toContain('id="' + id + '"');
+    expect(menu).not.toContain('id="editor-drawer-button"');
+    expect(html).toContain('id="editor-drawer-button"');
     expect(menu).not.toContain('id="btn-export-pdf"');
     expect(menu).not.toContain('id="btn-print"');
   });

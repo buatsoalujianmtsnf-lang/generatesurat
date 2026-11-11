@@ -188,7 +188,7 @@ const DocumentViewer = (() => {
     const viewportRect = _viewport.getBoundingClientRect();
     const pageRect = page.getBoundingClientRect();
     const maxScroll = Math.max(0, _viewport.scrollHeight - _viewport.clientHeight);
-    const top = Math.max(0, Math.min(
+    const top = safePage === 1 ? 0 : Math.max(0, Math.min(
       _viewport.scrollTop + pageRect.top - viewportRect.top,
       maxScroll
     ));
