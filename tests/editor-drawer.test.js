@@ -22,6 +22,18 @@ describe('DaisyUI editor drawer sidebar', () => {
     expect(html).not.toContain('id="mobile-preview-toggle"');
   });
 
+  it('positions the one editor toggle in the work area, not in the application navbar', () => {
+    const header = html.slice(html.indexOf('<header class="app-header'), html.indexOf('</header>'));
+    const drawer = html.slice(html.indexOf('id="editor-drawer"'), html.indexOf('class="drawer-content editor-drawer__content"'));
+    expect(header).not.toContain('id="editor-drawer-button"');
+    expect(drawer).toContain('id="editor-drawer-button"');
+    const css = read('css/editor-drawer.css');
+    expect(css).toContain('#editor-drawer > .editor-drawer__edge-button');
+    expect(css).toContain('position: fixed;');
+    expect(css).toContain('z-index: 42;');
+    expect(css).toContain('focus-visible');
+  });
+
   it('keeps all previous editor and preview DOM targets', () => {
     for (const id of [
       'tab-btn-template', 'tab-btn-kop', 'tab-btn-form', 'tab-btn-settings',
@@ -159,7 +171,8 @@ describe('DaisyUI editor drawer sidebar', () => {
     expect(root.dataset.open).toBe('false');
     expect(trigger.attrs['aria-expanded']).toBe('false');
     expect(label.textContent).toBe('Buka Editor');
-    expect(elements.get('btn-header-more').focus).toHaveBeenCalled();
+    expect(trigger.focus).toHaveBeenCalled();
+    expect(elements.get('btn-header-more').focus).not.toHaveBeenCalled();
   });
 
   it('does not install click-close listeners on overlay or secondary buttons', () => {

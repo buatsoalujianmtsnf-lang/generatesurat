@@ -175,11 +175,11 @@ try {
       flag: document.documentElement.dataset.previewProtection,
       status: PreviewProtection.getStatus(),
       templateCount: TemplateRegistry.count(),
-      statusBadgeHidden: document.getElementById('preview-protection-status').hidden,
+      visibleBadgeRemoved: !document.getElementById('preview-protection-status'),
     }));
     check(initial.flag === 'on' && initial.status.enabled
       && initial.status.mode === 'strict' && initial.status.interactionsProtected
-      && initial.statusBadgeHidden,
+      && initial.visibleBadgeRemoved,
       device.name + ': preview protection must be active in strict mode by default');
     check(initial.templateCount === 18, device.name + ': expected 18 registered templates');
 
@@ -339,10 +339,9 @@ try {
     await page.emulateMediaType('print');
     const printState = await page.evaluate(() => ({
       layer: getComputedStyle(document.getElementById('preview-protection-layer')).display,
-      badge: getComputedStyle(document.getElementById('preview-protection-status')).display,
       paper: getComputedStyle(document.querySelector('#surat-preview > .surat-page')).display,
     }));
-    check(printState.layer === 'none' && printState.badge === 'none'
+    check(printState.layer === 'none'
       && printState.paper !== 'none', device.name + ': printed page leaks watermark overlay');
     if (device.name === 'desktop') {
       const pdf = await page.pdf({ printBackground: true, preferCSSPageSize: true });
@@ -359,10 +358,9 @@ try {
     const rollback = await page.evaluate(() => ({
       status: PreviewProtection.getStatus(),
       overlayHidden: document.getElementById('preview-protection-layer').hidden,
-      badgeHidden: document.getElementById('preview-protection-status').hidden,
     }));
     check(!rollback.status.enabled && !rollback.status.interactionsProtected
-      && rollback.overlayHidden && rollback.badgeHidden,
+      && rollback.overlayHidden,
     device.name + ': rollback did not clear protection');
     check(pageErrors.length === 0, device.name + ': uncaught errors ' + pageErrors.join('; '));
 
