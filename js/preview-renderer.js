@@ -2699,7 +2699,9 @@ const PreviewRenderer = (() => {
     const tujuan = _notulenEntries(data?.tujuan);
     const acara = _notulenEntries(data?.acara);
     const keputusan = _notulenEntries(data?.keputusan);
-    const tindakLanjut = _notulenEntries(data?.tindakLanjut, 'keputusan');
+    const tindakLanjut = (Array.isArray(data?.tindakLanjut) ? data.tindakLanjut : [])
+      .filter(item => item && ['keputusan', 'penanggungJawab', 'batasWaktu']
+        .some(key => String(item[key] || '').trim()));
     const catatan = _notulenEntries(data?.catatanKhusus);
     const peserta = (Array.isArray(data?.peserta) ? data.peserta : [])
       .filter(item => item && String(item.nama || '').trim());
