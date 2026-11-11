@@ -18,7 +18,8 @@
     "check:mon07": "node scripts/mon07-release-readiness.js --expect-blocked",
     "check:mon08": "node scripts/mon08-approval-gate.js --expect-blocked",
     "check:mon09": "node scripts/mon09-readiness.js --json",
-    "report:mon09": "node scripts/mon09-report.js"
+    "report:mon09": "node scripts/mon09-report.js",
+    "verify:redis-rest": "node scripts/verify-redis-rest.js"
   },
   "dependencies": {
     "@sparticuz/chromium": "153.0.0",
