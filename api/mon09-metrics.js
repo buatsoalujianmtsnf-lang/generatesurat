@@ -4,6 +4,7 @@
  * never turn a denial into an authorization or fail an otherwise valid export.
  */
 import { readFileSync } from 'node:fs';
+import { resolveRedisRestConfig, redisRestConfigured } from './redis-rest-config.js';
 const defaultConfig = JSON.parse(readFileSync(new URL('../config/mon09-monitoring.json',import.meta.url),'utf8'));
 const ROUTES = new Set(['sponsor-start','sponsor-progress','sponsor-complete','sponsor-print','pdf-export']);
 const BUCKETS = [250,500,1000,3000,8000,30000];
@@ -22,8 +23,7 @@ return 1
 export function monitoringEnabled(env=process.env, config=defaultConfig) {
   return config?.schemaVersion===1 && config.enabled===true
     && env.MON09_METRICS_ENABLED==='true'
-    && typeof env.UPSTASH_REDIS_REST_URL==='string' && !!env.UPSTASH_REDIS_REST_URL
-    && typeof env.UPSTASH_REDIS_REST_TOKEN==='string' && !!env.UPSTASH_REDIS_REST_TOKEN;
+    && redisRestConfigured(env);
 }
 /** @param {{route:string,status:number,durationMs:number,now?:number}} sample */
 export function makeMon09Sample({route,status,durationMs,now=Date.now()},config=defaultConfig) {
@@ -46,17 +46,15 @@ export function createMon09RedisCommand(env=process.env, fetchImpl=fetch, config
   if (!Number.isInteger(config.redisTimeoutMs) || config.redisTimeoutMs<100 || config.redisTimeoutMs>1500) {
     throw new Error('MON-09 timeout out of bounds');
   }
-  const url=new URL(env.UPSTASH_REDIS_REST_URL);
-  if (url.protocol!=='https:' || url.username || url.password || url.search || url.hash) {
-    throw new Error('MON-09 requires a trusted HTTPS Redis endpoint');
-  }
+  const redis=resolveRedisRestConfig(env);
+  if (!redis) throw new Error('MON-09 requires a trusted HTTPS Redis endpoint');
   return async args => {
     const controller=new AbortController();
     const timer=setTimeout(()=>controller.abort(),config.redisTimeoutMs);
     try {
-      const response=await fetchImpl(url.href,{
+      const response=await fetchImpl(redis.url,{
         method:'POST',headers:{'Content-Type':'application/json',
-          Authorization:'Bearer '+env.UPSTASH_REDIS_REST_TOKEN},
+          Authorization:'Bearer '+redis.token},
         body:JSON.stringify(args),signal:controller.signal,
       });
       if (!response.ok) throw new Error('Redis transport unavailable');

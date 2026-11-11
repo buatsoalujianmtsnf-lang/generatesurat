@@ -3,6 +3,7 @@
  * that a human watched; elapsed time and monotonic heartbeat are guardrails.
  */
 import { createHash } from 'node:crypto';
+import { resolveRedisRestConfig } from './redis-rest-config.js';
 
 export const SESSION_TTL_MS = 5 * 60 * 1000;
 export const RECEIPT_TTL_MS = 120 * 1000;
@@ -132,17 +133,12 @@ export function createSponsorLedger(command) {
 }
 
 export function createUpstashCommand(env = process.env, fetchImpl = fetch) {
-  const endpoint = env.UPSTASH_REDIS_REST_URL;
-  const token = env.UPSTASH_REDIS_REST_TOKEN;
-  if (!endpoint || !token) throw new Error('Sponsor Redis not configured');
-  const url = new URL(endpoint);
-  if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash) {
-    throw new Error('Sponsor Redis endpoint must use HTTPS');
-  }
+  const redis = resolveRedisRestConfig(env);
+  if (!redis) throw new Error('Sponsor Redis HTTPS REST credentials not configured');
   return async words => {
-    const res = await fetchImpl(url.href, {
+    const res = await fetchImpl(redis.url, {
       method:'POST',
-      headers:{ 'Content-Type':'application/json', Authorization:'Bearer ' + token },
+      headers:{ 'Content-Type':'application/json', Authorization:'Bearer ' + redis.token },
       body:JSON.stringify(words),
       signal:AbortSignal.timeout(4500)
     });
