@@ -136,12 +136,20 @@ describe('Friendly routes and landing page', () => {
     expect(h.routes.href('/editor')).toBe('/?route=%2Feditor');
     expect(h.routes.href('/surat/izin-tidak-masuk')).toBe('/?route=%2Fsurat%2Fizin-tidak-masuk');
     expect(h.routes.href('/kategori/ijop')).toBe('/?route=%2Fkategori%2Fijop');
+    for (const page of ['/panduan', '/panduan-cetak-pdf', '/faq', '/tentang', '/privasi', '/ketentuan']) {
+      expect(h.routes.href(page)).toBe(page + '.html');
+    }
     expect(h.routes.href('/')).toBe('/');
 
     const prod = createRoutes('/', { hostname: 'generatesuratku.vercel.app' });
     expect(prod.routes.isLocal()).toBe(false);
     expect(prod.routes.href('/editor')).toBe('/editor');
     expect(prod.routes.href('/surat/izin-tidak-masuk')).toBe('/surat/izin-tidak-masuk');
+    for (const page of ['/panduan', '/panduan-cetak-pdf', '/faq', '/tentang', '/privasi', '/ketentuan']) {
+      expect(prod.routes.href(page)).toBe(page);
+      // Standalone pages load the router to rewrite cross-page links locally.
+      expect(read(page.slice(1) + '.html')).toContain('src="/js/routes.js"');
+    }
   });
 
   it('memuat editor langsung dari localhost melalui query, lalu mendukung template dan Back', () => {
@@ -177,6 +185,29 @@ describe('Friendly routes and landing page', () => {
     expect(h.routes.isLanding()).toBe(false);
     expect(h.routes.href('/surat/izin-tidak-masuk'))
       .toBe('/index.html?route=%2Fsurat%2Fizin-tidak-masuk');
+  });
+
+  it('menggunakan file HTML asli untuk tautan konten pada localhost, bukan query editor', () => {
+    const h = createRoutes('/', { hostname: 'localhost' });
+    const anchors = ['/panduan', '/faq', '/tentang', '/privasi', '/ketentuan', '/panduan-cetak-pdf', '/editor']
+      .map(path => ({
+        path, value: path,
+        getAttribute() { return this.value; },
+        setAttribute(name, value) { if (name === 'href') this.value = value; },
+      }));
+    // The script performs local rewrites when the DOM has loaded.
+    h.document.querySelectorAll = () => anchors;
+    h.ctx.window.location.pathname = '/';
+    // Recreate so rewriteLocalLinks executes with the stubbed DOM.
+    const baseDocument = h.document;
+    runInNewContext(read('js/routes.js'), {
+      window: h.ctx.window, document: baseDocument, history: h.history,
+      URLSearchParams, console,
+    });
+    for (const item of anchors.filter(a => a.path !== '/editor')) {
+      expect(item.value).toBe(item.path + '.html');
+    }
+    expect(anchors.find(a => a.path === '/editor').value).toBe('/?route=%2Feditor');
   });
 
   it('Vercel rewrites deep links and cache includes landing assets', () => {
