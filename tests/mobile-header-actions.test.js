@@ -48,6 +48,6 @@ describe('Mobile editor navbar actions', () => {
   });
 
   it('refreshes the offline PWA shell for the navbar change', () => {
-    expect(read('sw.js')).toContain("CACHE_PREFIX + 'v62'");
+    expect(read('sw.js')).toContain("CACHE_PREFIX + 'v63'");
   });
 });

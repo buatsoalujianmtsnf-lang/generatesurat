@@ -3,7 +3,7 @@
    ============================================================= */
 
 const CACHE_PREFIX = 'generator-surat-platform-';
-const CACHE_NAME = CACHE_PREFIX + 'v62';
+const CACHE_NAME = CACHE_PREFIX + 'v63';
 const APP_SHELL = [
   './',
   './index.html',
@@ -19,6 +19,7 @@ const APP_SHELL = [
   './css/data-manager.css',
   './css/about.css',
   './css/dark-mode.css',
+  './css/public-content.css',
   './css/landing.css',
   './css/header-scroll.css',
   './css/signature-modal.css',
@@ -33,6 +34,7 @@ const APP_SHELL = [
   './css/document-viewer.css',
   './css/print.css',
   './js/theme-init.js',
+  './js/public-theme.js',
   './js/routes.js',
   './js/utils.js',
   './js/app-icons.js',
