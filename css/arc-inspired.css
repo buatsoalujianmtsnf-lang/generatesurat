@@ -627,3 +627,15 @@ html[data-theme="dark"] .app-container .btn.btn--primary.btn-primary { backgroun
   .app-container .surat-page,
   .app-container .doc-content { background: #fff !important; color: #000 !important; box-shadow: none !important; }
 }
+
+/* Editor branding contrast: Arc's light-mode ink must not bleed into a dark
+   DaisyUI navbar; keep the logo visible against the dark glass header. */
+html[data-route-page="editor"][data-theme="dark"] .app-header__brand,
+html[data-route-page="editor"][data-theme="dark"] .app-header__title {
+  color: #f6f3fb !important;
+}
+html[data-route-page="editor"][data-theme="dark"] .app-header__logo-icon {
+  background: #e9edf8;
+  border-radius: 8px;
+  padding: 2px;
+}

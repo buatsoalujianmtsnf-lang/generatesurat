@@ -261,3 +261,21 @@ html.dark-mode .lp__paper,html.dark-mode .lp__preview-badge {color:#25324b;}
 .lp__footer-links a { color:inherit; text-decoration:underline; text-underline-offset:3px; }
 .lp__links a:focus-visible, .lp__guide-card a:focus-visible, .lp__footer-links a:focus-visible { outline:3px solid #2563eb; outline-offset:4px; }
 @media (max-width:800px) { .lp__guide-grid { grid-template-columns:1fr; } }
+
+/* Landing help cards: the light surface and navy text must never be mixed
+   with the dark editor color tokens (including system-auto dark). */
+html[data-theme="dark"] .lp__guide-card {
+  background: var(--color-surface, #211d2a);
+  border-color: var(--color-border, #3a3446);
+  color: var(--color-text, #f6f3fb);
+}
+html[data-theme="dark"] .lp__guide-card h3 {
+  color: var(--color-text, #f6f3fb);
+}
+html[data-theme="dark"] .lp__guide-card p {
+  color: var(--color-text-secondary, #c5bed2);
+}
+html[data-theme="dark"] .lp__guide-card a,
+html[data-theme="dark"] .lp__guide-tag {
+  color: #bbcbff;
+}

@@ -157,18 +157,27 @@
   #editor-drawer > .drawer-content { display: block !important; }
 }
 @media (max-width: 1023px) {
-  /* Dedicated floating control stays reachable above the compact drawer. */
+  /* Dock as a slim side handle in the upper/middle work area.
+     Bottom-right positioning used to cover the workflow Previous/Next controls.
+     Both OPEN and CLOSED states use the same placement. */
   #editor-drawer > .editor-drawer__edge-button,
   #editor-drawer[data-open="false"] > .editor-drawer__edge-button {
     position: fixed;
-    top: auto;
-    right: max(16px, env(safe-area-inset-right));
-    bottom: max(20px, env(safe-area-inset-bottom));
+    top: clamp(136px, 42dvh, 340px);
+    right: max(0px, env(safe-area-inset-right));
+    bottom: auto;
     left: auto;
     z-index: 42;
     min-height: 48px;
-    padding: 10px 14px;
-    border-radius: 14px;
+    max-width: min(44vw, 155px);
+    padding: 10px 12px;
+    border-radius: 14px 0 0 14px;
+    transform: translateY(-50%);
+    box-shadow: -4px 4px 16px rgba(15,23,42,.18);
+  }
+  #editor-drawer > .editor-drawer__edge-button .btn-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   /* Akses ke satu tombol toggle harus tetap berada di atas drawer, di bawah modal. */
   .app-header { position: sticky; top: 0; z-index: 36; }
