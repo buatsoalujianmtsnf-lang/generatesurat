@@ -1,7 +1,7 @@
 {
-  "name": "Generator Surat Madrasah",
-  "short_name": "Generator Surat",
-  "description": "Generator surat resmi madrasah yang dapat digunakan seperti aplikasi dan tetap bekerja saat koneksi terputus setelah shell tersimpan.",
+  "name": "Generate Suratku",
+  "short_name": "Generate Suratku",
+  "description": "Generate Suratku untuk membuat surat sekolah dan madrasah, pratinjau, PDF, serta cetak. Dapat digunakan secara offline setelah berkas aplikasi tersimpan.",
   "lang": "id-ID",
   "dir": "ltr",
   "start_url": "./",
