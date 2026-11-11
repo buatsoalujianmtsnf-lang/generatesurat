@@ -478,6 +478,81 @@ html[data-route-page="editor"] .app-header {
 #modal-overlay .modal-title { font-weight: 730; letter-spacing: -.028em; }
 #toast-container .toast { border-radius: 15px; box-shadow: var(--arc-ui-shadow-raised); }
 
+/* Secondary workspaces: KOP, storage, document settings, and signature capture. */
+.lp .card.lp-template {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+.app-container :is(.data-manager-stat, .data-manager-draft, .data-manager-dialog-draft, .data-manager-action, .kop-row-item, .kop-logo-editor, .kop-mini-preview, .kop-logo-upload) {
+  border-radius: 16px;
+  border-color: var(--arc-ui-border);
+  transition: border-color var(--arc-ui-fast), box-shadow var(--arc-ui-fast), background-color var(--arc-ui-fast);
+}
+.app-container :is(.data-manager-draft, .data-manager-dialog-draft, .data-manager-action, .kop-row-item):hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--arc-ui-shadow-rest);
+}
+.app-container .data-manager__summary { gap: 12px; }
+.app-container .data-manager-stat { background: var(--color-surface-2); }
+.app-container .data-manager-action { background: var(--arc-ui-surface); }
+.app-container .data-manager__empty {
+  border: 1px dashed var(--color-border-strong);
+  border-radius: 18px;
+  background: var(--color-surface-2);
+}
+.app-container .kop-row-item.is-open { border-color: var(--arc-ui-violet); }
+.app-container .kop-row-item__header:hover { background: var(--arc-ui-soft); }
+.app-container :is(.kop-row-item__text-input, .kop-font-select, .kop-transform-select, .kop-logo-size__input) {
+  border-radius: 12px;
+  border-color: var(--color-border-strong);
+  background: var(--arc-ui-surface);
+  color: var(--arc-ui-ink);
+}
+.app-container :is(.kop-row-item__text-input, .kop-font-select, .kop-transform-select, .kop-logo-size__input):focus-visible {
+  outline: 2px solid var(--arc-ui-violet);
+  outline-offset: 2px;
+}
+.app-container :is(.align-btn, .preset-btn, .orient-btn, .seg-btn) { border-radius: 12px; }
+.app-container :is(.align-btn, .preset-btn, .orient-btn, .seg-btn).active {
+  background: var(--color-primary-light);
+  border-color: var(--arc-ui-violet);
+}
+.about-modal-content :is(.about-hero, .about-contact-card, .about-support-card, .about-callout, .about-consent-box) {
+  border-radius: 20px;
+  border-color: var(--arc-ui-border);
+}
+.about-modal-content .about-hero {
+  background: var(--arc-ui-wash);
+  color: var(--arc-ui-ink);
+}
+.about-modal-content .about-section {
+  border-color: var(--arc-ui-border);
+  border-radius: 16px;
+}
+.about-modal-content .about-section__summary:hover { background: var(--arc-ui-soft); }
+.about-modal-content :is(.about-highlight, .about-support-card) {
+  box-shadow: var(--arc-ui-shadow-rest);
+}
+.about-modal-content .about-faq details { border-radius: 14px; border-color: var(--arc-ui-border); }
+.signature-modal-overlay {
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+}
+.signature-modal {
+  border: 1px solid var(--arc-ui-border);
+  border-radius: var(--arc-ui-radius-panel);
+  background: var(--arc-ui-surface);
+  color: var(--arc-ui-ink);
+  box-shadow: var(--arc-ui-shadow-floating);
+}
+.signature-modal__header,
+.signature-modal__footer { border-color: var(--arc-ui-border); }
+.signature-pad__tool { border-radius: 12px; }
+.signature-pad__tool:hover:not(:disabled) { border-color: var(--arc-ui-violet); }
+.signature-pad__canvas:focus-visible { outline: 2px solid var(--arc-ui-violet); outline-offset: 3px; }
+
 /* Dark-specific contrast overrides for existing literal colors. */
 html.dark-mode .lp__hero,
 html[data-theme="dark"] .lp__hero { background: var(--arc-ui-wash); }
