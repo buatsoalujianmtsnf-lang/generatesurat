@@ -46,8 +46,11 @@
   <link rel="stylesheet" href="css/tabler-icons.css" />
   <link rel="stylesheet" href="css/editor-drawer.css" />
   <link rel="stylesheet" href="css/form-accordion-spacing.css" />
+  <link rel="stylesheet" href="css/arc-inspired.css" />
 </head>
 <body>
+  <a class="arc-skip arc-skip--landing" href="#koleksi">Lewati ke koleksi template</a>
+  <a class="arc-skip arc-skip--editor" href="#editor-panel">Lewati ke panel editor</a>
 
   <!-- LANDING PAGE: home view; editor is available at /editor and /surat/:slug -->
   <main id="landing-page" class="lp">
@@ -120,11 +123,13 @@
             <h2 id="lp-collection-title">Temukan template yang Anda butuhkan</h2>
             <p class="lp__section-intro">Template dikelompokkan berdasarkan keperluan administrasi. Buka salah satu surat untuk langsung mulai mengisinya.</p>
           </div>
-          <label class="lp__search input">
+          <div class="lp__search input" role="search">
             <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="2"><use href="assets/icons/tabler-sprite.svg#ti-search"></use></svg>
-            <input id="lp-template-search" type="search" aria-label="Cari template surat" placeholder="Cari template surat..." autocomplete="off" />
-          </label>
+            <input id="lp-template-search" type="search" aria-label="Cari template surat" aria-keyshortcuts="/" placeholder="Cari template surat..." autocomplete="off" />
+            <button id="lp-search-clear" class="lp__search-clear" type="button" aria-label="Hapus pencarian template" hidden>Hapus</button>
+          </div>
         </div>
+        <p class="lp__search-hint">Tekan <kbd>/</kbd> untuk mencari template dengan cepat.</p>
         <div id="lp-search-results" class="lp__search-status" role="status" aria-live="polite">Pilih template untuk mulai membuat surat</div>
         <div id="lp-template-groups" class="lp__groups">
           <noscript>Aktifkan JavaScript untuk menampilkan koleksi template, atau buka <a href="/editor">Editor Surat</a> secara langsung.</noscript>
