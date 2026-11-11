@@ -379,11 +379,23 @@ try {
 
     // Landing UAT on the real browser: five native group-level accordions
     // remain collapsed until activated; template-level details remain nested.
-    await page.goto(origin + '/', { waitUntil: 'domcontentloaded', timeout: 35000 });
-    await page.waitForFunction(() =>
+    // Separate tab avoids the editor's unsaved-draft beforeunload dialog.
+    const landingPage = await browser.newPage();
+    await landingPage.setViewport({
+      width: device.width, height: device.height,
+      isMobile: device.isMobile, hasTouch: device.isMobile, deviceScaleFactor: 1,
+    });
+    await landingPage.setBypassServiceWorker(true);
+    await landingPage.setRequestInterception(true);
+    landingPage.on('request', req => {
+      if (new URL(req.url()).origin !== origin) { void req.abort(); return; }
+      void req.continue();
+    });
+    await landingPage.goto(origin + '/', { waitUntil: 'domcontentloaded', timeout: 35000 });
+    await landingPage.waitForFunction(() =>
       document.querySelectorAll('#lp-template-groups > .lp-group').length === 5,
     { timeout: 20000 });
-    const landingBaseline = await page.evaluate(() => {
+    const landingBaseline = await landingPage.evaluate(() => {
       const groups = [...document.querySelectorAll('#lp-template-groups > .lp-group')];
       const accordions = groups.map(group => group.querySelector('.lp-group__accordion'));
       return {
@@ -408,22 +420,22 @@ try {
       device.name + ': landing page has horizontal overflow ' + landingBaseline.overflowPx);
 
     // Actual keyboard Enter toggles the group without navigating.
-    const firstSummary = await page.$('#lp-template-groups .lp-group__accordion > summary');
+    const firstSummary = await landingPage.$('#lp-template-groups .lp-group__accordion > summary');
     check(Boolean(firstSummary), device.name + ': landing group summary not found');
     await firstSummary.focus();
-    await page.keyboard.press('Enter');
-    const afterEnter = await page.evaluate(() =>
+    await landingPage.keyboard.press('Enter');
+    const afterEnter = await landingPage.evaluate(() =>
       document.querySelector('#lp-template-groups .lp-group__accordion').open
     );
     check(afterEnter, device.name + ': pressing Enter did not open group');
-    await page.keyboard.press('Enter');
-    const afterSecondEnter = await page.evaluate(() =>
+    await landingPage.keyboard.press('Enter');
+    const afterSecondEnter = await landingPage.evaluate(() =>
       document.querySelector('#lp-template-groups .lp-group__accordion').open
     );
     check(!afterSecondEnter, device.name + ': pressing Enter did not collapse group');
 
     // Search makes matching groups visible/open; clearing restores collapse.
-    const searched = await page.evaluate(() => {
+    const searched = await landingPage.evaluate(() => {
       const search = document.getElementById('lp-template-search');
       search.value = 'surat izin';
       search.dispatchEvent(new Event('input', { bubbles: true }));
@@ -440,7 +452,7 @@ try {
       && searched.matchedTemplates >= 1,
       device.name + ': search did not reveal nested matches ' + JSON.stringify(searched));
 
-    const cleared = await page.evaluate(() => {
+    const cleared = await landingPage.evaluate(() => {
       const search = document.getElementById('lp-template-search');
       search.value = '';
       search.dispatchEvent(new Event('input', { bubbles: true }));
@@ -455,12 +467,13 @@ try {
     check(cleared.allVisible && cleared.allCollapsed && cleared.allTemplatesVisible,
       device.name + ': clearing search did not restore collapsed category cards');
     if (device.name === 'mobile-portrait') {
-      await page.evaluate(() => document.getElementById('koleksi').scrollIntoView());
-      await page.screenshot({
+      await landingPage.evaluate(() => document.getElementById('koleksi').scrollIntoView());
+      await landingPage.screenshot({
         path: resolve(output, 'mobile-landing-group-accordion.png'), fullPage: false,
       });
     }
 
+    await landingPage.close();
     report.viewports.push({
       name: device.name, viewport: device.width + 'x' + device.height,
       status: 'PASS', pages: geometry.pageCount,
