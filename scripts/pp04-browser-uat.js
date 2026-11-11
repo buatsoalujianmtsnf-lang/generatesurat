@@ -560,7 +560,7 @@ try {
 
     // Theme must visibly switch with ONE click, and dark branding must
     // contrast with the editor header, in both desktop and mobile layouts.
-    const themeProbe = await page.evaluate(() => {
+    const themeProbe = await page.evaluate(async () => {
       const button = document.getElementById('btn-theme-toggle');
       Theme.set('auto');
       const before = document.documentElement.dataset.theme;
@@ -569,6 +569,9 @@ try {
       button.click();
       const back = document.documentElement.dataset.theme;
       Theme.set('dark');
+      // CSS theme changes animate colors. Measure after transition completion;
+      // the single-click behavior itself is asserted immediately above.
+      await new Promise(resolve => setTimeout(resolve, 420));
       const title = document.querySelector('.app-header__title');
       const header = document.querySelector('.app-header');
       const actionBar = document.querySelector('.app-header__actions');
@@ -647,9 +650,10 @@ try {
     }
 
     // The guide section must remain readable against dark surfaces.
-    const guideContrast = await landingPage.evaluate(() => {
+    const guideContrast = await landingPage.evaluate(async () => {
       document.documentElement.dataset.theme = 'dark';
       document.documentElement.classList.add('dark-mode');
+      await new Promise(resolve => setTimeout(resolve, 420));
       const rgb = v => (v.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
       const lum = v => {
         const channels = rgb(v).map(x => x / 255).map(x =>
