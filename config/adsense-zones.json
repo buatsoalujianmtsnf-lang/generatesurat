@@ -7,7 +7,6 @@
   "autoAds": false,
   "contentOnly": true,
   "allowedRoutes": [
-    "/",
     "/panduan",
     "/panduan-cetak-pdf",
     "/faq"
@@ -47,5 +46,5 @@
       "slotId": null
     }
   ],
-  "policyNotes": "Belum ada skrip maupun iklan Google. Aktivasi memerlukan Publisher ID asli, persetujuan situs, CMP bila relevan, serta CSP terpisah dan QA MON-06/MON-08."
+  "policyNotes": "MON-08: OFF. Hanya halaman artikel publik berdiri sendiri yang boleh menjadi kandidat: /panduan, /panduan-cetak-pdf, /faq. Root / berbagi dokumen HTML dan CSP dengan editor, sehingga dikecualikan. Publisher ID, status Google Sites Ready, CMP bila relevan, slot, ads.txt dan CSP route-scoped harus diverifikasi sebelum penayangan; Auto Ads OFF."
 }

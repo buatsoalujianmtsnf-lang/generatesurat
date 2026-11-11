@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "feature": "monetization-approval-and-controlled-activation",
+  "decision": "NO_GO",
+  "deploymentPolicy": "manual-only",
+  "google": {
+    "phase": "blocked",
+    "requestedState": "off",
+    "approvedDomain": null,
+    "siteApprovalStatus": "UNVERIFIED",
+    "verificationOnly": false,
+    "publicPageAllowlist": [
+      "/panduan",
+      "/panduan-cetak-pdf",
+      "/faq"
+    ],
+    "excludeRootSharedWithEditor": true,
+    "autoAds": false
+  },
+  "sponsor": {
+    "phase": "blocked",
+    "requestedState": "off",
+    "requiredSeconds": 15,
+    "interval": "every-new-action",
+    "activationScope": "all-users-synchronized",
+    "stagingTrialComplete": false,
+    "productionRedisConfigured": false
+  },
+  "release": {
+    "phase": "audit-only",
+    "approver": null,
+    "approvalReference": null,
+    "manualDeploymentAuthorized": false,
+    "rollbackRehearsed": false,
+    "previousProductionSha": "4ab21dc40aa8778071f0689015e87cb6b21eb702",
+    "minimumClientCompatibilityVerified": false
+  }
+}
