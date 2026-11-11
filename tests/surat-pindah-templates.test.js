@@ -268,6 +268,6 @@ describe('Two DOCX-based Surat Pindah templates', () => {
       expect(read('js/routes.js')).toContain("'" + tpl + "'");
       expect(read('js/template-registry.js')).toContain("'" + tpl + "'");
     }
-    expect(sw).toContain("CACHE_PREFIX + 'v58'");
+    expect(sw).toContain("CACHE_PREFIX + 'v59'");
   });
 });

@@ -3,7 +3,7 @@
    ============================================================= */
 
 const CACHE_PREFIX = 'generator-surat-platform-';
-const CACHE_NAME = CACHE_PREFIX + 'v58';
+const CACHE_NAME = CACHE_PREFIX + 'v59';
 const APP_SHELL = [
   './',
   './index.html',
