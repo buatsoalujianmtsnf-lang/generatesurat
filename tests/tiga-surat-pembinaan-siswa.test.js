@@ -176,6 +176,6 @@ describe('Three student guidance and parent meeting documents', () => {
       expect(routes).toContain("'" + id + "'");
       expect(read('js/template-registry.js')).toContain("'" + id + "'");
     }
-    expect(sw).toContain("CACHE_PREFIX + 'v55'");
+    expect(sw).toContain("CACHE_PREFIX + 'v56'");
   });
 });
