@@ -12,6 +12,7 @@ const PreviewRenderer = (() => {
   let _previewEl   = null;   // #surat-preview
   let _viewportEl  = null;   // #preview-viewport
   let _wrapperEl   = null;   // #preview-canvas-wrapper
+  let _stageEl     = null;   // #preview-scroll-stage: scaled scrollable footprint
   let _zoomLevelEl = null;   // #zoom-level-text
   let _pageInfoEl  = null;    // #preview-page-info
   let _currentZoom = 1;
@@ -56,6 +57,7 @@ const PreviewRenderer = (() => {
     _previewEl   = document.getElementById('surat-preview');
     _viewportEl  = document.getElementById('preview-viewport');
     _wrapperEl   = document.getElementById('preview-canvas-wrapper');
+    _stageEl     = document.getElementById('preview-scroll-stage');
     _zoomLevelEl = document.getElementById('zoom-level-text');
     _pageInfoEl  = document.getElementById('preview-page-info');
 
@@ -1444,7 +1446,7 @@ const PreviewRenderer = (() => {
   function _applyZoom(zoom) {
     if (_wrapperEl) {
       _wrapperEl.style.transform = `scale(${zoom})`;
-      _wrapperEl.style.transformOrigin = 'top center';
+      _wrapperEl.style.transformOrigin = 'top left';
     }
     if (_zoomLevelEl) {
       _zoomLevelEl.textContent = `${Math.round(zoom * 100)}%`;
@@ -1455,12 +1457,18 @@ const PreviewRenderer = (() => {
   }
 
   function _updateWrapperHeight(zoom) {
-    if (!_wrapperEl || !_previewEl) return;
+    if (!_wrapperEl || !_previewEl || !_stageEl) return;
+    // CSS transforms do NOT change layout dimensions. A scroll stage sized to
+    // the scaled paper gives #preview-viewport both horizontal scroll edges.
+    const naturalW = _wrapperEl.offsetWidth || _previewEl.scrollWidth || _previewEl.offsetWidth || 0;
     const naturalH = _previewEl.scrollHeight || _previewEl.offsetHeight || 0;
-    if (naturalH > 0) {
-      // Beri ruang ekstra agar konten tidak terpotong
-      _wrapperEl.style.height = `${Math.ceil(naturalH * zoom) + 48}px`;
+    const safeZoom = Utils.clamp(Number(zoom) || 1, ZOOM_MIN, ZOOM_MAX);
+    if (naturalW > 0 && naturalH > 0) {
+      _stageEl.style.width = `${Math.ceil(naturalW * safeZoom) + 32}px`;
+      _stageEl.style.height = `${Math.ceil(naturalH * safeZoom) + 48}px`;
     }
+    // Keep natural paper geometry for pagination and overlay measurement.
+    _wrapperEl.style.height = '';
   }
 
   /* ── Placeholder ── */
@@ -1479,6 +1487,10 @@ const PreviewRenderer = (() => {
       _wrapperEl.style.height = '';
       _wrapperEl.style.transform = `scale(${_currentZoom})`;
     }
+    if (_stageEl) {
+      _stageEl.style.width = '';
+      _stageEl.style.height = '';
+    }
 
     _updatePageInfo(0);
     _previewEl.innerHTML = `
@@ -1491,6 +1503,7 @@ const PreviewRenderer = (() => {
         </svg>
         <p>Preview surat akan muncul di sini setelah template dipilih dan data diisi.</p>
       </div>`;
+    requestAnimationFrame(() => _updateWrapperHeight(_currentZoom));
   }
 
   /* ── Ambil tableConfig yang sudah resolved dari State + TableConfigManager ── */

@@ -439,6 +439,9 @@
         </div>
 
         <div class="preview-viewport" id="preview-viewport">
+          <!-- The stage owns the scaled scrollable footprint; the document keeps
+               its natural dimensions inside the scaled inner wrapper. -->
+          <div class="preview-scroll-stage" id="preview-scroll-stage">
           <div class="preview-canvas-wrapper" id="preview-canvas-wrapper">
             <!-- Surat preview dirender di sini -->
             <div id="surat-preview" class="surat-preview">
@@ -456,6 +459,7 @@
             </div>
             <!-- PP-01: invisible preview-only protection layer (outside exported surat). -->
             <div id="preview-protection-layer" class="preview-protection-layer" aria-hidden="true" hidden></div>
+          </div>
           </div>
         </div>
       </main>
