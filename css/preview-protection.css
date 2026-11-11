@@ -1,0 +1,37 @@
+/* PP-01: structural (invisible) overlay, scoped to the Preview Surat canvas.
+   Actual watermark and masking are deferred to PP-02. */
+@media screen {
+  #preview-canvas-wrapper {
+    position: relative;
+  }
+
+  #preview-protection-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    overflow: visible;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  #preview-protection-layer[hidden] {
+    display: none !important;
+  }
+
+  #preview-protection-layer .preview-protection-sheet {
+    position: absolute;
+    box-sizing: border-box;
+    pointer-events: none;
+    background: transparent;
+    border: 0;
+  }
+}
+
+/* Safe even when the outer UI is reset to display:block for printing. */
+@media print {
+  #preview-protection-layer,
+  .preview-protection-sheet {
+    display: none !important;
+  }
+}
