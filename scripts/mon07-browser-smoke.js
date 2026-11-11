@@ -100,8 +100,18 @@ try{
       void req.continue();
     });
     await page.goto(origin+'/editor',{waitUntil:'domcontentloaded',timeout:30000});
+    const initial=await page.evaluate(()=>({
+      url:location.href,
+      modalType:typeof SponsorVideoModal,
+      gateType:typeof SponsorExportGate,
+      stateType:typeof SponsorVideoState,
+      scriptCount:document.scripts.length,
+      modalExists:!!document.getElementById('sponsor-video-modal'),
+      lastScripts:[...document.scripts].slice(-10).map(s=>s.getAttribute('src')),
+    }));
+    console.info('[MON-07 browser diagnostic]',JSON.stringify({device:device.name,initial,errors}));
     await page.waitForFunction(()=>typeof SponsorVideoModal!=='undefined'
-      && typeof SponsorExportGate!=='undefined',{timeout:15000});
+      && typeof SponsorExportGate!=='undefined',{timeout:10000});
     const snapshot=await page.evaluate(()=>{
       const modal=document.getElementById('sponsor-video-modal');
       const before={
