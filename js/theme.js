@@ -17,6 +17,7 @@ const Theme = (() => {
 
   /** @type {'light'|'dark'|'auto'} */
   let _current = 'auto';
+  let _initialized = false;
 
   /* ── Baca preferensi tersimpan ── */
   /** @returns {'auto'|'dark'|'light'} */
@@ -100,6 +101,8 @@ const Theme = (() => {
 
   /* ── Init ── */
   function init() {
+    if (_initialized) return;
+    _initialized = true;
     // Terapkan tema seawal mungkin untuk menghindari FOUC (flash of unstyled content)
     _current = _loadSaved();
     _apply(_current);
