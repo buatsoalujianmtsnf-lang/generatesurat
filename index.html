@@ -383,6 +383,8 @@
       <main class="preview-panel" id="preview-panel">
         <div class="preview-toolbar">
           <div class="preview-toolbar__identity">
+            <!-- Compact mode: one existing toggle moves here when editor is closed. -->
+            <span id="editor-drawer-toggle-slot-closed" class="editor-drawer__toggle-slot editor-drawer__toggle-slot--closed"></span>
             <span class="preview-toolbar__label">Preview Surat</span>
 
             <span id="viewer-template-label" class="viewer-template-label">Belum ada dokumen</span>
@@ -466,6 +468,8 @@
             <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-writing"></use></svg>
             <strong>Editor Surat</strong>
           </div>
+          <!-- Compact mode: the same toggle sits right-aligned in the editor heading. -->
+          <span id="editor-drawer-toggle-slot-open" class="editor-drawer__toggle-slot editor-drawer__toggle-slot--open"></span>
         </div>
 
         <!-- Tab Navigation -->
