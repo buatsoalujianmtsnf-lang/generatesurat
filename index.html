@@ -4,7 +4,7 @@
   <!-- Verifikasi kepemilikan situs AdSense, tidak memuat skrip iklan di editor. -->
   <meta name="google-adsense-account" content="ca-pub-4751617120862559">
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <base href="/" />
   <meta name="description" content="Generate Suratku menyediakan template surat sekolah dan madrasah, panduan penggunaan, pratinjau, serta fitur cetak dan ekspor PDF." />
   <link rel="canonical" href="https://generatesuratku.vercel.app/" />
@@ -25,6 +25,8 @@
 
   <!-- Theme bootstrap eksternal agar kompatibel dengan Content Security Policy. -->
   <script src="js/theme-init.js"></script>
+  <!-- Prevent in-page browser pinch/shortcut zoom; letter zoom buttons stay active. -->
+  <script src="js/page-zoom-guard.js" defer></script>
   <script src="js/routes.js"></script>
 
   <!-- daisyUI 5: CSS-only distribution for this vanilla JS application.
