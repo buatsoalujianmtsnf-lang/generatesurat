@@ -6,7 +6,7 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4751617120862559"
     crossorigin="anonymous"></script>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Panduan penggunaan | Generate Suratku</title>
   <meta name="description" content="Langkah menyiapkan surat di Generate Suratku: memilih template, mengisi identitas, membuat KOP, memeriksa pratinjau, serta menyimpan data dengan aman." />
   <link rel="canonical" href="https://generatesuratku.vercel.app/panduan" />
@@ -17,7 +17,9 @@
   <meta property="og:url" content="https://generatesuratku.vercel.app/panduan" />
   <meta name="theme-color" content="#1e3a5f" />
   <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg" />
+  <!-- Same theme preference as Beranda/Editor, applied before paint. -->
   <script src="/js/theme-init.js"></script>
+  <script src="/js/page-zoom-guard.js" defer></script>
   <link rel="stylesheet" href="/css/public-content.css" />
   <script src="/js/theme.js" defer></script>
   <script src="/js/public-theme.js" defer></script>
@@ -28,7 +30,7 @@
 <a class="skip" href="#konten-utama">Lewati navigasi ke konten</a>
 <header class="header"><div class="shell header-inner">
   <a class="brand" href="/"><img src="/assets/icons/logo.svg" alt="" width="34" height="34" />Generate Suratku</a>
-  <nav class="links" aria-label="Navigasi halaman publik"><a href="/">Beranda</a><a href="/panduan" aria-current="page">Panduan</a><a href="/faq">FAQ</a><a href="/tentang">Tentang</a><a class="cta" href="/editor">Buka Editor</a><button type="button" id="btn-theme-toggle" class="theme-toggle" data-theme="auto" title="Ganti tema tampilan" aria-label="Ganti tema tampilan"><span class="theme-toggle__icon" aria-hidden="true">◐</span><span class="theme-toggle__text">Tema</span></button></nav>
+  <nav class="links" aria-label="Navigasi halaman publik"><a href="/">Beranda</a><a href="/panduan" aria-current="page">Panduan</a><a href="/faq">FAQ</a><a href="/tentang">Tentang</a><a class="cta" href="/editor">Buka Editor</a><button type="button" id="btn-theme-toggle" class="theme-switch" title="Ganti tema tampilan" aria-label="Ganti tema tampilan" aria-pressed="false"><span class="theme-switch__icon" aria-hidden="true">◐</span><span class="theme-switch__label">Tema</span></button></nav>
 </div></header>
 <main id="konten-utama" class="shell">
   <p class="breadcrumb"><a href="/">Beranda</a> / Panduan penggunaan</p>

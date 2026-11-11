@@ -18,6 +18,21 @@ const EditorDrawer = (() => {
     return window.matchMedia?.(MOBILE_QUERY).matches === true;
   }
 
+  // Move ONE real button between the editor title and preview title at compact
+  // widths. The listener remains bound to that same node (no duplicate controls).
+  function syncTriggerPlacement(compact, open, trigger) {
+    if (!trigger || !root) return;
+    if (compact) {
+      const slot = document.getElementById(open
+        ? 'editor-drawer-toggle-slot-open'
+        : 'editor-drawer-toggle-slot-closed');
+      if (slot && trigger.parentElement !== slot) slot.appendChild(trigger);
+    } else if (trigger.parentElement !== root && typeof root.insertBefore === 'function') {
+      const content = root.querySelector?.('.drawer-content');
+      if (content) root.insertBefore(trigger, content);
+    }
+  }
+
   // Offset the compact drawer below the actual header (including safe-area insets).
   function syncHeaderOffset() {
     const header = document.querySelector?.('.app-header');
@@ -41,6 +56,7 @@ const EditorDrawer = (() => {
     // One visible action outside the app navbar on all screen sizes.
     const trigger = document.getElementById(TRIGGER_ID);
     if (trigger) {
+      syncTriggerPlacement(compact, next, trigger);
       const label = next ? 'Tutup Editor' : 'Buka Editor';
       trigger.setAttribute('aria-expanded', String(next));
       trigger.setAttribute('aria-label', label);
@@ -106,7 +122,8 @@ const EditorDrawer = (() => {
       if (event.key !== 'Tab') return;
       const items = [...editor.querySelectorAll(
         'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      )].filter(el => !el.hidden && !el.closest('[hidden]') && el.getClientRects().length > 0);
+      )].filter(el => el !== trigger && !el.hidden
+        && !el.closest('[hidden]') && el.getClientRects().length > 0);
       if (!items.length) return;
       const first = items[0], last = items[items.length - 1];
       // Keep focus cycling through the dedicated edge trigger (not the header menu).

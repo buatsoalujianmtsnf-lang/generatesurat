@@ -60,22 +60,20 @@ const Theme = (() => {
     // Update button state
     const btn = document.getElementById(BUTTON_ID);
     if (btn) {
-      btn.dataset.theme = theme;
-      const labels = {
-        light: 'Mode Terang',
-        dark:  'Mode Gelap',
-        auto:  'Tema Otomatis (mengikuti sistem)',
-      };
-      btn.setAttribute('title',      labels[theme] || 'Ganti tema');
-      btn.setAttribute('aria-label', labels[theme] || 'Ganti tema');
-      const textLabel = btn.querySelector?.('.theme-toggle__text');
-      if (textLabel) textLabel.textContent = isDark() ? 'Mode gelap' : 'Mode terang';
+      // Ikon dan teks harus menampilkan tema yang benar-benar sedang terlihat,
+      // termasuk ketika preferensi yang tersimpan masih "auto".
+      btn.dataset.theme = isDarkTheme ? 'dark' : 'light';
+      btn.setAttribute('title', isDarkTheme ? 'Aktifkan mode terang' : 'Aktifkan mode gelap');
+      btn.setAttribute('aria-label', isDarkTheme ? 'Aktifkan mode terang' : 'Aktifkan mode gelap');
+      btn.setAttribute('aria-pressed', String(isDarkTheme));
+      const label = btn.querySelector?.('.theme-switch__label');
+      if (label) label.textContent = isDarkTheme ? 'Mode Gelap' : 'Mode Terang';
     }
   }
 
-  /* Klik tunggal membalik tema visual yang sedang terlihat.
-     Jika preferensi awal = auto, hasil pertama selalu berbeda dari
-     warna sistem saat ini (tidak ada klik "kosong"). */
+  /* ── Tombol selalu membalik tampilan yang sedang terlihat dalam SATU klik.
+     Mode "auto" tetap didukung melalui preferensi yang tersimpan / set('auto'),
+     tetapi tidak dijadikan langkah antara saat pengguna menekan tombol. ── */
   function toggle() {
     set(isDark() ? 'light' : 'dark');
   }

@@ -177,6 +177,39 @@ html[data-route-page="editor"] .arc-skip--landing { display: none; }
   letter-spacing: .005em;
 }
 .lp__eyebrow-dot { background: currentColor; }
+
+/* The daisyUI badge defaults to a single fixed-height, nowrap line.
+   Let the landing hero label size to its actual wrapped text instead. */
+.lp .lp__eyebrow.badge {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  gap: 8px;
+  width: fit-content;
+  max-width: 100%;
+  height: auto;
+  min-height: 0;
+  padding: 8px 13px;
+  white-space: normal;
+  line-height: 1.45;
+  text-align: left;
+  vertical-align: top;
+}
+.lp .lp__eyebrow-dot {
+  display: block;
+  flex: 0 0 7px;
+  margin-top: .37em;
+}
+.lp .lp__eyebrow-text {
+  display: block;
+  min-width: 0;
+  flex: 0 1 auto;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+.lp__hero-grid > :first-child { min-width: 0; }
 .lp__hero h1 {
   font-size: clamp(39px, 4.8vw, 67px);
   font-weight: 790;
@@ -628,9 +661,14 @@ html[data-theme="dark"] .app-container .btn.btn--primary.btn-primary { backgroun
   .app-container .doc-content { background: #fff !important; color: #000 !important; box-shadow: none !important; }
 }
 
-
-/* High-contrast brand label on the editor's dark app bar, including
-   system-dark (html[data-theme="dark"] without .dark-mode). */
-html[data-theme="dark"] .app-header .app-header__brand .app-header__title {
+/* Editor branding contrast: Arc's light-mode ink must not bleed into a dark
+   DaisyUI navbar; keep the logo visible against the dark glass header. */
+html[data-route-page="editor"][data-theme="dark"] .app-header__brand,
+html[data-route-page="editor"][data-theme="dark"] .app-header__title {
   color: #f6f3fb !important;
+}
+html[data-route-page="editor"][data-theme="dark"] .app-header__logo-icon {
+  background: #e9edf8;
+  border-radius: 8px;
+  padding: 2px;
 }

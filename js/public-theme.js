@@ -1,3 +1,5 @@
-/* Public information pages reuse exactly the editor's theme preference.
-   Loaded after theme.js (defer), with theme-init.js applied in <head>. */
-if (typeof Theme !== 'undefined') Theme.init();
+/* Theme setup for the static public-information routes.
+   The editor initializes Theme in app.js; these pages do not load app.js. */
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof Theme !== 'undefined') Theme.init();
+});

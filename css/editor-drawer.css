@@ -14,6 +14,10 @@
   transition: grid-template-columns .2s ease;
 }
 
+/* Mobile/tablet placement targets are empty on desktop; the action remains
+   at the top of the workspace via the existing desktop edge button. */
+#editor-drawer .editor-drawer__toggle-slot { display: none; }
+
 /* One prominent but nonintrusive editor control anchored to the work area,
    never to the main navbar nor to the scrollable preview toolbar. */
 #editor-drawer > .editor-drawer__edge-button {
@@ -157,33 +161,41 @@
   #editor-drawer > .drawer-content { display: block !important; }
 }
 @media (max-width: 1023px) {
-  /* Edge-tab: away from the fixed workflow navigation at the bottom.
-     On compact screens it docks to the right edge, below app header,
-     remaining tappable both when the drawer is open and closed. */
-  #editor-drawer > .editor-drawer__edge-button,
-  #editor-drawer[data-open="false"] > .editor-drawer__edge-button {
-    position: fixed;
-    top: clamp(102px, 34dvh, 236px);
-    right: 0;
+  /* Compact mode: one button lives inside the current panel heading.
+     OPEN: right of "Editor Surat"; CLOSED: left of "Preview Surat". */
+  #editor-drawer .editor-drawer__toggle-slot {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 0;
+  }
+  #editor-drawer .editor-drawer__toggle-slot--open { margin-left: auto; }
+  #editor-drawer .editor-drawer__toggle-slot--closed { margin-right: 2px; }
+  #editor-drawer .editor-drawer__toggle-slot > .editor-drawer__edge-button {
+    position: static;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    transform: none;
+    top: auto;
+    right: auto;
     bottom: auto;
     left: auto;
-    z-index: 42;
-    display: inline-flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 46px;
-    max-width: 46px;
-    min-height: 110px;
-    padding: 12px 6px;
-    border-radius: 14px 0 0 14px;
-    box-shadow: -4px 5px 16px rgba(15,23,42,.17);
+    z-index: auto;
+    min-height: 40px;
+    max-width: min(40vw, 146px);
+    padding: 7px 10px;
+    border-radius: 10px;
+    box-shadow: none;
+    gap: 6px;
+    white-space: nowrap;
   }
-  #editor-drawer > .editor-drawer__edge-button .editor-drawer__toggle-label {
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    font-size: 11px;
-    line-height: 1.2;
-    letter-spacing: .025em;
+  #editor-drawer .editor-drawer__toggle-slot > .editor-drawer__edge-button .btn-label {
+    display: inline;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   /* Akses ke satu tombol toggle harus tetap berada di atas drawer, di bawah modal. */
   .app-header { position: sticky; top: 0; z-index: 36; }
@@ -196,20 +208,32 @@
     min-height: max(0px, calc(100dvh - var(--header-height)));
     overflow: visible;
   }
+  /* The real zoom stage contributes thousands of layout pixels. Keep the
+     preview panel bound to the screen so the INNER #preview-viewport scrolls
+     instead of stretching the entire app/document shell. */
   #editor-drawer > .drawer-content {
     display: flex;
     width: 100%;
-    height: auto;
-    min-height: max(360px, calc(100dvh - var(--header-height)));
+    height: max(0px, calc(100dvh - var(--drawer-header-offset, var(--header-height))));
+    min-height: 0;
+    max-height: max(0px, calc(100dvh - var(--drawer-header-offset, var(--header-height))));
     overflow: hidden;
   }
   #editor-drawer > .drawer-content > .preview-panel {
     display: flex !important;
     flex: 1 1 auto;
     width: 100%;
-    min-height: max(360px, calc(100dvh - var(--header-height)));
-    height: auto;
-    max-height: none;
+    min-height: 0;
+    height: 100%;
+    max-height: 100%;
+    overflow: hidden;
+  }
+  #editor-drawer .preview-viewport {
+    flex: 1 1 auto;
+    height: 0;
+    min-height: 0;
+    overflow-x: auto;
+    overflow-y: auto;
   }
   #editor-drawer > .drawer-side,
   #editor-drawer[data-open="false"] > .drawer-side {
@@ -267,12 +291,6 @@
   html.editor-drawer-open body { overflow: hidden !important; }
 }
 @media (max-width: 767px) and (orientation: landscape) {
-  #editor-drawer > .editor-drawer__edge-button,
-  #editor-drawer[data-open="false"] > .editor-drawer__edge-button {
-    top: clamp(82px, 28dvh, 126px);
-    min-height: 96px;
-    padding-block: 8px;
-  }
   #editor-drawer,
   #editor-drawer > .drawer-content {
     min-height: max(0px, calc(100dvh - 48px));
@@ -291,4 +309,15 @@
   #editor-drawer > .drawer-side,
   #editor-drawer > .drawer-side > .editor-panel,
   #editor-drawer > .editor-drawer__edge-button { transition: none !important; }
+}
+
+@media (max-width: 374px) {
+  #editor-drawer .editor-drawer__toggle-slot > .editor-drawer__edge-button {
+    width: 40px;
+    min-width: 40px;
+    padding-inline: 8px;
+  }
+  #editor-drawer .editor-drawer__toggle-slot > .editor-drawer__edge-button .btn-label {
+    display: none;
+  }
 }

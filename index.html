@@ -4,7 +4,7 @@
   <!-- Verifikasi kepemilikan situs AdSense, tidak memuat skrip iklan di editor. -->
   <meta name="google-adsense-account" content="ca-pub-4751617120862559">
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <base href="/" />
   <meta name="description" content="Generate Suratku menyediakan template surat sekolah dan madrasah, panduan penggunaan, pratinjau, serta fitur cetak dan ekspor PDF." />
   <link rel="canonical" href="https://generatesuratku.vercel.app/" />
@@ -25,6 +25,8 @@
 
   <!-- Theme bootstrap eksternal agar kompatibel dengan Content Security Policy. -->
   <script src="js/theme-init.js"></script>
+  <!-- Prevent in-page browser pinch/shortcut zoom; letter zoom buttons stay active. -->
+  <script src="js/page-zoom-guard.js" defer></script>
   <script src="js/routes.js"></script>
 
   <!-- daisyUI 5: CSS-only distribution for this vanilla JS application.
@@ -82,7 +84,7 @@
     <section class="lp__hero" aria-labelledby="lp-hero-title">
       <div class="lp__container lp__hero-grid">
         <div>
-          <span class="lp__eyebrow badge badge-primary badge-soft"><span class="lp__eyebrow-dot"></span> Generate Suratku · Surat sekolah &amp; madrasah</span>
+          <span class="lp__eyebrow badge badge-primary badge-soft"><span class="lp__eyebrow-dot" aria-hidden="true"></span><span class="lp__eyebrow-text">Generate Suratku · Surat sekolah &amp; madrasah</span></span>
           <h1 id="lp-hero-title">Buat surat lebih praktis bersama <em>Generate Suratku.</em></h1>
           <p>Generate Suratku membantu membuat surat sekolah dan madrasah melalui template yang terstruktur. Isi data, sesuaikan tampilan, periksa pratinjau, lalu ekspor PDF atau cetak.</p>
           <div class="lp__hero-actions">
@@ -325,8 +327,8 @@
           </button>
           <button id="btn-theme-toggle" class="btn btn--sm btn--secondary btn-sm btn-outline" data-theme="auto" title="Ganti tema tampilan" aria-label="Ganti tema tampilan">
             <svg class="ti-icon icon-sun" viewBox="0 0 24 24" aria-hidden="true" width="1.8" height="14"><use href="assets/icons/tabler-sprite.svg#ti-sun"></use></svg>
-            <svg class="ti-icon icon-moon" viewBox="0 0 24 24" aria-hidden="true" width="1.8" height="14"><use href="assets/icons/tabler-sprite.svg#ti-moon"></use></svg>
-            <svg class="ti-icon icon-auto" viewBox="0 0 24 24" aria-hidden="true" width="1.8" height="14"><use href="assets/icons/tabler-sprite.svg#ti-device-desktop"></use></svg>
+            <svg class="ti-icon icon-moon" viewBox="0 0 24 24" aria-hidden="true" style="display:none" width="1.8" height="14"><use href="assets/icons/tabler-sprite.svg#ti-moon"></use></svg>
+            <svg class="ti-icon icon-auto" viewBox="0 0 24 24" aria-hidden="true" style="display:none" width="1.8" height="14"><use href="assets/icons/tabler-sprite.svg#ti-device-desktop"></use></svg>
             <span class="btn-label">Tema</span>
           </button>
           <span class="header-overflow-divider" role="separator" aria-hidden="true"></span>
@@ -383,6 +385,8 @@
       <main class="preview-panel" id="preview-panel">
         <div class="preview-toolbar">
           <div class="preview-toolbar__identity">
+            <!-- Compact mode: one existing toggle moves here when editor is closed. -->
+            <span id="editor-drawer-toggle-slot-closed" class="editor-drawer__toggle-slot editor-drawer__toggle-slot--closed"></span>
             <span class="preview-toolbar__label">Preview Surat</span>
 
             <span id="viewer-template-label" class="viewer-template-label">Belum ada dokumen</span>
@@ -437,6 +441,9 @@
         </div>
 
         <div class="preview-viewport" id="preview-viewport">
+          <!-- The stage owns the scaled scrollable footprint; the document keeps
+               its natural dimensions inside the scaled inner wrapper. -->
+          <div class="preview-scroll-stage" id="preview-scroll-stage">
           <div class="preview-canvas-wrapper" id="preview-canvas-wrapper">
             <!-- Surat preview dirender di sini -->
             <div id="surat-preview" class="surat-preview">
@@ -455,6 +462,7 @@
             <!-- PP-01: invisible preview-only protection layer (outside exported surat). -->
             <div id="preview-protection-layer" class="preview-protection-layer" aria-hidden="true" hidden></div>
           </div>
+          </div>
         </div>
       </main>
       </div>
@@ -466,6 +474,8 @@
             <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-writing"></use></svg>
             <strong>Editor Surat</strong>
           </div>
+          <!-- Compact mode: the same toggle sits right-aligned in the editor heading. -->
+          <span id="editor-drawer-toggle-slot-open" class="editor-drawer__toggle-slot editor-drawer__toggle-slot--open"></span>
         </div>
 
         <!-- Tab Navigation -->

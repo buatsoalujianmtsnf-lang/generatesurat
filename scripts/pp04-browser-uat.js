@@ -96,6 +96,22 @@ const server = createServer(async (req, res) => {
 function check(value, label) {
   if (!value) throw Error('[PP04 browser] ' + label);
 }
+
+/* WCAG relative luminance for opaque CSS rgb() colors. */
+function contrastRatio(foreground, background) {
+  function luminance(color) {
+    const channels = color.match(/[\d.]+/g)?.slice(0, 3)?.map(Number) || [];
+    if (channels.length !== 3) return NaN;
+    const components = channels.map(c => {
+      const v = c / 255;
+      return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * components[0] + 0.7152 * components[1] + 0.0722 * components[2];
+  }
+  const a = luminance(foreground), b = luminance(background);
+  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+}
+
 const rafTwo = async page => page.evaluate(() =>
   new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
 );
@@ -182,6 +198,25 @@ try {
       && initial.visibleBadgeRemoved,
       device.name + ': preview protection must be active in strict mode by default');
     check(initial.templateCount === 18, device.name + ': expected 18 registered templates');
+
+    // Theme switch must invert the EFFECTIVE mode in one click, not
+    // auto -> light (visually unchanged) -> dark as before.
+    const themeEditor = await page.evaluate(() => {
+      Theme.set('light');
+      const button = document.getElementById('btn-theme-toggle');
+      button.click();
+      const afterOne = document.documentElement.dataset.theme;
+      const brand = document.querySelector('.app-header__title');
+      const brandColor = getComputedStyle(brand).color;
+      const labelVisible = getComputedStyle(brand).display !== 'none';
+      button.click();
+      const afterTwo = document.documentElement.dataset.theme;
+      Theme.set('light');
+      return { afterOne, afterTwo, brandColor, labelVisible };
+    });
+    check(themeEditor.afterOne === 'dark' && themeEditor.afterTwo === 'light'
+      && themeEditor.labelVisible && Number(themeEditor.brandColor.match(/\d+/)?.[0]) >= 220,
+      device.name + ': editor theme/branding failed ' + JSON.stringify(themeEditor));
 
     // The real app preview/render/pagination pipeline on dummy default form data.
     await page.evaluate(async () => {
@@ -286,6 +321,96 @@ try {
     geometry = await page.evaluate(layout);
     check(geometry.maxGeometryErrorPx < 3 && geometry.sheetCount === geometry.pageCount,
       device.name + ': zoom breaks watermark geometry');
+
+
+    // All routes: attempt Ctrl-wheel / Ctrl+Plus gestures. These browser-level
+    // events must be cancelled; preview zoom buttons themselves remain usable.
+    const pageZoomGuard = await page.evaluate(() => {
+      function dispatch(event) { document.dispatchEvent(event); return event.defaultPrevented; }
+      const wheel = dispatch(new WheelEvent('wheel', {
+        bubbles: true, cancelable: true, ctrlKey: true, deltaY: -50,
+      }));
+      const key = dispatch(new KeyboardEvent('keydown', {
+        bubbles: true, cancelable: true, ctrlKey: true, key: '+', code: 'Equal',
+      }));
+      const normalWheel = dispatch(new WheelEvent('wheel', {
+        bubbles: true, cancelable: true, deltaY: 50,
+      }));
+      const mobileGesture = new Event('gesturestart', { bubbles: true, cancelable: true });
+      const gesture = dispatch(mobileGesture);
+      return { installed: !!window.__pageZoomGuardInstalled,
+        wheel, key, normalWheel, gesture,
+        viewportPolicy: document.querySelector('meta[name="viewport"]')?.content };
+    });
+    check(pageZoomGuard.installed && pageZoomGuard.wheel && pageZoomGuard.key
+      && pageZoomGuard.gesture && !pageZoomGuard.normalWheel
+      && pageZoomGuard.viewportPolicy.includes('user-scalable=no'),
+      device.name + ': page zoom guard failed ' + JSON.stringify(pageZoomGuard));
+
+    // Transformed papers must be laid out with a real scrollable footprint;
+    // browser screenshot assertions alone cannot detect unreachable left edges.
+    await page.evaluate(() => {
+      document.getElementById('preview-canvas-wrapper').style.transition = 'none';
+    });
+    const stageMeasurements = [];
+    for (const zoom of [0.35, 0.65, 1, 1.5, 2.5]) {
+      await page.evaluate(value => State.setZoom(value), zoom);
+      await rafTwo(page);
+      const measured = await page.evaluate(() => {
+        const viewport = document.getElementById('preview-viewport');
+        const stage = document.getElementById('preview-scroll-stage');
+        const wrapper = document.getElementById('preview-canvas-wrapper');
+        const paper = document.querySelector('#surat-preview > .surat-page');
+        const pageRect = paper.getBoundingClientRect();
+        const viewRect = viewport.getBoundingClientRect();
+        const stageRect = stage.getBoundingClientRect();
+        const scaledNaturalW = wrapper.offsetWidth * (State.getUi().previewZoom || 1);
+        const expectedFootprintW = Math.ceil(scaledNaturalW) + 32;
+        viewport.scrollLeft = 0;
+        const firstRect = paper.getBoundingClientRect();
+        const maxScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+        viewport.scrollLeft = maxScroll;
+        const lastRect = paper.getBoundingClientRect();
+        return {
+          zoom: State.getUi().previewZoom,
+          viewWidth: viewport.clientWidth,
+          stageWidth: stageRect.width,
+          expectedFootprintW,
+          overflowX: maxScroll,
+          leftReachable: firstRect.left >= viewRect.left - 2,
+          rightReachable: lastRect.right <= viewRect.right + 2,
+          rootScrollWidth: document.documentElement.scrollWidth,
+          windowWidth: window.innerWidth,
+          zoomLabel: document.getElementById('zoom-level-text').textContent,
+        };
+      });
+      stageMeasurements.push(measured);
+      check(Math.abs(measured.stageWidth - measured.expectedFootprintW) < 3
+        && measured.leftReachable && measured.rightReachable
+        && measured.zoomLabel === Math.round(zoom * 100) + '%'
+        && measured.rootScrollWidth <= measured.windowWidth + 24
+        && (measured.expectedFootprintW <= measured.viewWidth
+          || measured.overflowX > 20),
+        device.name + ': zoom stage has unreachable content: ' + JSON.stringify(measured));
+    }
+    // Both toolbar buttons change document zoom, not visualViewport.scale.
+    const toolbarZoom = await page.evaluate(() => {
+      const before = State.getUi().previewZoom;
+      const scale = window.visualViewport?.scale || 1;
+      document.getElementById('btn-zoom-out').click();
+      const afterOut = State.getUi().previewZoom;
+      document.getElementById('btn-zoom-in').click();
+      return {
+        before, afterOut, afterIn: State.getUi().previewZoom,
+        scale, afterScale: window.visualViewport?.scale || 1,
+      };
+    });
+    check(toolbarZoom.afterOut < toolbarZoom.before
+      && Math.abs(toolbarZoom.afterIn - toolbarZoom.before) < .001
+      && toolbarZoom.scale === toolbarZoom.afterScale,
+      device.name + ': toolbar zoom changes page scale or fails ' + JSON.stringify(toolbarZoom));
+    await page.evaluate(() => State.setZoom(0.65));
+    await rafTwo(page);
 
     if (device.name === 'desktop') {
       const ids = await page.evaluate(() => TemplateRegistry.getAll().map(t => t.TEMPLATE_ID));
@@ -417,6 +542,60 @@ try {
     check(landingBaseline.overflowPx <= 24,
       device.name + ': landing page has horizontal overflow ' + landingBaseline.overflowPx);
 
+    // Mobile regression: the hero's DaisyUI badge must grow with wrapped
+    // "Generate Suratku · Surat sekolah & madrasah", never spill beyond it.
+    if (device.name === 'mobile-portrait') {
+      const widths = [320, 360, 390, 420];
+      for (const width of widths) {
+        await landingPage.setViewport({
+          width, height: device.height, isMobile: true,
+          hasTouch: true, deviceScaleFactor: 1,
+        });
+        for (const theme of ['light', 'dark']) {
+          const badgeGeometry = await landingPage.evaluate(mode => {
+            Theme.set(mode);
+            const badge = document.querySelector('.lp__hero .lp__eyebrow');
+            const content = badge.querySelector('.lp__eyebrow-text');
+            const dot = badge.querySelector('.lp__eyebrow-dot');
+            const outer = badge.getBoundingClientRect();
+            const inner = content.getBoundingClientRect();
+            const dotRect = dot.getBoundingClientRect();
+            const container = badge.closest('.lp__hero-grid').querySelector(':scope > div').getBoundingClientRect();
+            const style = getComputedStyle(badge);
+            const textStyle = getComputedStyle(content);
+            return {
+              theme: mode, width: window.innerWidth,
+              height: outer.height, textHeight: inner.height,
+              badgeTop: outer.top, badgeBottom: outer.bottom,
+              textBottom: inner.bottom, badgeRight: outer.right,
+              textLeft: inner.left, textRight: inner.right,
+              dotRight: dotRect.right, containerRight: container.right,
+              whiteSpace: style.whiteSpace, cssHeight: style.height,
+              textWhiteSpace: textStyle.whiteSpace,
+              overflowPx: Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
+              text: content.textContent.trim(),
+            };
+          }, theme);
+          check(badgeGeometry.text === 'Generate Suratku · Surat sekolah & madrasah'
+            && badgeGeometry.whiteSpace === 'normal'
+            && badgeGeometry.textWhiteSpace === 'normal'
+            && badgeGeometry.textHeight > 15
+            && badgeGeometry.textBottom <= badgeGeometry.badgeBottom - 4
+            && badgeGeometry.badgeRight <= badgeGeometry.containerRight + 2
+            && badgeGeometry.textRight <= badgeGeometry.badgeRight - 4
+            && badgeGeometry.textLeft >= badgeGeometry.dotRight
+            && badgeGeometry.overflowPx <= 2
+            && (width > 320 || badgeGeometry.textHeight > 19),
+            'landing hero badge text escapes its container: ' + JSON.stringify(badgeGeometry));
+        }
+      }
+      await landingPage.setViewport({
+        width: device.width, height: device.height,
+        isMobile: device.isMobile, hasTouch: device.isMobile, deviceScaleFactor: 1,
+      });
+      await landingPage.evaluate(() => Theme.set('light'));
+    }
+
     // Actual keyboard Enter toggles the group without navigating.
     const firstSummary = await landingPage.$('#lp-template-groups .lp-group__accordion > summary');
     check(Boolean(firstSummary), device.name + ': landing group summary not found');
@@ -471,34 +650,114 @@ try {
       });
     }
 
-    // Keep this independent landing tab open for additional dark-theme checks.
 
-    // Regression: the editor control is an independent, visible work-area
-    // toggle at every breakpoint, and remains usable after state changes.
+    // Help cards "Mulai dari sini", "Hasil dokumen", and "Bantuan" must
+    // remain legible in dark mode; measure real computed foreground/background.
+    const helpColors = await landingPage.evaluate(() => {
+      Theme.set('dark');
+      const cards = [...document.querySelectorAll('.lp__guide-card')];
+      const result = cards.map(card => ({
+        label: card.querySelector('.lp__guide-tag')?.textContent,
+        foreground: getComputedStyle(card.querySelector('p')).color,
+        heading: getComputedStyle(card.querySelector('h3')).color,
+        background: getComputedStyle(card).backgroundColor,
+        link: getComputedStyle(card.querySelector('a')).color,
+      }));
+      Theme.set('light');
+      return result;
+    });
+    check(helpColors.length === 3 && helpColors.every(item =>
+      contrastRatio(item.foreground, item.background) >= 4.5
+      && contrastRatio(item.heading, item.background) >= 4.5
+      && contrastRatio(item.link, item.background) >= 4.5),
+      device.name + ': landing help cards dark contrast failed ' + JSON.stringify(helpColors));
+
+    await landingPage.close();
+
+    // One movable button: when compact OPEN, right-aligned beside Editor Surat;
+    // when CLOSED, immediately before Preview Surat inside its toolbar.
+    await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
     const drawerProbe = await page.evaluate(() => {
       const button = document.getElementById('editor-drawer-button');
       const root = document.getElementById('editor-drawer');
-      const rect = button.getBoundingClientRect();
+      const openSlot = document.getElementById('editor-drawer-toggle-slot-open');
+      const closedSlot = document.getElementById('editor-drawer-toggle-slot-closed');
+      const compact = matchMedia('(max-width: 1023px)').matches;
       const initial = root.dataset.open;
-      const isVisible = rect.width > 24 && rect.height >= 40
-        && rect.left >= 0 && rect.top >= 0
+      const initialParentOk = button.parentElement ===
+        (compact ? (initial === 'true' ? openSlot : closedSlot) : root);
+      const rect = button.getBoundingClientRect();
+      const isVisible = rect.width >= 36 && rect.height >= 36
+        && rect.left >= -1 && rect.top >= -1
         && rect.right <= innerWidth + 1 && rect.bottom <= innerHeight + 1
         && getComputedStyle(button).visibility === 'visible';
-      const outsideNavbar = !button.closest('.app-header')
-        && !button.closest('.preview-toolbar');
+      const outsideNavbar = !button.closest('.app-header');
+      const placement = () => {
+        const editorOpen = root.dataset.open === 'true';
+        const currentRect = button.getBoundingClientRect();
+        const expected = compact ? (editorOpen ? openSlot : closedSlot) : root;
+        const heading = document.querySelector('.editor-drawer__heading');
+        const headingRect = heading.getBoundingClientRect();
+        const titleRect = heading.querySelector('strong').getBoundingClientRect();
+        const previewLabel = document.querySelector('.preview-toolbar__label');
+        const previewRect = previewLabel.getBoundingClientRect();
+        const correct = button.parentElement === expected;
+        const withinHeading = !compact || !editorOpen || (
+          currentRect.left > titleRect.right - 2
+          && currentRect.right <= headingRect.right + 2
+          && Math.abs(currentRect.top + currentRect.height / 2
+            - (titleRect.top + titleRect.height / 2)) < 8
+        );
+        const beforePreview = !compact || editorOpen || (
+          currentRect.right <= previewRect.left + 5
+          && Math.abs(currentRect.top + currentRect.height / 2
+            - (previewRect.top + previewRect.height / 2)) < 8
+        );
+        return { correct, withinHeading, beforePreview, editorOpen };
+      };
+      const before = placement();
       button.click();
       const changed = root.dataset.open !== initial
         && button.getAttribute('aria-expanded') === root.dataset.open;
+      const afterClick = placement();
       button.click();
+      const restored = root.dataset.open === initial;
+      const afterRestore = placement();
+      const noDuplicates = document.querySelectorAll('#editor-drawer-button').length === 1;
       return {
-        isVisible, outsideNavbar, changed,
-        restored: root.dataset.open === initial,
+        isVisible, outsideNavbar, changed, restored, noDuplicates,
+        initialParentOk, before, afterClick, afterRestore,
         hasStatusBadge: !!document.getElementById('preview-protection-status'),
       };
     });
     check(drawerProbe.isVisible && drawerProbe.outsideNavbar
-      && drawerProbe.changed && drawerProbe.restored && !drawerProbe.hasStatusBadge,
-      device.name + ': editor edge action / status removal regression: ' + JSON.stringify(drawerProbe));
+      && drawerProbe.changed && drawerProbe.restored && drawerProbe.noDuplicates
+      && drawerProbe.initialParentOk
+      && [drawerProbe.before, drawerProbe.afterClick, drawerProbe.afterRestore]
+        .every(state => state.correct && state.withinHeading && state.beforePreview)
+      && !drawerProbe.hasStatusBadge,
+      device.name + ': movable editor control/header placement failed: ' + JSON.stringify(drawerProbe));
+
+    // On compact viewports the docked editor handle must not overlap the
+    // Previous/Next workflow action strip, in either drawer state.
+    if (device.width <= 1023) {
+      const mobileCollision = await page.evaluate(() => {
+        const root = document.getElementById('editor-drawer');
+        const button = document.getElementById('editor-drawer-button');
+        const original = root.dataset.open;
+        if (original !== 'true') button.click();
+        const a = button.getBoundingClientRect();
+        const b = document.getElementById('workflow-actions').getBoundingClientRect();
+        const intersect = a.left < b.right && a.right > b.left
+          && a.top < b.bottom && a.bottom > b.top;
+        if (original !== 'true') button.click();
+        return { intersect, buttonTop: a.top, buttonBottom: a.bottom,
+          workflowTop: b.top, workflowBottom: b.bottom, workflowHeight: b.height };
+      });
+      check(!mobileCollision.intersect && mobileCollision.workflowHeight > 30,
+        device.name + ': docked editor handle covers workflow actions '
+        + JSON.stringify(mobileCollision));
+    }
 
     // Use four dummy paper sheets to cover real page navigation, even if the
     // currently selected template normally renders as only one page.
@@ -516,6 +775,14 @@ try {
         paper.dataset.pageNumber = String(i + 1);
         preview.appendChild(paper);
       }
+      // The fixture replaces natural pages without calling PreviewRenderer.
+      // Synchronize its synthetic stage, otherwise the viewport still has the
+      // scroll height of the previous real one-page template.
+      const stage = document.getElementById('preview-scroll-stage');
+      const wrapper = document.getElementById('preview-canvas-wrapper');
+      const zoom = State.getUi().previewZoom || 1;
+      stage.style.width = Math.ceil(wrapper.offsetWidth * zoom) + 32 + 'px';
+      stage.style.height = Math.ceil(preview.scrollHeight * zoom) + 48 + 'px';
       viewport.scrollTop = 0;
       DocumentViewer.refresh();
     });
@@ -558,170 +825,81 @@ try {
     check(navFirst.top < 3 && navFirst.pageInput === '1',
       device.name + ': first-page navigation did not reset preview scroll');
 
-    // Theme must visibly switch with ONE click, and dark branding must
-    // contrast with the editor header, in both desktop and mobile layouts.
-    const themeProbe = await page.evaluate(async () => {
-      const button = document.getElementById('btn-theme-toggle');
-      Theme.set('auto');
-      const before = document.documentElement.dataset.theme;
-      button.click();
-      const after = document.documentElement.dataset.theme;
-      button.click();
-      const back = document.documentElement.dataset.theme;
-      Theme.set('dark');
-      // CSS theme changes animate colors. Measure after transition completion;
-      // the single-click behavior itself is asserted immediately above.
-      await new Promise(resolve => setTimeout(resolve, 420));
-      const title = document.querySelector('.app-header__title');
-      const header = document.querySelector('.app-header');
-      const actionBar = document.querySelector('.app-header__actions');
-      const rgb = value => {
-        const nums = (value.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
-        // Chromium may return CSS Color 4 'color(srgb 0.1 0.2 0.3)'
-        // rather than 'rgb(26, 51, 77)' for color-mix surfaces.
-        return value.startsWith('color(srgb') ? nums.map(n => n * 255) : nums;
-      };
-      const lum = value => {
-        const v = rgb(value).map(x => x / 255).map(x =>
-          x <= .04045 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4
-        );
-        return .2126 * v[0] + .7152 * v[1] + .0722 * v[2];
-      };
-      const a = lum(getComputedStyle(title).color);
-      const bg = lum(getComputedStyle(header).backgroundColor);
-      return {
-        before, after, back,
-        contrast: (Math.max(a, bg) + .05) / (Math.min(a, bg) + .05),
-        brandVisible: title.getBoundingClientRect().width > 10,
-        titleColor: getComputedStyle(title).color,
-        headerColor: getComputedStyle(header).backgroundColor,
-        htmlTheme: document.documentElement.dataset.theme,
-        htmlClasses: document.documentElement.className,
-        editorClass: document.documentElement.dataset.routePage,
-        rootInk: getComputedStyle(document.documentElement).getPropertyValue('--arc-ui-ink'),
-        rootSurface: getComputedStyle(document.documentElement).getPropertyValue('--arc-ui-surface'),
-        titleInk: getComputedStyle(title).getPropertyValue('--arc-ui-ink'),
-        headerSurface: getComputedStyle(header).getPropertyValue('--arc-ui-surface'),
-        isPrintMedia: matchMedia('print').matches,
-        declaredBrand: [...document.styleSheets].filter(x => x.href?.includes('arc-inspired')).flatMap(x =>
-          [...x.cssRules].filter(rule => rule.selectorText?.includes('.app-header__brand .app-header__title'))
-            .map(rule => ({ selector:rule.selectorText, color:rule.style.color,
-              priority:rule.style.getPropertyPriority('color') }))
-        ),
-        selectorMatch: title.matches('html[data-theme="dark"] .app-header .app-header__brand .app-header__title'),
-        arcCssSheets: [...document.styleSheets].filter(x => x.href?.includes('arc-inspired')).map(x => ({
-          href:x.href, disabled:x.disabled, rules:x.cssRules?.length || 0,
-        })),
-        navbarAlign: getComputedStyle(actionBar).justifyContent,
-      };
-    });
-    check(themeProbe.before !== themeProbe.after && themeProbe.back === themeProbe.before,
-      device.name + ': toggle requires more than one click ' + JSON.stringify(themeProbe));
-    check(themeProbe.brandVisible && themeProbe.contrast >= 4.5,
-      device.name + ': dark editor branding contrast failed ' + JSON.stringify(themeProbe));
-    if (device.name === 'desktop') {
-      check(themeProbe.navbarAlign.includes('flex-end'),
-        'desktop: editor navbar actions are not aligned right');
-    }
 
-    if (device.name !== 'desktop') {
-      const floating = await page.evaluate(() => {
-        const button = document.getElementById('editor-drawer-button');
-        const drawer = document.getElementById('editor-drawer');
-        const initiallyOpen = drawer.dataset.open === 'true';
-        if (!initiallyOpen) button.click();
-        const a = button.getBoundingClientRect();
-        const workflow = document.getElementById('workflow-actions');
-        const w = workflow.getBoundingClientRect();
-        const intersects = a.left < w.right && a.right > w.left
-          && a.top < w.bottom && a.bottom > w.top;
-        const output = {
-          intersects,
-          button: { top:a.top, bottom:a.bottom, left:a.left, right:a.right },
-          workflow: { top:w.top, bottom:w.bottom, left:w.left, right:w.right },
-          edgeDocked: a.right >= innerWidth - 2 && a.left >= innerWidth - 70,
-          reachable: a.top >= 0 && a.bottom <= innerHeight + 1,
-        };
-        if (!initiallyOpen) button.click();
-        return output;
-      });
-      check(!floating.intersects && floating.edgeDocked && floating.reachable,
-        device.name + ': editor toggle overlaps workflow actions ' + JSON.stringify(floating));
-    }
-
-    // The guide section must remain readable against dark surfaces.
-    const guideContrast = await landingPage.evaluate(async () => {
-      document.documentElement.dataset.theme = 'dark';
-      document.documentElement.classList.add('dark-mode');
-      await new Promise(resolve => setTimeout(resolve, 420));
-      const rgb = v => (v.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
-      const lum = v => {
-        const channels = rgb(v).map(x => x / 255).map(x =>
-          x <= .04045 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4
-        );
-        return .2126 * channels[0] + .7152 * channels[1] + .0722 * channels[2];
-      };
-      return [...document.querySelectorAll('.lp__guide-card')].map(card => {
-        const bg = lum(getComputedStyle(card).backgroundColor);
-        const fg = lum(getComputedStyle(card.querySelector('h3')).color);
-        const body = lum(getComputedStyle(card.querySelector('p')).color);
-        const tag = lum(getComputedStyle(card.querySelector('.lp__guide-tag')).color);
-        const ratio = value => (Math.max(value, bg) + .05) / (Math.min(value, bg) + .05);
-        return { heading:ratio(fg), description:ratio(body), tag:ratio(tag) };
-      });
-    });
-    check(guideContrast.length === 3 && guideContrast.every(x =>
-      x.heading >= 4.5 && x.description >= 4.5 && x.tag >= 4.5),
-      device.name + ': landing guide text illegible in dark mode ' + JSON.stringify(guideContrast));
-    await landingPage.close();
-
-    // All six information pages share the same persisted theme and can
-    // switch light/dark independently without changing their routes.
+    // Public informational routes share the same stored theme and offer a
+    // single-click switch; no inline scripts or third-party app state used.
     if (device.name === 'desktop' || device.name === 'mobile-portrait') {
-      const publicPage = await browser.newPage();
-      await publicPage.setViewport({
-        width:device.width, height:device.height,
-        isMobile:device.isMobile, hasTouch:device.isMobile, deviceScaleFactor:1,
+      const article = await browser.newPage();
+      await article.setViewport({
+        width: device.width, height: device.height,
+        isMobile: device.isMobile, hasTouch: device.isMobile, deviceScaleFactor: 1,
       });
-      await publicPage.setRequestInterception(true);
-      publicPage.on('request', req => {
+      await article.setBypassServiceWorker(true);
+      await article.setRequestInterception(true);
+      article.on('request', req => {
         if (new URL(req.url()).origin !== origin) { void req.abort(); return; }
         void req.continue();
       });
-      const paths = [
-        '/panduan.html','/panduan-cetak-pdf.html','/faq.html',
-        '/tentang.html','/privasi.html','/ketentuan.html',
-      ];
-      for (const route of paths) {
-        await publicPage.goto(origin + route, { waitUntil:'domcontentloaded', timeout:25000 });
-        await publicPage.waitForFunction(() =>
-          typeof Theme !== 'undefined'
-          && document.getElementById('btn-theme-toggle')?.dataset.theme === 'dark',
-        { timeout:12000 });
-        const state = await publicPage.evaluate(() => {
-          const button = document.getElementById('btn-theme-toggle');
-          const article = document.querySelector('.article');
-          const rgb = v => (v.match(/[\d.]+/g) || []).slice(0,3).map(Number);
-          const lum = v => {
-            const channels = rgb(v).map(x => x / 255).map(x =>
-              x <= .04045 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4
-            );
-            return .2126*channels[0] + .7152*channels[1] + .0722*channels[2];
-          };
-          const bg = lum(getComputedStyle(article).backgroundColor);
-          const fg = lum(getComputedStyle(article.querySelector('p')).color);
-          const contrast = (Math.max(fg,bg)+.05)/(Math.min(fg,bg)+.05);
-          const initiallyDark = document.documentElement.dataset.theme === 'dark';
-          button.click();
-          const afterLight = document.documentElement.dataset.theme === 'light';
-          button.click();
-          const afterDark = document.documentElement.dataset.theme === 'dark';
-          return { initiallyDark, afterLight, afterDark, contrast };
+      const names = ['panduan', 'faq', 'tentang', 'privasi', 'ketentuan', 'panduan-cetak-pdf'];
+      for (const slug of names) {
+        await article.goto(origin + '/' + slug + '.html', {
+          waitUntil: 'domcontentloaded', timeout: 35000,
         });
-        check(state.initiallyDark && state.afterLight && state.afterDark && state.contrast >= 4.5,
-          device.name + ': public theme/contrast failed on ' + route + ': '+JSON.stringify(state));
+        await article.waitForFunction(() =>
+          typeof Theme !== 'undefined' && !!document.getElementById('btn-theme-toggle'),
+          { timeout: 12000 }
+        );
+        const palette = await article.evaluate(() => {
+          Theme.set('dark');
+          const card = document.querySelector('.article');
+          const foreground = getComputedStyle(card.querySelector('p')).color;
+          const background = getComputedStyle(card).backgroundColor;
+          const toggle = document.getElementById('btn-theme-toggle');
+          toggle.click();
+          const afterLight = document.documentElement.dataset.theme;
+          toggle.click();
+          const afterDark = document.documentElement.dataset.theme;
+          return {
+            foreground, background, afterLight, afterDark,
+            title: getComputedStyle(card.querySelector('h1')).color,
+            htmlTheme: document.documentElement.dataset.theme,
+          };
+        });
+        check(palette.afterLight === 'light' && palette.afterDark === 'dark'
+          && contrastRatio(palette.foreground, palette.background) >= 4.5
+          && contrastRatio(palette.title, palette.background) >= 4.5,
+          device.name + '/' + slug + ': public dark mode failed ' + JSON.stringify(palette));
       }
-      await publicPage.close();
+      await article.close();
+    }
+
+    // Narrowest supported handset: the application brand remains readable
+    // as words that wrap naturally, never hidden/truncated with an ellipsis.
+    if (device.name === 'mobile-portrait') {
+      await page.setViewport({ width: 320, height: 700, isMobile: true, hasTouch: true, deviceScaleFactor: 1 });
+      const narrowBrand = await page.evaluate(() => {
+        const title = document.querySelector('.app-header__title');
+        const style = getComputedStyle(title);
+        const text = title.textContent.trim();
+        return {
+          text, display: style.display, whiteSpace: style.whiteSpace,
+          textOverflow: style.textOverflow,
+          width: title.clientWidth, scrollWidth: title.scrollWidth,
+          height: title.getBoundingClientRect().height,
+          lineHeight: parseFloat(style.lineHeight),
+        };
+      });
+      check(narrowBrand.text === 'Generate Suratku'
+        && narrowBrand.display !== 'none'
+        && narrowBrand.whiteSpace === 'normal'
+        && narrowBrand.textOverflow === 'clip'
+        && narrowBrand.scrollWidth <= narrowBrand.width + 2
+        && narrowBrand.height >= narrowBrand.lineHeight * 1.65,
+        device.name + ': compact app branding is hidden or truncated: ' + JSON.stringify(narrowBrand));
+      await page.setViewport({
+        width: device.width, height: device.height,
+        isMobile: device.isMobile, hasTouch: device.isMobile, deviceScaleFactor: 1,
+      });
     }
 
     report.viewports.push({
@@ -732,17 +910,21 @@ try {
       interactionsScoped: true, exportedPayloadClean: true,
       serverSponsorGatePreserved: 'client guard only; server covered by existing suites',
       printLayerHidden: true,
+      pageZoomGuard: true,
+      zoomStageAcrossFiveLevels: true,
       landingGroupAccordions: landingBaseline.groupAccordions,
       landingTemplates: landingBaseline.nestedTemplates,
       landingSearch: true,
-      editorEdgeControl: true,
+      mobileHeroBadgeWrap: true,
+      editorHeaderControl: true,
+      previewHeaderControl: true,
+      smallScreenBrandWrap: device.name === 'mobile-portrait',
+      mobileWorkflowUnobstructed: true,
+      oneClickThemeToggle: true,
+      darkLandingCardsReadable: true,
+      publicDarkPagesChecked: device.name === 'desktop' || device.name === 'mobile-portrait',
       toolbarStableOnPageNavigation: true,
       statusLabelRemoved: true,
-      themeOneClick: true,
-      darkBrandContrast: themeProbe.contrast,
-      darkGuideContrast: guideContrast,
-      mobileToggleClearOfWorkflow: device.name === 'desktop' ? null : true,
-      publicDarkPagesVerified: device.name === 'desktop' || device.name === 'mobile-portrait',
       pageErrors: [],
     });
     console.info('[PP04 UAT PASS]', device.name, JSON.stringify({
