@@ -58,7 +58,7 @@ describe('Generate Suratku brand and accordion defaults', () => {
 
   it('bumps the service worker to refresh cache for new assets', () => {
     const sw = read('sw.js');
-    expect(sw).toContain("CACHE_PREFIX + 'v58'");
+    expect(sw).toContain("CACHE_PREFIX + 'v59'");
     expect(sw).toContain("'./css/landing.css'");
     expect(sw).toContain("'./js/settings.js'");
   });
