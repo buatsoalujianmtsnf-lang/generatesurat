@@ -284,6 +284,7 @@ const SponsorVideoModal = (() => {
    * Resolves null on cancel/busy/unsupported browser, otherwise returns
    * { action, receipt, expiresAt } issued by the server. MON-05 must consume it.
    */
+  /** @param {{ action?: 'print' | 'pdf', source?: 'button' | 'keyboard' }} [options] */
   function request({action,source='button'}={}) {
     if(!['print','pdf'].includes(action)||!['button','keyboard'].includes(source)
       ||(action==='pdf'&&source==='keyboard')||current||!attachOnce())return Promise.resolve(null);

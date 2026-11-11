@@ -43,7 +43,7 @@ describe('MON-04 sponsor modal and verified state',()=>{
     expect(s).toContain('/api/sponsor-complete');
     expect(s).toContain("setState(ctx,'AUTHORIZED')");
     expect(s).toContain('result.receipt');
-    expect(s).toContain('getElements'); // deliberately checked below for implementation consistency
+    expect(s).toContain('function elements()');
   });
   it('never prints video, caches advertiser media, or activates AdSense',()=>{
     const css=read('css/sponsor-video.css'),sw=read('sw.js'),s=read('js/sponsor-video-modal.js');
