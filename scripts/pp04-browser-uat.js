@@ -1,0 +1,405 @@
+/**
+ * PP-04: isolated, genuine headless Chromium browser integration/UAT.
+ * Never uses production, personal student records, real sponsor state, or OS capture.
+ * Emulated mobile viewports are not physical iOS/Android/Safari UAT.
+ */
+import { createServer } from 'node:http';
+import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import { resolve, extname, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import chromium from '@sparticuz/chromium';
+import puppeteer from 'puppeteer-core';
+
+const root = resolve(fileURLToPath(new URL('../', import.meta.url)));
+const output = resolve(root, 'artifacts/pp04-browser');
+const mime = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.woff2': 'font/woff2',
+  '.webmanifest': 'application/manifest+json',
+};
+const report = {
+  stage: 'PP-04',
+  environment: 'isolated same-origin headless Chromium on GitHub Actions',
+  physicalDeviceUat: false,
+  safariFirefoxUat: false,
+  actualOsScreenshotOrRecordingBlocked: 'not testable/guaranteed by web app',
+  realSponsorOrProductionBackend: false,
+  status: 'RUNNING',
+  viewports: [],
+  templateResults: [],
+  pdfPayload: null,
+  error: null,
+};
+const pdfRequests = [];
+const server = createServer(async (req, res) => {
+  try {
+    const uri = new URL(req.url || '/', 'http://127.0.0.1');
+    const pathname = decodeURIComponent(uri.pathname);
+    if (pathname.startsWith('/api/')) {
+      if (pathname === '/api/export-pdf' && req.method === 'POST') {
+        let body = '';
+        for await (const chunk of req) {
+          body += String(chunk);
+          if (body.length > 9_000_000) break;
+        }
+        const payload = JSON.parse(body || '{}');
+        pdfRequests.push({
+          method: req.method,
+          hasDocument: typeof payload.html === 'string' && payload.html.includes('id="surat-preview"'),
+          hasWatermarkLayer: /preview-protection-layer|preview-protection-sheet/.test(payload.html || ''),
+          hasProtectionLabel: /Preview berwatermark|Preview disamarkan/.test(payload.html || ''),
+          stylesheetHasPrintExclusion: (payload.css || '').includes('#preview-protection-layer')
+            && (payload.css || '').includes('@media print'),
+          htmlLength: (payload.html || '').length,
+          cssLength: (payload.css || '').length,
+        });
+      }
+      res.writeHead(503, {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store',
+        'X-Content-Type-Options': 'nosniff',
+      });
+      res.end(JSON.stringify({ error: 'PP04_FAKE_BACKEND_UNAVAILABLE' }));
+      return;
+    }
+    const route = pathname === '/' || pathname === '/editor' ? '/index.html' : pathname;
+    if (route.includes('\0') || route.includes('\\') || route.includes('..')) {
+      res.writeHead(403); res.end(); return;
+    }
+    const full = resolve(root, '.' + route);
+    if (full !== root && !full.startsWith(root + sep)) {
+      res.writeHead(403); res.end(); return;
+    }
+    try {
+      const bytes = await readFile(full);
+      res.writeHead(200, {
+        'Content-Type': mime[extname(full)] || 'application/octet-stream',
+        'Cache-Control': 'no-cache',
+        'X-Content-Type-Options': 'nosniff',
+      });
+      res.end(bytes);
+    } catch {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('Not found');
+    }
+  } catch {
+    res.writeHead(400); res.end();
+  }
+});
+function check(value, label) {
+  if (!value) throw Error('[PP04 browser] ' + label);
+}
+const rafTwo = async page => page.evaluate(() =>
+  new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+);
+const layout = () => {
+  const rootEl = document.getElementById('surat-preview');
+  const overlay = document.getElementById('preview-protection-layer');
+  const pages = [...rootEl.querySelectorAll(':scope > .surat-page')];
+  const sheets = [...overlay.querySelectorAll('.preview-protection-sheet')];
+  const drifts = pages.map((page, i) => {
+    const a = page.getBoundingClientRect();
+    const b = sheets[i]?.getBoundingClientRect();
+    return b ? Math.max(
+      Math.abs(a.left - b.left), Math.abs(a.top - b.top),
+      Math.abs(a.width - b.width), Math.abs(a.height - b.height)
+    ) : Infinity;
+  });
+  return {
+    pageCount: pages.length,
+    sheetCount: sheets.length,
+    maxGeometryErrorPx: drifts.length ? Math.max(...drifts) : Infinity,
+    hasTile: sheets.length > 0 && sheets.every(sheet =>
+      sheet.style.backgroundImage.startsWith('url("data:image/svg+xml,')
+    ),
+    sheetsArePointerTransparent: sheets.every(sheet =>
+      getComputedStyle(sheet).pointerEvents === 'none'
+    ),
+    htmlContainsOverlay: /preview-protection-sheet|preview-protection-layer/.test(rootEl.outerHTML),
+    correctSibling: overlay.parentElement === rootEl.parentElement,
+    status: PreviewProtection.getStatus(),
+    rootScrollWidth: document.documentElement.scrollWidth,
+    viewportWidth: window.innerWidth,
+  };
+};
+const devices = [
+  { name: 'desktop', width: 1440, height: 900, isMobile: false },
+  { name: 'tablet', width: 820, height: 1180, isMobile: true },
+  { name: 'mobile-portrait', width: 390, height: 844, isMobile: true },
+  { name: 'mobile-landscape', width: 844, height: 390, isMobile: true },
+];
+let browser;
+let failed = null;
+try {
+  await mkdir(output, { recursive: true });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const origin = 'http://127.0.0.1:' + server.address().port;
+  browser = await puppeteer.launch({
+    executablePath: await chromium.executablePath(),
+    headless: true,
+    args: chromium.args,
+    timeout: 45000,
+  });
+  for (const device of devices) {
+    const page = await browser.newPage();
+    const pageErrors = [];
+    page.on('pageerror', err => pageErrors.push(String(err?.message || err).slice(0, 350)));
+    await page.setViewport({
+      width: device.width, height: device.height,
+      isMobile: device.isMobile, hasTouch: device.isMobile, deviceScaleFactor: 1,
+    });
+    await page.setBypassServiceWorker(true);
+    await page.setRequestInterception(true);
+    page.on('request', req => {
+      if (new URL(req.url()).origin !== origin) {
+        void req.abort();
+        return;
+      }
+      void req.continue();
+    });
+    await page.goto(origin + '/editor', { waitUntil: 'domcontentloaded', timeout: 35000 });
+    await page.waitForFunction(() =>
+      typeof PreviewProtection !== 'undefined'
+      && typeof TemplateRegistry !== 'undefined'
+      && typeof PreviewRenderer !== 'undefined'
+      && PreviewProtection.getStatus().initialized,
+    { timeout: 20000 });
+    const initial = await page.evaluate(() => ({
+      flag: document.documentElement.dataset.previewProtection,
+      status: PreviewProtection.getStatus(),
+      templateCount: TemplateRegistry.count(),
+      statusBadgeHidden: document.getElementById('preview-protection-status').hidden,
+    }));
+    check(initial.flag === 'off' && !initial.status.enabled && initial.statusBadgeHidden,
+      device.name + ': feature must default OFF');
+    check(initial.templateCount === 18, device.name + ': expected 18 registered templates');
+
+    // The real app preview/render/pagination pipeline on dummy default form data.
+    await page.evaluate(async () => {
+      const template = TemplateRegistry.get('surat-izin');
+      State.initFormData('surat-izin', template.createDefaultData());
+      State.setActiveTemplate('surat-izin');
+      await PreviewRenderer.waitForReady(110);
+      document.documentElement.dataset.previewProtection = 'on';
+      document.documentElement.dataset.previewProtectionMode = 'strict';
+      PreviewProtection.refresh();
+    });
+    await rafTwo(page);
+    let geometry = await page.evaluate(layout);
+    check(geometry.pageCount > 0 && geometry.sheetCount === geometry.pageCount,
+      device.name + ': overlay page count mismatch ' + JSON.stringify(geometry));
+    check(geometry.hasTile && geometry.correctSibling && !geometry.htmlContainsOverlay,
+      device.name + ': watermark not isolated from document');
+    check(geometry.maxGeometryErrorPx < 3,
+      device.name + ': watermark/page drift ' + geometry.maxGeometryErrorPx);
+    check(geometry.sheetsArePointerTransparent, device.name + ': watermark blocks pointer');
+    check(geometry.status.interactionsProtected, device.name + ': strict pointer handlers not attached');
+    check(geometry.rootScrollWidth <= geometry.viewportWidth + 24,
+      device.name + ': major horizontal page overflow');
+
+    // Real DOM-dispatched pointer/keyboard interactions without a mocked DOM.
+    const interaction = await page.evaluate(() => {
+      const doc = document.querySelector('#surat-preview .doc-content');
+      const outside = document.querySelector('.preview-toolbar');
+      function fire(target, name, opts = {}) {
+        const event = name === 'dragstart'
+          ? new Event(name, { bubbles: true, cancelable: true })
+          : new MouseEvent(name, { bubbles: true, cancelable: true, button: opts.button ?? 2, ctrlKey: !!opts.ctrlKey });
+        target.dispatchEvent(event);
+        return event.defaultPrevented;
+      }
+      const image = document.createElement('img');
+      image.alt = 'dummy test fixture';
+      doc.appendChild(image);
+      const answer = {
+        rightClick: fire(doc, 'contextmenu'),
+        ctrlClick: fire(doc, 'contextmenu', { button: 0, ctrlKey: true }),
+        keyboardMenu: fire(doc, 'contextmenu', { button: -1 }),
+        outsideMenu: fire(outside, 'contextmenu'),
+        dragImage: fire(image, 'dragstart'),
+        dragText: fire(doc, 'dragstart'),
+        copy: fire(doc, 'copy'),
+      };
+      image.remove();
+      return answer;
+    });
+    check(interaction.rightClick && interaction.ctrlClick && interaction.dragImage,
+      device.name + ': strict pointer guard not enforced');
+    check(!interaction.keyboardMenu && !interaction.outsideMenu
+      && !interaction.dragText && !interaction.copy,
+      device.name + ': keyboard/text/editor interactions were blocked');
+
+    // Simulate the browser visibility event, not an OS capture API.
+    const visibility = await page.evaluate(() => {
+      const descriptors = ['hidden', 'visibilityState'].map(key => ({
+        key, desc: Object.getOwnPropertyDescriptor(document, key),
+      }));
+      Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+      Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' });
+      document.dispatchEvent(new Event('visibilitychange'));
+      const whenHidden = {
+        masked: PreviewProtection.getStatus().masked,
+        css: document.getElementById('preview-protection-layer').classList.contains('is-masked'),
+      };
+      Object.defineProperty(document, 'hidden', { configurable: true, value: false });
+      Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' });
+      document.dispatchEvent(new Event('visibilitychange'));
+      const whenVisible = {
+        masked: PreviewProtection.getStatus().masked,
+        css: document.getElementById('preview-protection-layer').classList.contains('is-masked'),
+      };
+      for (const entry of descriptors) {
+        if (entry.desc) Object.defineProperty(document, entry.key, entry.desc);
+        else delete document[entry.key];
+      }
+      return { whenHidden, whenVisible };
+    });
+    check(visibility.whenHidden.masked && visibility.whenHidden.css
+      && !visibility.whenVisible.masked && !visibility.whenVisible.css,
+      device.name + ': background-tab masking restore failed');
+
+    const modes = await page.evaluate(() => {
+      const html = document.documentElement;
+      html.dataset.previewProtectionMode = 'standard';
+      PreviewProtection.refresh();
+      const standard = PreviewProtection.getStatus();
+      html.dataset.previewProtectionMode = 'strict';
+      PreviewProtection.refresh();
+      const strict = PreviewProtection.getStatus();
+      return { standard, strict };
+    });
+    check(modes.standard.enabled && !modes.standard.masked && !modes.standard.interactionsProtected
+      && modes.strict.interactionsProtected, device.name + ': mode transitions wrong');
+
+    // Zoom and focus-mode fallback must not move overlay away from paper.
+    await page.evaluate(() => State.setZoom(0.65));
+    await rafTwo(page);
+    geometry = await page.evaluate(layout);
+    check(geometry.maxGeometryErrorPx < 3 && geometry.sheetCount === geometry.pageCount,
+      device.name + ': zoom breaks watermark geometry');
+
+    if (device.name === 'desktop') {
+      const ids = await page.evaluate(() => TemplateRegistry.getAll().map(t => t.TEMPLATE_ID));
+      for (const id of ids) {
+        await page.evaluate(async templateId => {
+          const tpl = TemplateRegistry.get(templateId);
+          State.initFormData(templateId, tpl.createDefaultData());
+          State.setActiveTemplate(templateId);
+          await PreviewRenderer.waitForReady(110);
+        }, id);
+        await rafTwo(page);
+        const g = await page.evaluate(layout);
+        check(g.pageCount > 0 && g.sheetCount === g.pageCount
+          && g.maxGeometryErrorPx < 3 && g.correctSibling && !g.htmlContainsOverlay,
+        'template ' + id + ' failed: ' + JSON.stringify(g));
+        report.templateResults.push({ templateId: id, pages: g.pageCount, status: 'PASS' });
+      }
+      check(report.templateResults.length === 18, '18 template UAT missing');
+    }
+
+    // Verify real PDF export payload is document-only using an unavailable fake backend.
+    const beforePdf = pdfRequests.length;
+    await page.evaluate(async () => {
+      const templateId = 'surat-izin';
+      State.initFormData(templateId, TemplateRegistry.get(templateId).createDefaultData());
+      State.setActiveTemplate(templateId);
+      await PreviewRenderer.waitForReady(110);
+      await PdfExport.exportDocument();
+    });
+    check(pdfRequests.length === beforePdf + 1, device.name + ': PDF export did not call fake backend');
+    const payload = pdfRequests.at(-1);
+    check(payload.hasDocument && !payload.hasWatermarkLayer && !payload.hasProtectionLabel
+      && payload.stylesheetHasPrintExclusion,
+      device.name + ': PDF payload includes preview protection DOM or lacks print guard');
+    if (device.name === 'desktop') report.pdfPayload = payload;
+
+    // Sponsor required must fail closed: no POST without sponsor receipt.
+    const beforeSponsorPdf = pdfRequests.length;
+    const sponsorGuard = await page.evaluate(async () => {
+      document.documentElement.dataset.sponsorGate = 'required';
+      const result = await PdfExport.exportDocument();
+      const required = SponsorExportGate.isRequired();
+      document.documentElement.dataset.sponsorGate = 'off';
+      return { result, required };
+    });
+    check(sponsorGuard.required && sponsorGuard.result === false
+      && pdfRequests.length === beforeSponsorPdf,
+      device.name + ': sponsor PDF authorization can be bypassed');
+
+    // Print CSS & Chromium PDF use a document with watermark ON.
+    await page.emulateMediaType('print');
+    const printState = await page.evaluate(() => ({
+      layer: getComputedStyle(document.getElementById('preview-protection-layer')).display,
+      badge: getComputedStyle(document.getElementById('preview-protection-status')).display,
+      paper: getComputedStyle(document.querySelector('#surat-preview > .surat-page')).display,
+    }));
+    check(printState.layer === 'none' && printState.badge === 'none'
+      && printState.paper !== 'none', device.name + ': printed page leaks watermark overlay');
+    if (device.name === 'desktop') {
+      const pdf = await page.pdf({ printBackground: true, preferCSSPageSize: true });
+      check(pdf.length > 800 && Buffer.from(pdf).subarray(0, 5).toString() === '%PDF-',
+        'Chromium print-to-PDF failed');
+      await writeFile(resolve(output, 'dummy-print-smoke.pdf'), pdf);
+    }
+    await page.emulateMediaType('screen');
+
+    await page.evaluate(() => {
+      document.documentElement.dataset.previewProtection = 'off';
+      PreviewProtection.refresh();
+    });
+    const rollback = await page.evaluate(() => ({
+      status: PreviewProtection.getStatus(),
+      overlayHidden: document.getElementById('preview-protection-layer').hidden,
+      badgeHidden: document.getElementById('preview-protection-status').hidden,
+    }));
+    check(!rollback.status.enabled && !rollback.status.interactionsProtected
+      && rollback.overlayHidden && rollback.badgeHidden,
+    device.name + ': rollback did not clear protection');
+    check(pageErrors.length === 0, device.name + ': uncaught errors ' + pageErrors.join('; '));
+
+    if (device.name === 'desktop' || device.name === 'mobile-portrait') {
+      await page.evaluate(() => {
+        document.documentElement.dataset.previewProtection = 'on';
+        PreviewProtection.refresh();
+      });
+      await rafTwo(page);
+      await page.screenshot({
+        path: resolve(output, device.name + '-watermark.png'), fullPage: false,
+      });
+    }
+    report.viewports.push({
+      name: device.name, viewport: device.width + 'x' + device.height,
+      status: 'PASS', pages: geometry.pageCount,
+      initialDisabled: true, watermarkAligned: true,
+      strictMaskRestores: true, standardMode: true,
+      interactionsScoped: true, exportedPayloadClean: true,
+      serverSponsorGatePreserved: 'client guard only; server covered by existing suites',
+      printLayerHidden: true, pageErrors: [],
+    });
+    console.info('[PP04 UAT PASS]', device.name, JSON.stringify({
+      pages: geometry.pageCount, maxGeometryErrorPx: geometry.maxGeometryErrorPx,
+      checkedTemplates: report.templateResults.length,
+    }));
+    await page.close();
+  }
+  report.status = 'PASS';
+} catch (error) {
+  failed = String(error?.stack || error);
+  report.status = 'FAILED';
+  report.error = failed;
+  console.error('[PP04 UAT FAILED]', failed);
+} finally {
+  await browser?.close().catch(() => {});
+  if (server.listening) await new Promise(resolve => server.close(resolve));
+  report.generatedAt = new Date().toISOString();
+  await mkdir(output, { recursive: true });
+  await writeFile(resolve(output, 'summary.json'), JSON.stringify(report, null, 2));
+  if (failed) process.exitCode = 1;
+}

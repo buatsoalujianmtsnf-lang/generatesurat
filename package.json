@@ -15,6 +15,7 @@
     "check:sponsor": "node scripts/validate-sponsor-campaigns.js",
     "test:mon07:redis": "node scripts/mon07-redis-integration.js",
     "test:mon07:browser": "node scripts/mon07-browser-smoke.js",
+    "test:pp04:browser": "node scripts/pp04-browser-uat.js",
     "check:mon07": "node scripts/mon07-release-readiness.js --expect-blocked",
     "check:mon08": "node scripts/mon08-approval-gate.js --expect-blocked",
     "check:mon09": "node scripts/mon09-readiness.js --json",
