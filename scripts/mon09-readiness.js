@@ -1,5 +1,7 @@
 /* MON-09 safety: CI must never mistakenly treat no metrics as launch approval. */
 import {readFileSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+import {resolve} from 'node:path';
 import {loadMon08} from './mon08-approval-gate.js';
 const load=p=>JSON.parse(readFileSync(new URL('../'+p,import.meta.url),'utf8'));
 export function mon09Readiness(){
@@ -26,7 +28,7 @@ export function mon09Readiness(){
     productionHealth:'UNOBSERVED',preflight,
     note:'CI contract, not a production dashboard. MON-08 remains NO_GO.'};
 }
-if(process.argv[1]&&new URL('file://'+process.argv[1]).pathname===new URL(import.meta.url).pathname){
+if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
   const result=mon09Readiness();
   if(process.argv.includes('--json'))console.log(JSON.stringify(result,null,2));
   else console.log('[MON-09] '+result.status+' / production health: '+result.productionHealth);

@@ -53,3 +53,6 @@ Data ditaruh dalam **Redis hash per hari UTC** di `gs:mon09:v1:YYYY-MM-DD` dan k
 Telemetry agregat tidak mendeteksi kegagalan browser yang tidak mengirim request, kemacetan video sebelum start, iklan AdSense dari pihak Google, pengembalian dari browser Print, atau keberhasilan cetak fisik. Pengamatan ini membutuhkan UAT perangkat, laporan pengguna/komplain, dan platform logs/Google AdSense sesudah persetujuan. Tidak ada otomatisasi background atau alert proaktif yang aktif hanya karena file ini dibuat.
 
 Laporan rilis `MON-09` tidak dapat dinyatakan lulus produksi hingga penanggung jawab menyetujui dan data nyata masuk.
+
+## Pembuktian atomisitas Redis untuk MON-09
+Pipeline Redis 7.4 terisolasi dari MON-07 diperluas untuk menguji **25 penulisan metrik konkuren** serta TTL 14 hari menggunakan skrip Lua MON-09. Ini bukti integrasi pada Redis nyata dalam CI, **bukan** observasi atau pengujian beban Upstash produksi. Job `mon09-baseline` menerbitkan artefak `MONITORING_NOT_ACTIVATED` / `NOT_QUERIED` secara jujur tanpa koneksi layanan pihak ketiga.
