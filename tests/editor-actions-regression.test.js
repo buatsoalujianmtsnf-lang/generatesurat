@@ -155,7 +155,7 @@ describe('Editor action regression: PDF, Cetak, Tentang, Reset', () => {
   });
 
   it('bumps offline cache after the synchronized action update', () => {
-    expect(read('sw.js')).toContain("CACHE_PREFIX + 'v51'");
+    expect(read('sw.js')).toContain("CACHE_PREFIX + 'v52'");
     expect(read('sw.js')).toContain("'./js/ui.js'");
     expect(read('sw.js')).toContain("'./js/print.js'");
     expect(read('sw.js')).toContain("'./js/pdf-export.js'");

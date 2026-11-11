@@ -69,3 +69,11 @@ declare var UI: any;
 declare var Utils: any;
 declare var Validation: any;
 declare var Workflow: any;
+
+/** MON-04 first-party sponsor video state and dialog; gate not enabled until MON-05. */
+declare var SponsorVideoState: { transition(state: string, event: string): string; states: readonly string[] };
+declare var SponsorVideoModal: {
+  request(options?: { action?: 'print' | 'pdf'; source?: 'button' | 'keyboard' }): Promise<{ action: 'print' | 'pdf'; receipt: string; expiresAt: number } | null>;
+  cancel(): void;
+  getState(): string;
+};

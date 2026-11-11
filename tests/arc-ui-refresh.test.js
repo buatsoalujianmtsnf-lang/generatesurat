@@ -99,7 +99,7 @@ describe('Arc-inspired UI modernization', () => {
   it('pre-caches its own local stylesheet and increments PWA version', () => {
     const sw = read('sw.js');
     expect(sw).toContain("'./css/arc-inspired.css'");
-    expect(sw).toContain("CACHE_PREFIX + 'v51'");
+    expect(sw).toContain("CACHE_PREFIX + 'v52'");
     expect(sw).toContain("'./css/print.css'");
     expect(sw).toContain("'./css/daisyui-adapter.css'");
     expect(sw).not.toContain('uiarc.dev/r/');
