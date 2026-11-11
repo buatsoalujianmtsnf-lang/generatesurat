@@ -18,7 +18,11 @@ describe('MON-07 operational acceptance remains evidence-based',()=>{
  it('keeps exact unapproved UAT cases and no fabricated completion',()=>{
    const evidence=JSON.parse(read('docs/mon-07-evidence.json'));
    expect(evidence.manualUat.every(x=>x.status==='NOT_RUN' && x.evidenceRef===null)).toBe(true);
-   expect(evidence.automatedEvidence.resultsPending).toBe(true);
+   expect(evidence.automatedEvidence.resultsPending).toBe(false);
+   expect(evidence.automatedEvidence.redisChecksPassed).toBe(17);
+   expect(evidence.automatedEvidence.browserViewportChecksPassed).toBe(3);
+   expect(evidence.automatedEvidence.productionRedisTested).toBe(false);
+   expect(evidence.automatedEvidence.physicalDevicesTested).toBe(false);
    expect(Object.values(evidence.externalApprovals).every(v=>v===false)).toBe(true);
  });
  it('defines distinct Redis, browser and operations evidence sources',()=>{

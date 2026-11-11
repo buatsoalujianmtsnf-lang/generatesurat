@@ -6,10 +6,16 @@
   "updatedAt": "2026-11-11",
   "scope": "Generate Suratku self-managed sponsor 15-second video export gate and AdSense public pages",
   "automatedEvidence": {
-    "gitHubQualityRun": null,
-    "redis7IntegrationRun": null,
-    "headlessChromiumRun": null,
-    "resultsPending": true
+    "gitHubQualityRun": "https://github.com/buatsoalujianmtsnf-lang/generatesurat/actions/runs/42975128670/job/130372332147",
+    "redis7IntegrationRun": "https://github.com/buatsoalujianmtsnf-lang/generatesurat/actions/runs/42975128670/job/130372332557",
+    "headlessChromiumRun": "https://github.com/buatsoalujianmtsnf-lang/generatesurat/actions/runs/42975128670/job/130372332461",
+    "artifact": "https://github.com/buatsoalujianmtsnf-lang/generatesurat/actions/runs/42975128670/artifacts/13834389398",
+    "sourceCommit": "44e87a24b4cfe22740bd908559ed889c3ad15492",
+    "resultsPending": false,
+    "redisChecksPassed": 17,
+    "browserViewportChecksPassed": 3,
+    "productionRedisTested": false,
+    "physicalDevicesTested": false
   },
   "externalApprovals": {
     "sponsorContractSigned": false,
