@@ -261,6 +261,7 @@ const FormRenderer = (() => {
       const chev = entry.querySelector('.row-entry__chevron');
       if (body) { body.classList.add('is-open'); }
       if (chev) { chev.classList.add('is-open'); }
+      entry.querySelector('.row-entry__header')?.setAttribute('aria-expanded', 'true');
 
       // Scroll ke bawah
       setTimeout(() => entry.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
