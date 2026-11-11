@@ -96,6 +96,19 @@ describe('Arc-inspired UI modernization', () => {
     expect(css).toContain('html.dark-mode');
   });
 
+  it('keeps the closing CTA heading readable on its dark banner in light and dark themes', () => {
+    expect(html).toContain('<h2>Siap membuat surat berikutnya?</h2>');
+    expect(html).toContain('class="lp__banner"');
+    const sectionHeading = css.indexOf('.lp__section h2 {');
+    const headingOverride = css.indexOf('.lp__section .lp__banner h2 {');
+    expect(sectionHeading).toBeGreaterThanOrEqual(0);
+    expect(headingOverride).toBeGreaterThan(sectionHeading);
+    const override = css.slice(headingOverride).match(/^\.lp__section \.lp__banner h2\s*\{([^}]*)\}/);
+    expect(override?.[1]).toMatch(/color:\s*#(?:ffffff|fff)\s*;/i);
+    // Specific to the CTA, not a global heading override.
+    expect(css).not.toContain('.lp__section h2 { color: #ffffff; }');
+  });
+
   it('pre-caches its own local stylesheet and increments PWA version', () => {
     const sw = read('sw.js');
     expect(sw).toContain("'./css/arc-inspired.css'");

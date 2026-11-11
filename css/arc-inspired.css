@@ -330,6 +330,12 @@ html[data-route-page="editor"] .arc-skip--landing { display: none; }
   background: radial-gradient(circle at 95% 10%, #6d4f8f, transparent 43%), #2c2343;
   box-shadow: var(--arc-ui-shadow-raised);
 }
+
+/* The CTA banner stays dark in both themes. Override the broader
+   .lp__section h2 ink color so the heading stays legible in light mode. */
+.lp__section .lp__banner h2 {
+  color: #ffffff;
+}
 .lp__footer { border-color: var(--arc-ui-border); }
 #koleksi, #keunggulan { scroll-margin-top: 100px; }
 
