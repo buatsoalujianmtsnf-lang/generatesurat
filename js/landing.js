@@ -62,21 +62,32 @@ const Landing = (() => {
 
       const cards = element('div', 'lp-group__templates');
       for (const template of group.templates) {
-        const link = element('a', 'lp-template');
-        link.setAttribute('href', Routes.href(Routes.templateUrl(template.TEMPLATE_ID) || '/editor'));
+        // Native details/summary: keyboard-friendly and collapsed by default.
+        // Navigation is a separate link inside the expanded panel, so tapping
+        // the card opens its details instead of immediately leaving the page.
+        const card = element('details', 'lp-template');
+        const summary = element('summary', 'lp-template__summary');
         const glyph = element('span', 'lp-template__icon', template.meta.icon || '📄');
         glyph.setAttribute('aria-hidden', 'true');
-        const details = element('span', 'lp-template__details');
-        details.appendChild(element('strong', '', template.meta.name));
-        details.appendChild(element('span', '', template.meta.description || 'Template surat'));
-        const arrow = element('span', 'lp-template__arrow', '↗');
+        const title = element('span', 'lp-template__details');
+        title.appendChild(element('strong', '', template.meta.name));
+        const arrow = element('span', 'lp-template__arrow', '›');
         arrow.setAttribute('aria-hidden', 'true');
-        link.appendChild(glyph);
-        link.appendChild(details);
-        link.appendChild(arrow);
-        cards.appendChild(link);
+        summary.appendChild(glyph);
+        summary.appendChild(title);
+        summary.appendChild(arrow);
+
+        const panel = element('div', 'lp-template__panel');
+        panel.appendChild(element('p', 'lp-template__description',
+          template.meta.description || 'Template surat siap digunakan.'));
+        const open = element('a', 'lp-template__open', 'Buka Editor Surat');
+        open.setAttribute('href', Routes.href(Routes.templateUrl(template.TEMPLATE_ID) || '/editor'));
+        panel.appendChild(open);
+        card.appendChild(summary);
+        card.appendChild(panel);
+        cards.appendChild(card);
         entries.push({
-          link,
+          link: card,
           haystack: (template.meta.name + ' ' + template.meta.description + ' ' + group.title)
             .toLocaleLowerCase('id-ID'),
         });
