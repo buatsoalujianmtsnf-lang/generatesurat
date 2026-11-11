@@ -486,10 +486,14 @@ html[data-route-page="editor"] .app-header {
 
 /* Secondary workspaces: KOP, storage, document settings, and signature capture. */
 .lp .card.lp-template {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+  display: block;
   width: 100%;
+}
+.lp-template__panel { border-top-color: var(--arc-ui-border); }
+.lp-template__description { color: var(--arc-ui-muted); }
+.lp .lp-template__open {
+  background: var(--arc-ui-violet);
+  color: var(--arc-ui-surface);
 }
 .app-container :is(.data-manager-stat, .data-manager-draft, .data-manager-dialog-draft, .data-manager-action, .kop-row-item, .kop-logo-editor, .kop-mini-preview, .kop-logo-upload) {
   border-radius: 16px;

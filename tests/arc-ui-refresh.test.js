@@ -112,7 +112,7 @@ describe('Arc-inspired UI modernization', () => {
   it('pre-caches its own local stylesheet and increments PWA version', () => {
     const sw = read('sw.js');
     expect(sw).toContain("'./css/arc-inspired.css'");
-    expect(sw).toContain("CACHE_PREFIX + 'v56'");
+    expect(sw).toContain("CACHE_PREFIX + 'v57'");
     expect(sw).toContain("'./css/print.css'");
     expect(sw).toContain("'./css/daisyui-adapter.css'");
     expect(sw).not.toContain('uiarc.dev/r/');
@@ -126,6 +126,26 @@ describe('Arc-inspired UI modernization', () => {
     expect(html).toContain('class="arc-skip arc-skip--editor"');
     expect(html).toContain('id="koleksi"');
     expect(html).toContain('id="editor-panel"');
+  });
+
+  it('renders each landing template as a collapsed, keyboard-friendly accordion', () => {
+    const app = bootLanding();
+    const cards = app.root.querySelectorAll('.lp-template');
+    expect(cards).toHaveLength(2);
+    for (const card of cards) {
+      expect(card.tagName).toBe('DETAILS');
+      expect(card.hasAttribute('open')).toBe(false);
+      expect(card.children[0].tagName).toBe('SUMMARY');
+      expect(card.querySelectorAll('.lp-template__panel')).toHaveLength(1);
+      expect(card.querySelectorAll('.lp-template__open')).toHaveLength(1);
+    }
+    const firstLink = cards[0].querySelectorAll('.lp-template__open')[0];
+    expect(firstLink.tagName).toBe('A');
+    expect(firstLink.attributes.get('href')).toBe('/surat/surat-izin');
+    expect(cards[0].querySelectorAll('.lp-template__description')[0].textContent)
+      .toBe('Tidak masuk sekolah');
+    expect(read('css/landing.css')).toContain('.lp-template__summary:focus-visible');
+    expect(css).toContain('.lp .card.lp-template {\n  display: block;');
   });
 
   it('filters templates and clears search without replacing registry URLs', () => {

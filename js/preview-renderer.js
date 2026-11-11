@@ -2160,10 +2160,14 @@ const PreviewRenderer = (() => {
     return _esc(String(value ?? '').trim() || '………………………………');
   }
 
-  function _officialRows(entries) {
+  function _officialRows(entries, options = {}) {
+    const labelWidth = options.labelWidth || '38%';
+    const labelIndent = options.singleLineLabels ? '0' : '10mm';
+    const labelStyle = options.singleLineLabels ? 'white-space:nowrap;font-size:0.92em;' : '';
     return '<table style="width:100%;table-layout:fixed;border-collapse:collapse;margin:7pt 0 13pt;">'
       + entries.map(([label, value]) =>
-        '<tr><td style="width:38%;padding:2pt 4pt 2pt 10mm;vertical-align:top;">' + _esc(label)
+        '<tr><td style="width:' + labelWidth + ';padding:2pt 4pt 2pt ' + labelIndent
+        + ';vertical-align:top;' + labelStyle + '">' + _esc(label)
         + '</td><td style="width:5%;text-align:center;vertical-align:top;padding:2pt 0;">:</td>'
         + '<td style="vertical-align:top;padding:2pt 0;white-space:pre-line;overflow-wrap:anywhere;">'
         + _officialValue(value) + '</td></tr>'
@@ -2699,12 +2703,13 @@ const PreviewRenderer = (() => {
     const tujuan = _notulenEntries(data?.tujuan);
     const acara = _notulenEntries(data?.acara);
     const keputusan = _notulenEntries(data?.keputusan);
+    // The rendered row count follows the repeatable editor items exactly,
+    // including newly added entries that have not yet been filled out.
     const tindakLanjut = (Array.isArray(data?.tindakLanjut) ? data.tindakLanjut : [])
-      .filter(item => item && ['keputusan', 'penanggungJawab', 'batasWaktu']
-        .some(key => String(item[key] || '').trim()));
+      .filter(item => item && typeof item === 'object');
     const catatan = _notulenEntries(data?.catatanKhusus);
     const peserta = (Array.isArray(data?.peserta) ? data.peserta : [])
-      .filter(item => item && String(item.nama || '').trim());
+      .filter(item => item && typeof item === 'object');
 
     const pembahasanHtml = pembahasan.length
       ? pembahasan.map((item, index) =>
@@ -2719,15 +2724,12 @@ const PreviewRenderer = (() => {
           ]) + '</div>').join('')
       : _caseP(blank);
 
-    const followRows = Array.from({ length: Math.max(5, tindakLanjut.length) }, (_, index) => {
-      const item = tindakLanjut[index] || {};
-      return [
-        String(index + 1),
-        _caseValue(item.keputusan),
-        _caseValue(item.penanggungJawab),
-        item.batasWaktu ? _caseDate(item.batasWaktu) : blank,
-      ];
-    });
+    const followRows = tindakLanjut.map((item, index) => [
+      String(index + 1),
+      _caseValue(item.keputusan),
+      _caseValue(item.penanggungJawab),
+      item.batasWaktu ? _caseDate(item.batasWaktu) : blank,
+    ]);
 
     const notes = catatan.length ? _caseList(catatan.map(item => _caseValue(item.teks)))
       : _caseList([blank, blank, blank]);
@@ -2752,12 +2754,12 @@ const PreviewRenderer = (() => {
       + _caseP('Berdasarkan hasil pembahasan dan kesepakatan peserta rapat, ditetapkan keputusan sebagai berikut:')
       + _caseList(keputusan.length ? keputusan.map(item => _caseValue(item.teks)) : [blank])
       + _caseP('Keputusan tersebut menjadi acuan bagi pihak-pihak terkait dalam melaksanakan tugas dan tanggung jawab sesuai hasil rapat.')
-      + _caseHeading('F. RENCANA TINDAK LANJUT (jika ada)')
+      + _caseHeading('F. RENCANA TINDAK LANJUT')
       + _notulenTable(['No.', 'Keputusan/Tindak Lanjut', 'Penanggung Jawab', 'Batas Waktu'], followRows,
           ['8%', '42%', '28%', '22%'])
       + _caseP('<strong>Mekanisme Monitoring dan Evaluasi:</strong>')
       + _caseP(_caseValue(data?.monitoringEvaluasi))
-      + _caseHeading('G. CATATAN TAMBAHAN/KHUSUS (jika ada)')
+      + _caseHeading('G. CATATAN TAMBAHAN/KHUSUS')
       + _caseP('Hal-hal penting yang perlu mendapatkan perhatian, termasuk kendala, usulan yang belum diputuskan, atau informasi tambahan:')
       + notes
       + _caseHeading('H. PENUTUP')
@@ -2777,8 +2779,7 @@ const PreviewRenderer = (() => {
       + _notulenSignCell('Mengetahui,<br>Kepala ' + namaKepala + ',', sekolah.namaKepala, sekolah.nipKepala,
           pengesahan.tandaTanganKepalaDataUrl) + '</div>';
 
-    const attendanceRows = Array.from({ length: Math.max(20, peserta.length) }, (_, index) => {
-      const item = peserta[index] || {};
+    const attendanceRows = peserta.map((item, index) => {
       const image = item.status === 'Hadir' ? TemplateNotulensiRapat.safeSignature(item.tandaTanganDataUrl) : '';
       const sign = image
         ? '<img alt="Tanda tangan peserta" src="' + _esc(image)
@@ -2820,9 +2821,9 @@ const PreviewRenderer = (() => {
         ['Jumlah Peserta Tanpa Keterangan', summary.tanpaKeterangan + ' orang'],
         ['Jumlah Peserta Tidak Hadir', summary.tidakHadir + ' orang'],
         ['Persentase Kehadiran', summary.persenHadir + ' %'],
-      ])
+      ], { labelWidth: '62%', singleLineLabels: true })
       + unresolved
-      + _caseHeading('D. CATATAN KEHADIRAN (jika ada)')
+      + _caseHeading('D. CATATAN KEHADIRAN')
       + _caseP(attendanceNotes ? _caseValue(attendanceNotes) : '…………………………………………………………………………')
       + _caseHeading('E. PENGESAHAN')
       + _caseP('Demikian daftar hadir peserta rapat ini dibuat sebagai bukti administrasi kehadiran '
