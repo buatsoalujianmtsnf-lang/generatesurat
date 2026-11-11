@@ -165,12 +165,12 @@ describe('DOCX-based new official school letters', () => {
 
       data.sekolah.jenisSatdik = 'Sekolah';
       let html = renderer.buildDocumentHtml(template, data, {}, null, null);
-      expect(html).toContain('Kepala Sekolah MTs Nurul Falah,');
+      expect(html).toContain('Kepala MTs Nurul Falah,');
       expect(html).not.toContain('Kepala Sekolah/Madrasah,');
 
       delete data.sekolah.jenisSatdik;
       html = renderer.buildDocumentHtml(template, data, {}, null, null);
-      expect(html).toContain('Kepala Madrasah MTs Nurul Falah,');
+      expect(html).toContain('Kepala MTs Nurul Falah,');
     }
   });
 
