@@ -53,10 +53,15 @@ Tidak ada random canary % di browser karena implementasi saat ini memakai satu f
 
 ## Pembaruan verifikasi situs — 11 November 2026 (kode dari pemilik akun)
 - Pemilik memberikan cuplikan AdSense dengan `ca-pub-4751617120862559`. Ini hanya membuktikan bahwa ID disampaikan dalam instruksi, **bukan** bahwa akun Google telah disetujui.
-- `<meta name="google-adsense-account" content="ca-pub-4751617120862559">` ditambahkan ke `index.html` agar Google dapat memverifikasi root domain tanpa memuat skrip pada beranda/editor (sesuai metode meta alternatif resmi Google).
+- `<meta name="google-adsense-account" content="ca-pub-4751617120862559">` dipasang tepat satu kali dalam `<head>` seluruh tujuh dokumen HTML situs (`index.html`, `panduan.html`, `panduan-cetak-pdf.html`, `faq.html`, `tentang.html`, `privasi.html`, `ketentuan.html`) sesuai permintaan akun Google. Tag meta tidak memuat skrip dan aman untuk dokumen bersama beranda/editor.
 - Cuplikan `adsbygoogle.js` async disisipkan di dalam `<head>` hanya untuk `/panduan`, `/panduan-cetak-pdf`, dan `/faq`; **tidak** ditambahkan pada `index.html`, `/editor`, `/surat/*`, `/privasi`, atau hasil Cetak/PDF.
 - CSP domain Google diberikan **hanya untuk jalur artikel di atas** pada tahap verifikasi, sementara `frame-src 'none'`, `connect-src 'self'`, dan CSP editor tetap ketat. Ini **bukan** CSP yang menjamin penayangan iklan: panduan resmi AdSense menyarankan nonce acak per permintaan dan CSP `strict-dynamic` untuk iklan penuh. Situs statis saat ini tidak mempunyai nonce per permintaan; ini harus dirancang dan diuji ulang sebelum aktivasi monetisasi. Verifikasi setelah deployment harus memeriksa header aktual di tiap rute.
 - `config/adsense-zones.json.publisherId` menyimpan ID yang diberikan pengguna, tetapi `enabled=false`, seluruh slot dan Auto Ads tetap OFF. `config/mon08-rollout.json.google.verificationOnly=true`, `requestedState=off`, keputusan tetap `NO_GO`, serta bukti Google Sites/Policy Center/CMP masih `UNVERIFIED`.
 - Kode eksternal dapat melakukan permintaan ke Google; kebijakan privasi ditambahkan pengungkapan spesifik. Sebelum menayangkan iklan atau memproses data yang membutuhkan persetujuan, lakukan peninjauan wilayah dan CMP bila relevan.
 - **Tidak mengubah `ads.txt`** dan tidak mengisi status `Ready` secara asumsi. Lakukan merge dan **deployment manual** secara terpisah; setelah versi produksi aktif, kunjungi Google AdSense → Sites → Verify → Request review. Bila subdomain `vercel.app` tidak dapat diterima, tindak lanjuti dengan domain milik sendiri.
 - Penyedia referensi: https://support.google.com/adsense/answer/12169212?hl=id ; https://support.google.com/adsense/answer/16283098?hl=id
+
+## Pembaruan tag meta seluruh halaman — 11 November 2026
+- Semua tujuh halaman HTML memiliki satu tag meta pemilik AdSense dengan ID yang diberikan akun. `index.html` juga melayani `/editor` dan rute template, sehingga rute tersebut mendapat tag meta **tanpa** skrip iklan.
+- Skrip `adsbygoogle.js` tetap terbatas pada `/panduan`, `/panduan-cetak-pdf`, dan `/faq`. Tidak ada perluasan CSP, penempatan iklan, slot, atau aktivasi kampanye. Google Sites `Ready` masih harus diverifikasi sendiri.
+- Auto-deploy Vercel, fitur video sponsor, dan MON-09 tetap nonaktif. Perubahan ini harus melewati PR/CI dan deployment manual terpisah.
