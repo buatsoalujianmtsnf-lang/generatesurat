@@ -216,6 +216,35 @@ describe('PWA Service Worker', () => {
     expect(await cache.match(url)).toBeUndefined();
   });
 
+  it('does not cache sponsor videos, posters, captions or sponsor API even when they are GET', () => {
+    const worker=createWorker();
+    const requests=[
+      {method:'GET',mode:'no-cors',destination:'video',url:'https://app.example/assets/sponsors/school-1/intro.mp4'},
+      {method:'GET',mode:'no-cors',destination:'image',url:'https://app.example/assets/sponsors/school-1/poster.png'},
+      {method:'GET',mode:'cors',destination:'track',url:'https://app.example/assets/sponsors/school-1/captions.vtt'},
+      {method:'GET',mode:'cors',destination:'',url:'https://app.example/api/sponsor-status'},
+    ];
+    for(const request of requests){
+      const {event}=lifecycle({request});
+      worker.handlers.get('fetch')(event);
+      expect(event.responsePromise).toBeUndefined();
+    }
+  });
+
+  it('removes stale sponsor assets from the current cache during activation', async()=>{
+    const worker=createWorker();
+    const cache=await worker.caches.open(ACTIVE_CACHE);
+    await cache.put('https://app.example/assets/sponsors/x/poster.png',new Response('old'));
+    await cache.put('https://app.example/api/sponsor-old',new Response('secret'));
+    await cache.put('https://app.example/js/app.js',new Response('safe'));
+    const {event,waits}=lifecycle();
+    worker.handlers.get('activate')(event);
+    await Promise.all(waits);
+    expect(await cache.match('https://app.example/assets/sponsors/x/poster.png')).toBeUndefined();
+    expect(await cache.match('https://app.example/api/sponsor-old')).toBeUndefined();
+    expect(await cache.match('https://app.example/js/app.js')).toBeInstanceOf(Response);
+  });
+
   it('does not intercept API, cross-origin, or non-GET requests', () => {
     const sw = createWorker();
     const requests = [

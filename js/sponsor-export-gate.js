@@ -18,17 +18,25 @@ const SponsorExportGate = (() => {
     }
   }
   async function authorizePrint(receipt) {
-    const response = await fetch('/api/sponsor-print-authorize', {
-      method: 'POST',
-      credentials: 'same-origin',
-      redirect: 'error',
-      cache: 'no-store',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ receipt }),
-    });
-    if (!response.ok) return false;
-    const result = await response.json();
-    return result?.authorized === true;
+    // The native AbortController avoids requiring AbortSignal.timeout on older browsers.
+    const controller = typeof AbortController === 'function' ? new AbortController() : null;
+    const timeout = controller ? setTimeout(() => controller.abort(), 8000) : null;
+    try {
+      const response = await fetch('/api/sponsor-print-authorize', {
+        method: 'POST',
+        credentials: 'same-origin',
+        redirect: 'error',
+        cache: 'no-store',
+        ...(controller ? { signal: controller.signal } : {}),
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ receipt }),
+      });
+      if (!response.ok) return false;
+      const result = await response.json();
+      return result?.authorized === true;
+    } finally {
+      if (timeout !== null) clearTimeout(timeout);
+    }
   }
 
   /**
@@ -85,6 +93,8 @@ const SponsorExportGate = (() => {
       || String(event.key).toLowerCase() !== 'p') return;
     // Browser menus/system dialogs remain outside JavaScript control.
     event.preventDefault();
+    // Stop legacy bubble listeners from creating a duplicate print flow.
+    event.stopPropagation?.();
     if (event.repeat) return;
     if (typeof Workflow !== 'undefined' && typeof Workflow.preparePrint === 'function') {
       Workflow.preparePrint('keyboard');

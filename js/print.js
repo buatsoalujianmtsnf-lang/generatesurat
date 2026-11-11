@@ -66,13 +66,27 @@ const Print = (() => {
       if (typeof SponsorExportGate !== 'undefined' && SponsorExportGate.isRequired()) {
         document.documentElement.dataset.sponsorPrintAuthorized = 'true';
       }
+      let cleanupPrintGrant = () => {};
+      if (typeof SponsorExportGate !== 'undefined' && SponsorExportGate.isRequired()) {
+        let fallback = null;
+        const clearGrant = () => {
+          if (fallback !== null) { clearTimeout(fallback); fallback = null; }
+          window.removeEventListener?.('afterprint', clearGrant);
+          if (document.documentElement?.dataset) {
+            delete document.documentElement.dataset.sponsorPrintAuthorized;
+          }
+        };
+        cleanupPrintGrant = clearGrant;
+        window.addEventListener?.('afterprint', clearGrant, { once: true });
+        // Some browsers return from print() before consuming the print stylesheet.
+        // A bounded timer avoids an indefinitely authorized state if afterprint is missing.
+        fallback = setTimeout(clearGrant, 8000);
+      }
       try {
         window.print();
-      } finally {
-        // Never leave an authorization marker behind for a later print action.
-        if (document.documentElement?.dataset) {
-          delete document.documentElement.dataset.sponsorPrintAuthorized;
-        }
+      } catch (error) {
+        cleanupPrintGrant();
+        throw error;
       }
       return true;
     } catch (error) {

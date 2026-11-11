@@ -54,6 +54,7 @@ export function sponsorEndpoint(operation) {
     res.setHeader('X-Content-Type-Options','nosniff');
     res.setHeader('Referrer-Policy','no-referrer');
     res.setHeader('Vary','Origin');
+    res.setHeader('Pragma','no-cache');
     try {
       // A disabled ad gate must not even contact Redis or accept sponsor receipts.
       if (!sponsorIsReady(process.env)) throw new SponsorFault('SPONSOR_UNAVAILABLE',503);
@@ -67,8 +68,12 @@ export function sponsorEndpoint(operation) {
       return res.status(200).json(output);
     } catch(error) {
       if (error instanceof SponsorFault) {
+        if (error.status === 429) res.setHeader('Retry-After','60');
+        else if (error.status === 503) res.setHeader('Retry-After','15');
         return res.status(error.status).json({error:error.code});
       }
+      res.setHeader('Retry-After','15');
+      // No body, token, query, IP or personal document fields in error logs.
       console.error('[sponsor-api] unavailable:', error?.name || 'Error');
       return res.status(503).json({error:'SPONSOR_UNAVAILABLE'});
     }

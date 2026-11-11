@@ -163,6 +163,20 @@ describe('PWA platform lifecycle', () => {
     expect(p.registration.update).toHaveBeenCalledOnce();
   });
 
+  it('ignores Ctrl+P/Cmd+P already consumed by the sponsor capture handler', async()=>{
+    const p=createPlatform();
+    const print={key:'p',ctrlKey:true,metaKey:false,altKey:false,defaultPrevented:true,
+      preventDefault:vi.fn()};
+    await p.document.dispatch('keydown',print);
+    expect(print.preventDefault).not.toHaveBeenCalled();
+    expect(p.toast).not.toHaveBeenCalled();
+    const cmd={key:'p',ctrlKey:false,metaKey:true,altKey:false,defaultPrevented:true,
+      preventDefault:vi.fn()};
+    await p.document.dispatch('keydown',cmd);
+    expect(cmd.preventDefault).not.toHaveBeenCalled();
+    expect(p.toast).not.toHaveBeenCalled();
+  });
+
   it('exposes standalone, worker and pending-update state in diagnostics', async () => {
     const p = createPlatform({ standalone: true, controller: { state: 'activated' } });
     p.registration.waiting = p.waitingWorker;
