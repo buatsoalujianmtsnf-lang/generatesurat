@@ -4,11 +4,11 @@
   "decision": "NO_GO",
   "deploymentPolicy": "manual-only",
   "google": {
-    "phase": "blocked",
+    "phase": "verification",
     "requestedState": "off",
     "approvedDomain": null,
     "siteApprovalStatus": "UNVERIFIED",
-    "verificationOnly": false,
+    "verificationOnly": true,
     "publicPageAllowlist": [
       "/panduan",
       "/panduan-cetak-pdf",
