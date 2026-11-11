@@ -127,7 +127,7 @@ const Landing = (() => {
         group.toggleAttribute('hidden', !visibleCards);
         // Match results should be reachable without opening each category by hand.
         // Clearing the query restores the requested collapsed state.
-        const accordion = group.querySelectorAll('.lp-group__accordion')[0];
+        const accordion = /** @type {HTMLDetailsElement|undefined} */ (group.querySelectorAll('.lp-group__accordion')[0]);
         if (accordion) accordion.open = Boolean(q && visibleCards);
       });
       empty.hidden = visibleCount > 0;
