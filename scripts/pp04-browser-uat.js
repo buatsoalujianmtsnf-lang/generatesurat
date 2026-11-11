@@ -590,6 +590,10 @@ try {
         before, after, back,
         contrast: (Math.max(a, bg) + .05) / (Math.min(a, bg) + .05),
         brandVisible: title.getBoundingClientRect().width > 10,
+        titleColor: getComputedStyle(title).color,
+        headerColor: getComputedStyle(header).backgroundColor,
+        htmlTheme: document.documentElement.dataset.theme,
+        htmlClasses: document.documentElement.className,
         navbarAlign: getComputedStyle(actionBar).justifyContent,
       };
     });
