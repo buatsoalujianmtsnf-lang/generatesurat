@@ -113,6 +113,8 @@ describe('MON-09 safe server aggregates',()=>{
     expect(pdf).toContain('await recordMon09Outcome(');
     expect(read('index.html')).not.toMatch(/mon09|adsbygoogle|googlesyndication/);
     expect(read('js/sponsor-video-modal.js')).not.toContain('mon09');
+    expect(read('privasi.html')).toContain('Rencana monitoring teknis');
+    expect(read('privasi.html')).toContain('maksimum 14 hari');
     expect(JSON.parse(read('vercel.json')).git.deploymentEnabled).toBe(false);
   });
 });
