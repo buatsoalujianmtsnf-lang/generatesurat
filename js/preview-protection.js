@@ -23,6 +23,7 @@ const PreviewProtection = (() => {
   let tileKey = '';
   let tileImage = '';
   let lastNoticeAt = 0;
+  let interactionAttached = false;
   /** @type {number|null} */
   let frameId = null;
   /** @type {MutationObserver|null} */
@@ -191,7 +192,7 @@ const PreviewProtection = (() => {
   }
 
   function _onPreviewContextMenu(event) {
-    if (!enabled || event.defaultPrevented || event.cancelable === false) return;
+    if (!enabled || _mode() !== 'strict' || event.defaultPrevented || event.cancelable === false) return;
     const node = _insidePreview(event);
     if (!node || _isEditableOrInteractive(node)) return;
 
@@ -207,7 +208,7 @@ const PreviewProtection = (() => {
   }
 
   function _onPreviewDragStart(event) {
-    if (!enabled || event.defaultPrevented || event.cancelable === false) return;
+    if (!enabled || _mode() !== 'strict' || event.defaultPrevented || event.cancelable === false) return;
     const node = _insidePreview(event);
     if (!node || _isEditableOrInteractive(node)) return;
     // Drag text selection is preserved. Only embedded visual assets are guarded.
@@ -216,8 +217,23 @@ const PreviewProtection = (() => {
     _notice('Gambar pada Preview Surat tidak dapat diseret. Gunakan Cetak atau PDF.');
   }
 
+
+  function _syncInteractionGuard() {
+    const shouldAttach = enabled && _mode() === 'strict';
+    if (shouldAttach === interactionAttached) return;
+    if (shouldAttach) {
+      preview?.addEventListener?.('contextmenu', _onPreviewContextMenu);
+      preview?.addEventListener?.('dragstart', _onPreviewDragStart);
+    } else {
+      preview?.removeEventListener?.('contextmenu', _onPreviewContextMenu);
+      preview?.removeEventListener?.('dragstart', _onPreviewDragStart);
+    }
+    interactionAttached = shouldAttach;
+  }
+
   function _stop() {
     enabled = false;
+    _syncInteractionGuard();
     masked = false;
     sessionCode = '';
     tileKey = '';
@@ -235,8 +251,6 @@ const PreviewProtection = (() => {
     window.removeEventListener('resize', _schedule);
     document.removeEventListener('fullscreenchange', _schedule);
     document.removeEventListener('visibilitychange', _onVisibilityChange);
-    preview?.removeEventListener?.('contextmenu', _onPreviewContextMenu);
-    preview?.removeEventListener?.('dragstart', _onPreviewDragStart);
     unsubscribe.forEach(dispose => dispose());
     unsubscribe = [];
     _clear();
@@ -246,8 +260,7 @@ const PreviewProtection = (() => {
     if (enabled || !wrapper || !viewport || !preview || !layer) return;
     enabled = true;
     lastNoticeAt = 0;
-    preview.addEventListener?.('contextmenu', _onPreviewContextMenu);
-    preview.addEventListener?.('dragstart', _onPreviewDragStart);
+    _syncInteractionGuard();
     // Anonymous per-activation label to make copied previews less reusable.
     sessionCode = Math.random().toString(36).slice(2, 8).toUpperCase().padEnd(6, '0');
 
@@ -304,6 +317,7 @@ const PreviewProtection = (() => {
     if (!initialized) return false;
     if (_flagEnabled()) {
       _start();
+      _syncInteractionGuard();
       _syncMask();
       _schedule();
     } else if (enabled) {
@@ -327,7 +341,7 @@ const PreviewProtection = (() => {
       initialized,
       enabled,
       mode: enabled ? _mode() : 'off',
-      interactionsProtected: enabled,
+      interactionsProtected: interactionAttached,
       masked,
       pageCount: pageGeometry.length,
     });

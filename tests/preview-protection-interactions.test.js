@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 
-function harness(flag = 'on') {
+function harness(flag = 'on', mode = 'strict') {
   const listeners = new Map();
   const windowListeners = new Map();
   const documentListeners = new Map();
@@ -43,7 +43,7 @@ function harness(flag = 'on') {
   };
   const status = { hidden: true, querySelector() { return { textContent: '' }; } };
   const document = {
-    documentElement: { dataset: { previewProtection: flag, previewProtectionMode: 'strict' } },
+    documentElement: { dataset: { previewProtection: flag, previewProtectionMode: mode } },
     hidden: false,
     visibilityState: 'visible',
     getElementById(id) {
@@ -71,10 +71,6 @@ function harness(flag = 'on') {
     observe() {}
   }
   const State = { on() { return () => {}; } };
-  runInNewContext(read('js/preview-protection.js') + '\nglobalThis._pp = PreviewProtection;', {
-    UI, State, document, window, MutationObserver: Observer, ResizeObserver: Observer,
-  });
-  // NOTE: capture the global returned by the same evaluation context below.
   const ctx = { UI, State, document, window, MutationObserver: Observer, ResizeObserver: Observer };
   runInNewContext(read('js/preview-protection.js') + '\nglobalThis._pp = PreviewProtection;', ctx);
   const api = ctx._pp;
@@ -236,16 +232,32 @@ describe('PP-03 — preview-only interaction guard', () => {
     const sponsor = read('js/sponsor-export-gate.js');
     const css = read('css/preview-protection.css');
     const html = read('index.html');
-    expect(source).toContain("preview.addEventListener?.('contextmenu', _onPreviewContextMenu)");
-    expect(source).toContain("preview.addEventListener?.('dragstart', _onPreviewDragStart)");
+    expect(source).toContain("preview?.addEventListener?.('contextmenu', _onPreviewContextMenu)");
+    expect(source).toContain("preview?.addEventListener?.('dragstart', _onPreviewDragStart)");
     expect(source).not.toMatch(/(?:document|window)\.addEventListener\(['"](?:contextmenu|dragstart|copy|keydown)/);
     expect(source).not.toMatch(/addEventListener\??\.\?\(['"](?:copy|cut|selectstart|keyup|keydown)/);
     expect(css).not.toContain('user-select: none !important');
-    expect(css).toContain('html[data-preview-protection="on"] #surat-preview img');
+    expect(css).toContain('html[data-preview-protection="on"]:not([data-preview-protection-mode="standard"]) #surat-preview img');
     expect(html).toContain('data-preview-protection="off"');
     expect(pdf).toContain('html: preview.outerHTML');
     expect(print).toContain('window.print()');
     expect(sponsor).toContain("document.addEventListener('keydown', onKeyboard, true)");
+  });
+
+  it('standard mode keeps watermark while allowing context menu and image drag', () => {
+    const h = harness('on', 'standard');
+    h.api.init();
+    expect(h.api.getStatus()).toMatchObject({ enabled: true, interactionsProtected: false, mode: 'standard' });
+    expect(h.listeners.has('contextmenu')).toBe(false);
+    expect(h.listeners.has('dragstart')).toBe(false);
+    h.document.documentElement.dataset.previewProtectionMode = 'strict';
+    h.api.refresh();
+    expect(h.listeners.get('contextmenu')).toHaveLength(1);
+    expect(h.api.getStatus().interactionsProtected).toBe(true);
+    h.document.documentElement.dataset.previewProtectionMode = 'standard';
+    h.api.refresh();
+    expect(h.listeners.get('contextmenu')).toHaveLength(0);
+    expect(h.api.getStatus().interactionsProtected).toBe(false);
   });
 
   it('updates PWA cache when JS/CSS changes', () => {
