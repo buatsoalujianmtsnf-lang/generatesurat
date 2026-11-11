@@ -51,7 +51,7 @@ describe('MON-01 public AdSense content foundation', () => {
     expect(cfg.deniedRoutePrefixes).toContain('/editor');
     expect(cfg.units.every(z=>z.enabled===false && z.slotId===null)).toBe(true);
     expect(read('ads.txt')).not.toContain('pub-0000000000000000');
-    expect(read('ads.txt')).toContain('ID penayang');
+    expect(read('ads.txt').trim()).toBe('google.com, pub-4751617120862559, DIRECT, f08c47fec0942fa0');
     expect(read('vercel.json')).toContain('"deploymentEnabled": false');
   });
   it('discloses PDF processing and planned sponsor mode without stating it is active', () => {
