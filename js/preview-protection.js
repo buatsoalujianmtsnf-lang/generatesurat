@@ -66,7 +66,9 @@ const PreviewProtection = (() => {
     if (!statusEl) return;
     statusEl.hidden = !enabled || pageGeometry.length === 0;
     if (statusEl.hidden) return;
-    statusEl.textContent = masked ? 'Preview disamarkan' : 'Preview berwatermark';
+    const label = statusEl.querySelector?.('.preview-protection-status__label');
+    if (label) label.textContent = masked ? 'Preview disamarkan' : 'Preview berwatermark';
+    else statusEl.textContent = masked ? 'Preview disamarkan' : 'Preview berwatermark';
     statusEl.title = 'Watermark membantu melindungi pratinjau; screenshot dan perekaman layar sistem operasi tidak dapat diblokir sepenuhnya.';
   }
 

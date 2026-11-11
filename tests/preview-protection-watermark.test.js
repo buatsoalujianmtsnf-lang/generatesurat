@@ -262,6 +262,8 @@ describe('PP-02 watermark & strict background-tab masking', () => {
     expect(html).toContain('data-preview-protection="off"');
     expect(html).toContain('data-preview-protection-mode="strict"');
     expect(html).toContain('id="preview-protection-status"');
+    expect(html).toContain('class="preview-protection-status__label"');
+    expect(js).toContain("statusEl.querySelector?.('.preview-protection-status__label')");
     expect(html).toMatch(/id="surat-preview"[\s\S]*?id="preview-protection-layer"/);
     expect(css).toContain('@media screen');
     expect(css).toContain('@media print');
