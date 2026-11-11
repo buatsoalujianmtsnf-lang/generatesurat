@@ -123,7 +123,7 @@ const Landing = (() => {
     // Search shortcut is intentionally landing-only and never intercepts editor input.
     document.addEventListener('keydown', event => {
       if (!Routes.isLanding()) return;
-      const target = event.target;
+      const target = /** @type {HTMLElement|null} */ (/** @type {unknown} */ (event.target));
       const editing = Boolean(target?.isContentEditable) ||
         /^(INPUT|TEXTAREA|SELECT)$/.test(target?.tagName || '');
       if (event.key === '/' && !editing && !event.altKey && !event.ctrlKey && !event.metaKey) {
