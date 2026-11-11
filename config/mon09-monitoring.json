@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "stage": "MON-09",
+  "enabled": false,
+  "collection": "aggregate-server-only",
+  "deploymentPolicy": "manual-only",
+  "retentionDays": 14,
+  "redisTimeoutMs": 800,
+  "routes": [
+    "sponsor-start",
+    "sponsor-progress",
+    "sponsor-complete",
+    "sponsor-print",
+    "pdf-export"
+  ],
+  "allowedMeasurements": [
+    "request-count",
+    "http-status-count",
+    "latency-bucket"
+  ],
+  "latencyBucketUpperMs": [
+    250,
+    500,
+    1000,
+    3000,
+    8000,
+    30000
+  ],
+  "thresholds": [
+    {
+      "code": "PDF_SERVER_ERRORS",
+      "route": "pdf-export",
+      "metric": "5xx",
+      "minSamples": 30,
+      "rateAbove": 0.05
+    },
+    {
+      "code": "SPONSOR_UNAVAILABLE",
+      "route": "sponsor-start",
+      "metric": "503",
+      "minSamples": 30,
+      "rateAbove": 0.05
+    },
+    {
+      "code": "SPONSOR_RATE_LIMIT",
+      "route": "sponsor-start",
+      "metric": "429",
+      "minSamples": 30,
+      "rateAbove": 0.1
+    },
+    {
+      "code": "PDF_LATENCY",
+      "route": "pdf-export",
+      "metric": "p95-latency",
+      "minSamples": 30,
+      "upperBoundMsAbove": 8000
+    }
+  ],
+  "policyNotes": "MON-09 observability is disabled by default. Only fixed route/status/latency counts, no IP, PII, document content, session, receipts, user IDs, campaign IDs or third-party pixels. Thresholds are draft operator-review triggers, not proven SLOs."
+}

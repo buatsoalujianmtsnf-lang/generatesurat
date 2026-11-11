@@ -123,3 +123,32 @@ jobs:
           path: artifacts/mon08/approval-status.json
           if-no-files-found: warn
           retention-days: 14
+
+  mon09-baseline:
+    name: MON-09 monitoring readiness and report dry-run (NO_GO)
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Verify monitoring disabled and MON-08 NO_GO
+        run: npm run check:mon09
+      - name: Produce honest non-live monitoring status
+        run: |
+          mkdir -p artifacts/mon09
+          npm run report:mon09 --silent > artifacts/mon09/baseline.json
+      - name: Upload sanitized monitoring readiness snapshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mon09-monitoring-not-active
+          path: artifacts/mon09/baseline.json
+          if-no-files-found: warn
+          retention-days: 14

@@ -2,6 +2,7 @@
 import { getClientIp, getEffectiveRequestOrigin, getRequestOrigin, isOriginAllowed }
   from './export-pdf-security.js';
 import { liveSponsorService, SponsorFault, sponsorIsReady } from './sponsor-service.js';
+import { recordMon09Outcome } from './mon09-metrics.js';
 
 const OPERATIONS = new Set(['start','progress','complete','authorizePrint']);
 const REQUEST_LIMIT = 2048;
@@ -49,6 +50,12 @@ export function validateSponsorRequest(req, env = process.env, operation = null)
 export function sponsorEndpoint(operation) {
   if (!OPERATIONS.has(operation)) throw new Error('unknown sponsor operation');
   return async (req,res) => {
+    const startedAt=Date.now();
+    const route=operation==='authorizePrint' ? 'sponsor-print' : 'sponsor-'+operation;
+    const respond=async(status,payload)=>{
+      await recordMon09Outcome({route,status,durationMs:Date.now()-startedAt});
+      return res.status(status).json(payload);
+    };
     res.setHeader('Cache-Control','no-store, max-age=0');
     res.setHeader('X-Robots-Tag','noindex, nofollow');
     res.setHeader('X-Content-Type-Options','nosniff');
@@ -65,17 +72,17 @@ export function sponsorEndpoint(operation) {
       else if (operation === 'progress') output=await svc.progress({...body,ip});
       else if (operation === 'complete') output=await svc.complete({...body,ip});
       else output=await svc.authorizePrint({receipt:body.receipt,ip});
-      return res.status(200).json(output);
+      return await respond(200,output);
     } catch(error) {
       if (error instanceof SponsorFault) {
         if (error.status === 429) res.setHeader('Retry-After','60');
         else if (error.status === 503) res.setHeader('Retry-After','15');
-        return res.status(error.status).json({error:error.code});
+        return await respond(error.status,{error:error.code});
       }
       res.setHeader('Retry-After','15');
       // No body, token, query, IP or personal document fields in error logs.
       console.error('[sponsor-api] unavailable:', error?.name || 'Error');
-      return res.status(503).json({error:'SPONSOR_UNAVAILABLE'});
+      return await respond(503,{error:'SPONSOR_UNAVAILABLE'});
     }
   };
 }

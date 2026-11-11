@@ -8,6 +8,7 @@ import { createConnection } from 'node:net';
 import { randomBytes } from 'node:crypto';
 import { createSponsorService, SponsorFault } from '../api/sponsor-service.js';
 import { createSponsorLedger, sessionKey, receiptKey } from '../api/sponsor-ledger.js';
+import { recordMon09Outcome, makeMon09Sample, parseMon09RedisHash, mon09Config } from '../api/mon09-metrics.js';
 
 if (process.env.MON07_REDIS_INTEGRATION !== '1') {
   console.error('MON-07 real Redis test is opt-in. Set MON07_REDIS_INTEGRATION=1 in isolated CI.');
@@ -192,6 +193,25 @@ if (process.env.MON07_REDIS_INTEGRATION !== '1') {
     const raw=String(await redisCommand(['GET',sessionKey(safe.sessionToken)]));
     check(raw.includes('campaignId')&&!/studentName|nik|signature|html|schoolName|documentBody/i.test(raw),
       'Redis session stores only non-document metadata');
+
+    // MON-09: real Redis atomic counters (no third-party or production provider).
+    const metricConfig={...mon09Config,enabled:true};
+    const metricEnv={...env,MON09_METRICS_ENABLED:'true'};
+    const metricNow=Date.now();
+    const metricSample=makeMon09Sample({route:'pdf-export',status:503,durationMs:600,now:metricNow},metricConfig);
+    const writes=await Promise.all(Array.from({length:25},()=>recordMon09Outcome(
+      {route:'pdf-export',status:503,durationMs:600,now:metricNow},
+      {config:metricConfig,env:metricEnv,command:redisCommand}
+    )));
+    check(writes.every(Boolean),'MON-09: 25 concurrent aggregate writes completed in real Redis');
+    const hash=parseMon09RedisHash(await redisCommand(['HGETALL',metricSample.key]));
+    check(hash['pdf-export|requests']===25
+      && hash['pdf-export|http_503']===25
+      && hash['pdf-export|latency_le1000']===25,
+      'MON-09: exact atomic count, fixed safe labels without personal data');
+    const metricTtl=await redisCommand(['TTL',metricSample.key]);
+    check(metricTtl>0&&metricTtl<=14*86400,
+      'MON-09: metric hash expires within 14 days');
 
     const summary={status:'PASS',redis:'real isolated localhost Redis 7',passed,
       environment:'GitHub Actions temporary service',productionRedisTested:false,
