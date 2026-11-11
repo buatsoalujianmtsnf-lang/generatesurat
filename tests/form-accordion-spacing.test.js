@@ -44,6 +44,6 @@ describe('Isi Surat accordion card spacing', () => {
     expect(css).toContain('@media screen and (max-width: 767px)');
     const sw = read('sw.js');
     expect(sw).toContain("'./css/form-accordion-spacing.css'");
-    expect(sw).toContain("CACHE_PREFIX + 'v60'");
+    expect(sw).toContain("CACHE_PREFIX + 'v61'");
   });
 });

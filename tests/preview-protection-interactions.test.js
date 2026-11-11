@@ -238,7 +238,7 @@ describe('PP-03 — preview-only interaction guard', () => {
     expect(source).not.toMatch(/addEventListener\??\.\?\(['"](?:copy|cut|selectstart|keyup|keydown)/);
     expect(css).not.toContain('user-select: none !important');
     expect(css).toContain('html[data-preview-protection="on"]:not([data-preview-protection-mode="standard"]) #surat-preview img');
-    expect(html).toContain('data-preview-protection="off"');
+    expect(html).toContain('data-preview-protection="on"');
     expect(pdf).toContain('html: preview.outerHTML');
     expect(print).toContain('window.print()');
     expect(sponsor).toContain("document.addEventListener('keydown', onKeyboard, true)");
@@ -262,7 +262,7 @@ describe('PP-03 — preview-only interaction guard', () => {
 
   it('updates PWA cache when JS/CSS changes', () => {
     const sw = read('sw.js');
-    expect(sw).toContain("CACHE_PREFIX + 'v60'");
+    expect(sw).toContain("CACHE_PREFIX + 'v61'");
     expect(sw).toContain("'./js/preview-protection.js'");
     expect(sw).toContain("'./css/preview-protection.css'");
   });

@@ -81,7 +81,7 @@ function makeHarness(flag = 'off') {
 }
 
 describe('PP-01 preview protection foundation', () => {
-  it('is disabled by default and mounts no listeners or overlay sheets', () => {
+  it('is inert when deliberately disabled and mounts no listeners or overlay sheets', () => {
     const h = makeHarness();
     expect(h.api.init()).toBe(true);
     expect(h.api.init()).toBe(true);
@@ -172,7 +172,7 @@ describe('PP-01 preview protection foundation', () => {
     const css = read('css/preview-protection.css');
     const pdf = read('js/pdf-export.js');
     const sponsor = read('js/sponsor-export-gate.js');
-    expect(html).toContain('data-preview-protection="off"');
+    expect(html).toContain('data-preview-protection="on"');
     expect(html).toMatch(/id="surat-preview"[\s\S]*?id="preview-protection-layer"/);
     expect(source).not.toMatch(/addEventListener\(['"](?:keydown|keyup|contextmenu)/);
     expect(source).not.toMatch(/navigator\.clipboard|innerHTML\s*=|outerHTML\s*=/);
@@ -186,6 +186,6 @@ describe('PP-01 preview protection foundation', () => {
     const sw = read('sw.js');
     expect(sw).toContain("'./js/preview-protection.js'");
     expect(sw).toContain("'./css/preview-protection.css'");
-    expect(sw).toContain("CACHE_PREFIX + 'v60'");
+    expect(sw).toContain("CACHE_PREFIX + 'v61'");
   });
 });

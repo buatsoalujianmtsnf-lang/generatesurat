@@ -119,7 +119,7 @@ function decodeTile(sheet) {
 }
 
 describe('PP-02 watermark & strict background-tab masking', () => {
-  it('remains off by default and never mounts active listeners or tiles', () => {
+  it('respects an explicit OFF flag without mounting listeners or tiles', () => {
     const h = harness();
     expect(h.api.init()).toBe(true);
     h.flush();
@@ -259,7 +259,7 @@ describe('PP-02 watermark & strict background-tab masking', () => {
     const js = read('js/preview-protection.js');
     const pdf = read('js/pdf-export.js');
     const sponsor = read('js/sponsor-export-gate.js');
-    expect(html).toContain('data-preview-protection="off"');
+    expect(html).toContain('data-preview-protection="on"');
     expect(html).toContain('data-preview-protection-mode="strict"');
     expect(html).toContain('id="preview-protection-status"');
     expect(html).toContain('class="preview-protection-status__label"');
@@ -276,9 +276,9 @@ describe('PP-02 watermark & strict background-tab masking', () => {
     expect(sponsor).toContain("document.addEventListener('keydown', onKeyboard, true)");
   });
 
-  it('keeps the PP-02 assets precached in the v60 PWA shell', () => {
+  it('keeps the PP-02 assets precached in the v61 PWA shell', () => {
     const sw = read('sw.js');
-    expect(sw).toContain("CACHE_PREFIX + 'v60'");
+    expect(sw).toContain("CACHE_PREFIX + 'v61'");
     expect(sw).toContain("'./js/preview-protection.js'");
     expect(sw).toContain("'./css/preview-protection.css'");
   });
