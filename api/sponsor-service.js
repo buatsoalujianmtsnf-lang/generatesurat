@@ -2,6 +2,7 @@
 import { randomBytes, createHmac } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { createSponsorLedger, createUpstashCommand, tokenValid } from './sponsor-ledger.js';
+import { redisRestConfigured } from './redis-rest-config.js';
 
 const policy = JSON.parse(readFileSync(new URL('../config/sponsor-policy.json', import.meta.url), 'utf8'));
 const registry = JSON.parse(readFileSync(new URL('../config/sponsor-campaigns.json', import.meta.url), 'utf8'));
@@ -26,8 +27,7 @@ export function activeSponsor(now, p = policy, r = registry) {
 }
 export function sponsorIsReady(env = process.env, p = policy, r = registry, now = Date.now()) {
   return env.SPONSOR_GATE_ENABLED === 'true'
-    && typeof env.UPSTASH_REDIS_REST_URL === 'string'
-    && typeof env.UPSTASH_REDIS_REST_TOKEN === 'string'
+    && redisRestConfigured(env)
     && typeof env.SPONSOR_IP_HASH_SECRET === 'string'
     && env.SPONSOR_IP_HASH_SECRET.length >= 32
     && !!activeSponsor(now,p,r);

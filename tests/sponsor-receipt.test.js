@@ -210,6 +210,14 @@ describe('MON-03 sponsor backend session/receipt',()=>{
     expect(()=>validateSponsorRequest({method:'POST',headers,body:{excess:'A'.repeat(2200)}}))
       .toThrowError(SponsorFault);
   });
+  it('accepts secure existing Vercel KV REST config when explicit Upstash is absent',()=>{
+    const kv={...env,KV_REST_API_URL:'https://kv.example.test',
+      KV_REST_API_TOKEN:'test-token'};
+    delete kv.UPSTASH_REDIS_REST_URL;
+    delete kv.UPSTASH_REDIS_REST_TOKEN;
+    expect(sponsorIsReady(kv,policy,registry,startTime)).toBe(true);
+    expect(()=>createUpstashCommand(kv)).not.toThrow();
+  });
   it('requires secure Upstash HTTPS and denies missing credentials',()=>{
     expect(()=>createUpstashCommand({})).toThrow();
     expect(()=>createUpstashCommand({UPSTASH_REDIS_REST_URL:'http://redis.example.com',UPSTASH_REDIS_REST_TOKEN:'x'})).toThrow();

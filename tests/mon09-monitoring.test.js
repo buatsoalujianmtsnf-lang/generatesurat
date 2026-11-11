@@ -68,7 +68,7 @@ describe('MON-09 safe server aggregates',()=>{
     expect(monitoringEnabled({...env,MON09_METRICS_ENABLED:'false'},on())).toBe(false);
     expect(monitoringEnabled({...env,UPSTASH_REDIS_REST_TOKEN:''},on())).toBe(false);
     expect(()=>createMon09RedisCommand({...env,UPSTASH_REDIS_REST_URL:'http://redis.test'},vi.fn(),on()))
-      .toThrow('trusted HTTPS Redis');
+      .toThrow('not configured');
   });
   it('parses Redis HGETALL without accepting uncontrolled or sensitive labels',()=>{
     expect(parseMon09RedisHash([
