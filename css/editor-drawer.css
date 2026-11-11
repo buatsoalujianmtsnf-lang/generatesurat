@@ -13,6 +13,47 @@
   position: relative;
   transition: grid-template-columns .2s ease;
 }
+
+/* One prominent but nonintrusive editor control anchored to the work area,
+   never to the main navbar nor to the scrollable preview toolbar. */
+#editor-drawer > .editor-drawer__edge-button {
+  position: absolute;
+  top: 62px;
+  left: calc(var(--drawer-editor-width) + 12px);
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: max-content;
+  max-width: calc(100% - 28px);
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 12px;
+  color: var(--color-text);
+  background: var(--color-surface);
+  box-shadow: 0 4px 14px rgba(15,23,42,.14);
+  white-space: nowrap;
+  transition: left .2s ease, box-shadow .2s ease, background .2s ease;
+}
+#editor-drawer > .editor-drawer__edge-button:hover {
+  background: var(--color-surface-2);
+  box-shadow: 0 6px 18px rgba(15,23,42,.2);
+}
+#editor-drawer > .editor-drawer__edge-button:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+}
+#editor-drawer > .editor-drawer__edge-button .ti-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+#editor-drawer[data-open="false"] > .editor-drawer__edge-button {
+  left: 14px;
+}
+
 #editor-drawer > .drawer-toggle {
   position: absolute;
   opacity: 0;
@@ -110,11 +151,25 @@
 /* Drawers must never appear in print/PDF document output. */
 @media print {
   .editor-drawer__heading,
+  #editor-drawer > .editor-drawer__edge-button,
   #editor-drawer > .drawer-side { display: none !important; }
   #editor-drawer { display: block !important; }
   #editor-drawer > .drawer-content { display: block !important; }
 }
 @media (max-width: 1023px) {
+  /* Dedicated floating control stays reachable above the compact drawer. */
+  #editor-drawer > .editor-drawer__edge-button,
+  #editor-drawer[data-open="false"] > .editor-drawer__edge-button {
+    position: fixed;
+    top: auto;
+    right: max(16px, env(safe-area-inset-right));
+    bottom: max(20px, env(safe-area-inset-bottom));
+    left: auto;
+    z-index: 42;
+    min-height: 48px;
+    padding: 10px 14px;
+    border-radius: 14px;
+  }
   /* Akses ke satu tombol toggle harus tetap berada di atas drawer, di bawah modal. */
   .app-header { position: sticky; top: 0; z-index: 36; }
   #editor-drawer,
@@ -213,5 +268,6 @@
 @media (prefers-reduced-motion: reduce) {
   #editor-drawer,
   #editor-drawer > .drawer-side,
-  #editor-drawer > .drawer-side > .editor-panel { transition: none !important; }
+  #editor-drawer > .drawer-side > .editor-panel,
+  #editor-drawer > .editor-drawer__edge-button { transition: none !important; }
 }

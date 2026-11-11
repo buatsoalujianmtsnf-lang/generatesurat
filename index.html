@@ -310,12 +310,7 @@
 
         <!-- Satu menu aksi pada mobile; desktop mempertahankan deretan tombol lama. -->
         <div class="header-overflow-group" id="header-overflow-group" role="group" aria-label="Aksi lainnya">
-          <button type="button" id="editor-drawer-button"
-            class="btn btn--sm btn--secondary btn-sm btn-outline editor-drawer__toggle"
-            title="Buka panel editor" aria-label="Buka panel editor" aria-controls="editor-panel" aria-expanded="false">
-            <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-layout-sidebar"></use></svg>
-            <span class="btn-label editor-drawer__toggle-label">Buka Editor</span>
-          </button>
+
           <button id="btn-install-app" class="btn btn--sm btn--secondary platform-action btn-sm btn-outline" title="Pasang aplikasi" aria-label="Pasang Generate Suratku sebagai aplikasi" hidden aria-hidden="true">
             <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.8"><use href="assets/icons/tabler-sprite.svg#ti-download"></use></svg>
             <span class="btn-label">Pasang</span>
@@ -377,15 +372,19 @@
     <div class="app-body drawer editor-drawer" id="editor-drawer" data-open="true">
       <input id="editor-drawer-toggle" type="checkbox" class="drawer-toggle"
         autocomplete="off" aria-label="Panel editor" checked />
+      <!-- Kontrol panel editor mandiri; tidak berada pada navbar aplikasi atau toolbar preview. -->
+      <button type="button" id="editor-drawer-button"
+      class="btn btn--sm btn--secondary btn-sm btn-outline editor-drawer__toggle editor-drawer__edge-button"
+      title="Buka panel editor" aria-label="Buka panel editor" aria-controls="editor-panel" aria-expanded="false">
+      <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler-sprite.svg#ti-layout-sidebar"></use></svg>
+      <span class="btn-label editor-drawer__toggle-label">Buka Editor</span>
+      </button>
       <div class="drawer-content editor-drawer__content">
       <main class="preview-panel" id="preview-panel">
         <div class="preview-toolbar">
           <div class="preview-toolbar__identity">
             <span class="preview-toolbar__label">Preview Surat</span>
-            <span id="preview-protection-status" class="preview-protection-status badge badge-outline" role="status" aria-live="polite" hidden>
-              <svg class="ti-icon" viewBox="0 0 24 24" aria-hidden="true" width="1.5"><use href="assets/icons/tabler-sprite.svg#ti-shield-check"></use></svg>
-              <span class="preview-protection-status__label">Preview berwatermark</span>
-            </span>
+
             <span id="viewer-template-label" class="viewer-template-label">Belum ada dokumen</span>
 
             <div class="viewer-page-nav" role="group" aria-label="Navigasi halaman">
