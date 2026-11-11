@@ -542,6 +542,60 @@ try {
     check(landingBaseline.overflowPx <= 24,
       device.name + ': landing page has horizontal overflow ' + landingBaseline.overflowPx);
 
+    // Mobile regression: the hero's DaisyUI badge must grow with wrapped
+    // "Generate Suratku · Surat sekolah & madrasah", never spill beyond it.
+    if (device.name === 'mobile-portrait') {
+      const widths = [320, 360, 390, 420];
+      for (const width of widths) {
+        await landingPage.setViewport({
+          width, height: device.height, isMobile: true,
+          hasTouch: true, deviceScaleFactor: 1,
+        });
+        for (const theme of ['light', 'dark']) {
+          const badgeGeometry = await landingPage.evaluate(mode => {
+            Theme.set(mode);
+            const badge = document.querySelector('.lp__hero .lp__eyebrow');
+            const content = badge.querySelector('.lp__eyebrow-text');
+            const dot = badge.querySelector('.lp__eyebrow-dot');
+            const outer = badge.getBoundingClientRect();
+            const inner = content.getBoundingClientRect();
+            const dotRect = dot.getBoundingClientRect();
+            const container = badge.closest('.lp__hero-grid').querySelector(':scope > div').getBoundingClientRect();
+            const style = getComputedStyle(badge);
+            const textStyle = getComputedStyle(content);
+            return {
+              theme: mode, width: window.innerWidth,
+              height: outer.height, textHeight: inner.height,
+              badgeTop: outer.top, badgeBottom: outer.bottom,
+              textBottom: inner.bottom, badgeRight: outer.right,
+              textLeft: inner.left, textRight: inner.right,
+              dotRight: dotRect.right, containerRight: container.right,
+              whiteSpace: style.whiteSpace, cssHeight: style.height,
+              textWhiteSpace: textStyle.whiteSpace,
+              overflowPx: Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
+              text: content.textContent.trim(),
+            };
+          }, theme);
+          check(badgeGeometry.text === 'Generate Suratku · Surat sekolah & madrasah'
+            && badgeGeometry.whiteSpace === 'normal'
+            && badgeGeometry.textWhiteSpace === 'normal'
+            && badgeGeometry.textHeight > 15
+            && badgeGeometry.textBottom <= badgeGeometry.badgeBottom - 4
+            && badgeGeometry.badgeRight <= badgeGeometry.containerRight + 2
+            && badgeGeometry.textRight <= badgeGeometry.badgeRight - 4
+            && badgeGeometry.textLeft >= badgeGeometry.dotRight
+            && badgeGeometry.overflowPx <= 2
+            && (width > 320 || badgeGeometry.textHeight > 19),
+            'landing hero badge text escapes its container: ' + JSON.stringify(badgeGeometry));
+        }
+      }
+      await landingPage.setViewport({
+        width: device.width, height: device.height,
+        isMobile: device.isMobile, hasTouch: device.isMobile, deviceScaleFactor: 1,
+      });
+      await landingPage.evaluate(() => Theme.set('light'));
+    }
+
     // Actual keyboard Enter toggles the group without navigating.
     const firstSummary = await landingPage.$('#lp-template-groups .lp-group__accordion > summary');
     check(Boolean(firstSummary), device.name + ': landing group summary not found');
@@ -861,6 +915,7 @@ try {
       landingGroupAccordions: landingBaseline.groupAccordions,
       landingTemplates: landingBaseline.nestedTemplates,
       landingSearch: true,
+      mobileHeroBadgeWrap: true,
       editorHeaderControl: true,
       previewHeaderControl: true,
       smallScreenBrandWrap: device.name === 'mobile-portrait',
