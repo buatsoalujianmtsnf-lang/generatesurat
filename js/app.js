@@ -89,6 +89,9 @@ const App = (() => {
       DocumentViewer.init();
     }
 
+    /* PP-01. Inactive-by-default, preview-only overlay lifecycle. */
+    if (typeof PreviewProtection !== 'undefined') PreviewProtection.init();
+
     /* 10. Init Settings */
     if (typeof Settings !== 'undefined') {
       Settings.init();

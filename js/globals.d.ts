@@ -56,6 +56,12 @@ declare var KopEditor: any;
 declare var PdfExport: any;
 declare var Platform: any;
 declare var PreviewRenderer: any;
+declare var PreviewProtection: {
+  init(): boolean;
+  refresh(): boolean;
+  destroy(): void;
+  getStatus(): { initialized: boolean; enabled: boolean; pageCount: number };
+};
 declare var Print: any;
 declare var Settings: any;
 declare var SignaturePad: any;

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" data-sponsor-gate="off">
+<html lang="id" data-sponsor-gate="off" data-preview-protection="off">
 <head>
   <!-- Verifikasi kepemilikan situs AdSense, tidak memuat skrip iklan di editor. -->
   <meta name="google-adsense-account" content="ca-pub-4751617120862559">
@@ -36,6 +36,7 @@
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/kop-editor.css" />
   <link rel="stylesheet" href="css/preview.css" />
+  <link rel="stylesheet" href="css/preview-protection.css" />
   <link rel="stylesheet" href="css/ui-modern.css" />
   <link rel="stylesheet" href="css/responsive.css" />
   <link rel="stylesheet" href="css/workflow.css" />
@@ -448,6 +449,8 @@
                 </div>
               </div>
             </div>
+            <!-- PP-01: invisible preview-only protection layer (outside exported surat). -->
+            <div id="preview-protection-layer" class="preview-protection-layer" aria-hidden="true" hidden></div>
           </div>
         </div>
       </main>
@@ -591,6 +594,7 @@
   <script src="js/table-config.js"></script>
   <script src="js/table-config-ui.js"></script>
   <script src="js/preview-renderer.js"></script>
+  <script src="js/preview-protection.js"></script>
   <script src="js/print.js"></script>
   <!-- PDF export: endpoint server-side menggunakan Chromium untuk
        menghasilkan PDF dari layout HTML/CSS yang sama dengan Preview Surat. -->
