@@ -30,6 +30,7 @@ const REQUIRED_TEMPLATE_IDS = [
   'surat-panggilan-orang-tua',
   'surat-perjanjian-siswa',
   'berita-acara-pertemuan-ortu',
+  'notulensi-rapat',
 ];
 
 function loadTemplateRegistry() {

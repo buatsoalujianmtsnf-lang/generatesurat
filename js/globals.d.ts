@@ -42,6 +42,7 @@ declare var TemplateSuratKeteranganSiswaAktif: any;
 declare var TemplateSuratPanggilanOrangTua: any;
 declare var TemplateSuratPerjanjianSiswa: any;
 declare var TemplateBeritaAcaraPertemuanOrtu: any;
+declare var TemplateNotulensiRapat: any;
 declare var About: any;
 declare var App: any;
 declare var Routes: any;

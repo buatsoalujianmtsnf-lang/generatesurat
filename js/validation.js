@@ -472,6 +472,33 @@ const Validation = (() => {
       }
     }
 
+    // Notulensi: jangan izinkan jumlah undangan lebih kecil daripada orang
+    // yang sudah tercatat pada lampiran. Validasi jam hanya jika keduanya valid.
+    if (template.TEMPLATE_ID === 'notulensi-rapat') {
+      const peserta = (Array.isArray(formData.peserta) ? formData.peserta : [])
+        .filter(item => item && String(item.nama || '').trim());
+      const rawDiundang = getValue(formData, 'rapat.jumlahDiundang');
+      if (rawDiundang !== '' && rawDiundang !== null && rawDiundang !== undefined
+          && Number(rawDiundang) < peserta.length) {
+        errors.push({
+          field: 'rapat.jumlahDiundang',
+          message: 'Jumlah peserta diundang tidak boleh lebih sedikit daripada peserta yang tercatat.',
+        });
+      }
+      const parseTime = value => {
+        const match = /^(?:([01]\d|2[0-3]))[:.]([0-5]\d)$/.exec(String(value || '').trim());
+        return match ? Number(match[1]) * 60 + Number(match[2]) : null;
+      };
+      const mulai = parseTime(formData.rapat?.waktuMulai);
+      const selesai = parseTime(formData.rapat?.waktuSelesai);
+      if (mulai !== null && selesai !== null && selesai < mulai) {
+        errors.push({
+          field: 'rapat.waktuSelesai',
+          message: 'Waktu selesai rapat tidak boleh lebih awal daripada waktu mulai.',
+        });
+      }
+    }
+
     return { valid: errors.length === 0, errors };
   }
 

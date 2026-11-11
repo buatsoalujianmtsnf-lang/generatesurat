@@ -18,8 +18,9 @@ const Routes = (() => {
     'surat-panggilan-orang-tua': 'panggilan-orang-tua',
     'surat-perjanjian-siswa': 'perjanjian-siswa',
     'berita-acara-pertemuan-ortu': 'berita-acara-pertemuan-ortu',
+    'notulensi-rapat': 'notulensi-rapat',
   });
-  const GROUP_IDS = ['registrasi-dpu', 'ijop', 'pengolahan-nilai', 'surat-menyurat-siswa'];
+  const GROUP_IDS = ['registrasi-dpu', 'ijop', 'pengolahan-nilai', 'surat-menyurat-siswa', 'administrasi-rapat'];
   const ID_BY_SLUG = Object.fromEntries(
     Object.entries(TEMPLATE_SLUGS).map(([id, slug]) => [slug, id])
   );

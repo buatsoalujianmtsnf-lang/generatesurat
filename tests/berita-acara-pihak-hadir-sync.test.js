@@ -154,7 +154,7 @@ describe('Attendance and signature synchronization in Berita Acara', () => {
     expect(editor).toContain('if (isSynced)');
     expect(editor).toContain('input.readOnly = true');
     expect(editor).toContain('_syncBeritaAcaraPihakHadir(templateId)');
-    expect(read('sw.js')).toContain("CACHE_PREFIX + 'v55'");
+    expect(read('sw.js')).toContain("CACHE_PREFIX + 'v56'");
   });
 
 

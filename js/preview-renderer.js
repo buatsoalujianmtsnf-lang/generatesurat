@@ -44,6 +44,7 @@ const PreviewRenderer = (() => {
     'surat-panggilan-orang-tua',
     'surat-perjanjian-siswa',
     'berita-acara-pertemuan-ortu',
+    'notulensi-rapat',
   ]);
 
   function _usesMultiPageLayout(templateId) {
@@ -197,6 +198,7 @@ const PreviewRenderer = (() => {
     if (id === 'surat-panggilan-orang-tua')    return _renderSuratPanggilanOrtu(formData, kop, margin, typo);
     if (id === 'surat-perjanjian-siswa')       return _renderSuratPerjanjianSiswa(formData, margin, typo);
     if (id === 'berita-acara-pertemuan-ortu')  return _renderBeritaAcaraOrtu(formData, kop, margin, typo);
+    if (id === 'notulensi-rapat')            return _renderNotulensiRapat(formData, kop, margin, typo);
     return '<div style="padding:20px;color:#666;">Template tidak dikenali.</div>';
   }
 
@@ -579,6 +581,14 @@ const PreviewRenderer = (() => {
     for (const child of children) {
       if (renderToken !== _renderToken) return;
 
+      // Lampiran daftar hadir harus mulai di lembar baru, bukan menyatu dengan notulensi.
+      if (child.matches('.doc-annex-start')) {
+        if (current.content.children.length > 0) {
+          current = _appendNewPreviewPage(pages, paperWidthPx, paperHeightPx, baseStyle);
+        }
+        continue;
+      }
+
       if (child.matches('.doc-table-wrap')) {
         await _appendTableWithPagination(
           child, current, pages, paperWidthPx, paperHeightPx, baseStyle, renderToken
@@ -930,7 +940,15 @@ const PreviewRenderer = (() => {
       for (const child of children) {
         if (renderToken !== _renderToken) return;
 
-        if (child.matches('.doc-table-wrap')) {
+        // Lampiran daftar hadir harus mulai di lembar baru, bukan menyatu dengan notulensi.
+      if (child.matches('.doc-annex-start')) {
+        if (current.content.children.length > 0) {
+          current = _appendNewPreviewPage(pages, paperWidthPx, paperHeightPx, baseStyle);
+        }
+        continue;
+      }
+
+      if (child.matches('.doc-table-wrap')) {
           await _appendTableWithPagination(
             child,
             current,
@@ -2606,6 +2624,220 @@ const PreviewRenderer = (() => {
       + '<p style="font-weight:bold;margin:5pt 0;">PIHAK-PIHAK YANG HADIR DAN MENANDATANGANI</p></div>'
       + _caseSignatures(data, true)
       + '</div>';
+  }
+
+
+  /* ── Notulensi rapat, termasuk lampiran daftar hadir pada halaman tersendiri. ── */
+  function _notulenEntries(items, key = 'teks') {
+    return (Array.isArray(items) ? items : [])
+      .filter(item => item && String(item[key] || '').trim());
+  }
+
+  function _notulenTable(headers, rows, widths = []) {
+    const cells = headers.map((title, index) =>
+      '<th scope="col" style="border:1px solid #222;padding:4pt 3pt;vertical-align:middle;text-align:center;'
+      + (widths[index] ? 'width:' + widths[index] + ';' : '') + '">'
+      + _esc(title) + '</th>').join('');
+    return '<div class="doc-table-wrap" style="margin:7pt 0 10pt;width:100%;overflow:visible;">'
+      + '<table style="border-collapse:collapse;table-layout:fixed;width:100%;font-size:0.9em;">'
+      + '<thead><tr>' + cells + '</tr></thead><tbody>'
+      + rows.map(row => '<tr>' + row.map((value, index) =>
+          '<td style="border:1px solid #222;padding:3pt 4pt;vertical-align:top;overflow-wrap:anywhere;'
+          + (index === 0 ? 'text-align:center;' : '') + '">' + value + '</td>').join('')
+        + '</tr>').join('')
+      + '</tbody></table></div>';
+  }
+
+  function _notulenSignCell(title, name, nip, image) {
+    const url = TemplateNotulensiRapat.safeSignature(image);
+    const picture = url ? '<img src="' + _esc(url)
+      + '" alt="Tanda tangan" style="width:100%;max-height:18mm;object-fit:contain;" />' : '';
+    return '<div style="min-width:0;text-align:center;overflow-wrap:anywhere;break-inside:avoid;">'
+      + '<p style="margin:0;">' + title + '</p>'
+      + '<div style="height:20mm;display:flex;align-items:center;justify-content:center;">'
+      + picture + '</div>' + _officialSignerIdentity(name, nip) + '</div>';
+  }
+
+  function _notulenSignGrid(left, right) {
+    return '<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);'
+      + 'column-gap:12mm;row-gap:12pt;break-inside:avoid;page-break-inside:avoid;">'
+      + left + right + '</div>';
+  }
+
+  function _notulenTime(value) {
+    return _caseValue(String(value || '').replace(/^pukul\s*/i, '').replace(/\s*wib\s*$/i, ''));
+  }
+
+  function _notulenIdentity(rapat, summary) {
+    return _officialRows([
+      ['Nama/Jenis Rapat', rapat.namaJenis],
+      ['Hari, Tanggal', _officialWeekday(rapat.tanggal) + ', ' + (rapat.tanggal ? _formatTanggalPanjang(rapat.tanggal) : '……………………')],
+      ['Waktu', 'Pukul ' + String(rapat.waktuMulai || '…………') + ' s.d. ' + String(rapat.waktuSelesai || '…………') + ' WIB'],
+      ['Tempat/Media', rapat.tempatMedia],
+      ['Agenda Rapat', rapat.agenda],
+      ['Pimpinan Rapat', rapat.namaPimpinan],
+      ['Notulis', rapat.namaNotulis],
+      ['Jumlah Peserta', summary.diundang + ' orang'],
+      ['Peserta yang Hadir', summary.hadir + ' orang'],
+      ['Peserta Tidak Hadir', summary.tidakHadir + ' orang'],
+      ['Daftar Hadir', 'Terlampir'],
+    ]);
+  }
+
+  function _renderNotulensiRapat(data, kop, margin, typo) {
+    const surat = data?.surat || {};
+    const sekolah = data?.sekolah || {};
+    const rapat = data?.rapat || {};
+    const pengesahan = data?.pengesahan || {};
+    const penutup = data?.penutup || {};
+    const summary = TemplateNotulensiRapat.getAttendanceSummary(data);
+    const tanggalPengesahan = _caseDate(surat.tanggalNotulen || rapat.tanggal);
+    const kota = _caseValue(surat.kota);
+    const namaKepala = _caseValue(sekolah.nama);
+    const blank = '………………………………';
+    const pembahasan = Array.isArray(data?.pembahasan) ? data.pembahasan : [];
+    const tujuan = _notulenEntries(data?.tujuan);
+    const acara = _notulenEntries(data?.acara);
+    const keputusan = _notulenEntries(data?.keputusan);
+    const tindakLanjut = (Array.isArray(data?.tindakLanjut) ? data.tindakLanjut : [])
+      .filter(item => item && ['keputusan', 'penanggungJawab', 'batasWaktu']
+        .some(key => String(item[key] || '').trim()));
+    const catatan = _notulenEntries(data?.catatanKhusus);
+    const peserta = (Array.isArray(data?.peserta) ? data.peserta : [])
+      .filter(item => item && String(item.nama || '').trim());
+
+    const pembahasanHtml = pembahasan.length
+      ? pembahasan.map((item, index) =>
+          '<div style="margin:5pt 0 9pt;">'
+          + '<h4 style="margin:0 0 4pt;font-size:1em;font-weight:bold;break-after:avoid;">'
+          + (index + 2) + '. Pokok Pembahasan ' + (index + 1) + '</h4>'
+          + _officialRows([
+            ['Topik', item?.topik],
+            ['Uraian Pembahasan', item?.uraian],
+            ['Tanggapan/Usulan Peserta', item?.tanggapan],
+            ['Kesimpulan Pembahasan', item?.kesimpulan],
+          ]) + '</div>').join('')
+      : _caseP(blank);
+
+    const followRows = Array.from({ length: Math.max(5, tindakLanjut.length) }, (_, index) => {
+      const item = tindakLanjut[index] || {};
+      return [
+        String(index + 1),
+        _caseValue(item.keputusan),
+        _caseValue(item.penanggungJawab),
+        item.batasWaktu ? _caseDate(item.batasWaktu) : blank,
+      ];
+    });
+
+    const notes = catatan.length ? _caseList(catatan.map(item => _caseValue(item.teks)))
+      : _caseList([blank, blank, blank]);
+
+    const main = '<div class="doc-content doc-content--notulensi-rapat" style="' + _officialStyle(margin, typo) + '">'
+      + _buildKopHtml(kop) + '<hr class="doc-kop-divider" /><hr class="doc-kop-divider-thin" />'
+      + '<div style="text-align:center;margin:10pt 0 14pt;">'
+      + '<p style="margin:0;font-weight:bold;text-decoration:underline;">NOTULENSI RAPAT</p>'
+      + '<p style="margin:3pt 0 0;">Nomor: ' + _caseValue(surat.nomor) + '</p></div>'
+      + _caseHeading('A. IDENTITAS RAPAT')
+      + _notulenIdentity(rapat, summary)
+      + _caseHeading('B. TUJUAN RAPAT')
+      + _caseP('Rapat ini diselenggarakan dengan tujuan:')
+      + _caseList(tujuan.length ? tujuan.map(item => _caseValue(item.teks)) : [blank])
+      + _caseHeading('C. SUSUNAN ACARA')
+      + _caseList(['Pembukaan.', ...acara.map(item => _caseValue(item.teks)), 'Penutup.'])
+      + _caseHeading('D. JALANNYA RAPAT DAN HASIL PEMBAHASAN')
+      + '<h4 style="font-weight:bold;font-size:1em;margin:4pt 0 3pt;">1. Pembukaan dan Arahan Pimpinan Rapat</h4>'
+      + _caseP(_caseValue(data?.pembukaan))
+      + pembahasanHtml
+      + _caseHeading('E. HASIL KEPUTUSAN RAPAT')
+      + _caseP('Berdasarkan hasil pembahasan dan kesepakatan peserta rapat, ditetapkan keputusan sebagai berikut:')
+      + _caseList(keputusan.length ? keputusan.map(item => _caseValue(item.teks)) : [blank])
+      + _caseP('Keputusan tersebut menjadi acuan bagi pihak-pihak terkait dalam melaksanakan tugas dan tanggung jawab sesuai hasil rapat.')
+      + _caseHeading('F. RENCANA TINDAK LANJUT (jika ada)')
+      + _notulenTable(['No.', 'Keputusan/Tindak Lanjut', 'Penanggung Jawab', 'Batas Waktu'], followRows,
+          ['8%', '42%', '28%', '22%'])
+      + _caseP('<strong>Mekanisme Monitoring dan Evaluasi:</strong>')
+      + _caseP(_caseValue(data?.monitoringEvaluasi))
+      + _caseHeading('G. CATATAN TAMBAHAN/KHUSUS (jika ada)')
+      + _caseP('Hal-hal penting yang perlu mendapatkan perhatian, termasuk kendala, usulan yang belum diputuskan, atau informasi tambahan:')
+      + notes
+      + _caseHeading('H. PENUTUP')
+      + _caseP('Rapat ditutup oleh ' + _caseValue(penutup.namaPenutup || rapat.namaPimpinan)
+          + ' pada pukul ' + _notulenTime(rapat.waktuSelesai) + ' WIB.')
+      + _caseP('Demikian notulensi rapat ini dibuat dengan sebenar-benarnya berdasarkan jalannya rapat, '
+          + 'pembahasan, serta keputusan yang telah dihasilkan. Notulensi ini digunakan sebagai dokumen '
+          + 'resmi, bahan evaluasi, dan pedoman pelaksanaan tindak lanjut bagi pihak-pihak terkait.')
+      + _caseHeading('I. PENGESAHAN')
+      + '<p style="margin:10pt 0;text-align:right;">' + kota + ', ' + tanggalPengesahan + '</p>'
+      + _notulenSignGrid(
+          _notulenSignCell('Notulis,', rapat.namaNotulis, pengesahan.nipNotulis,
+            pengesahan.tandaTanganNotulisDataUrl),
+          _notulenSignCell('Pimpinan Rapat,', rapat.namaPimpinan, pengesahan.nipPimpinan,
+            pengesahan.tandaTanganPimpinanDataUrl))
+      + '<div style="display:flex;justify-content:center;margin:12pt 0 0;">'
+      + _notulenSignCell('Mengetahui,<br>Kepala ' + namaKepala + ',', sekolah.namaKepala, sekolah.nipKepala,
+          pengesahan.tandaTanganKepalaDataUrl) + '</div>';
+
+    const attendanceRows = Array.from({ length: Math.max(20, peserta.length) }, (_, index) => {
+      const item = peserta[index] || {};
+      const image = item.status === 'Hadir' ? TemplateNotulensiRapat.safeSignature(item.tandaTanganDataUrl) : '';
+      const sign = image
+        ? '<img alt="Tanda tangan peserta" src="' + _esc(image)
+          + '" style="max-width:100%;height:12mm;object-fit:contain;" />'
+        : '……………………';
+      return [String(index + 1), _caseValue(item.nama), _caseValue(item.jabatan), sign];
+    });
+
+    const attendanceNotes = String(data?.catatanKehadiran || '').trim();
+    const unresolved = summary.belumTerdata
+      ? '<p style="font-size:0.85em;margin:3pt 0;">Catatan: '
+        + summary.belumTerdata + ' peserta diundang belum memiliki rincian status pada daftar peserta.</p>' : '';
+
+    const annex = '<div class="doc-annex-start" aria-hidden="true" style="height:0;"></div>'
+      + _buildKopHtml(kop) + '<hr class="doc-kop-divider" /><hr class="doc-kop-divider-thin" />'
+      + '<div style="text-align:center;margin:10pt 0 12pt;">'
+      + '<p style="font-weight:bold;text-decoration:underline;margin:0;">DAFTAR HADIR PESERTA RAPAT</p></div>'
+      + _caseHeading('A. IDENTITAS RAPAT')
+      + _officialRows([
+        ['Nama/Jenis Rapat', rapat.namaJenis],
+        ['Hari, Tanggal', _officialWeekday(rapat.tanggal) + ', '
+            + (rapat.tanggal ? _formatTanggalPanjang(rapat.tanggal) : blank)],
+        ['Waktu', 'Pukul ' + String(rapat.waktuMulai || '…………') + ' s.d. '
+            + String(rapat.waktuSelesai || '…………') + ' WIB'],
+        ['Tempat/Media', rapat.tempatMedia],
+        ['Agenda Rapat', rapat.agenda],
+        ['Pimpinan Rapat', rapat.namaPimpinan],
+        ['Notulis', rapat.namaNotulis],
+      ])
+      + _caseHeading('B. DAFTAR KEHADIRAN PESERTA')
+      + _notulenTable(['No.', 'Nama Peserta', 'Jabatan/Unsur', 'Tanda Tangan'],
+          attendanceRows, ['8%', '36%', '28%', '28%'])
+      + _caseHeading('C. REKAPITULASI KEHADIRAN')
+      + _officialRows([
+        ['Jumlah Peserta yang Diundang', summary.diundang + ' orang'],
+        ['Jumlah Peserta Hadir', summary.hadir + ' orang'],
+        ['Jumlah Peserta Izin', summary.izin + ' orang'],
+        ['Jumlah Peserta Sakit', summary.sakit + ' orang'],
+        ['Jumlah Peserta Tanpa Keterangan', summary.tanpaKeterangan + ' orang'],
+        ['Jumlah Peserta Tidak Hadir', summary.tidakHadir + ' orang'],
+        ['Persentase Kehadiran', summary.persenHadir + ' %'],
+      ])
+      + unresolved
+      + _caseHeading('D. CATATAN KEHADIRAN (jika ada)')
+      + _caseP(attendanceNotes ? _caseValue(attendanceNotes) : '…………………………………………………………………………')
+      + _caseHeading('E. PENGESAHAN')
+      + _caseP('Demikian daftar hadir peserta rapat ini dibuat sebagai bukti administrasi kehadiran '
+          + 'dan merupakan bagian yang tidak terpisahkan dari dokumen Notulensi Rapat.')
+      + '<p style="margin:10pt 0;text-align:right;">' + kota + ', ' + _caseDate(rapat.tanggal) + '</p>'
+      + _notulenSignGrid(
+          _notulenSignCell('Petugas Pencatat Kehadiran,', pengesahan.namaPencatat,
+            pengesahan.nipPencatat, pengesahan.tandaTanganPencatatDataUrl),
+          _notulenSignCell('Pimpinan Rapat,', rapat.namaPimpinan,
+            pengesahan.nipPimpinan, pengesahan.tandaTanganPimpinanDataUrl))
+      + '<div style="display:flex;justify-content:center;margin:12pt 0 0;">'
+      + _notulenSignCell('Mengetahui,<br>Kepala ' + namaKepala + ',', sekolah.namaKepala,
+          sekolah.nipKepala, pengesahan.tandaTanganKepalaDataUrl) + '</div>';
+
+    return main + annex + '</div>';
   }
 
   /* ── Escape helper ── */
