@@ -558,6 +558,143 @@ try {
     check(navFirst.top < 3 && navFirst.pageInput === '1',
       device.name + ': first-page navigation did not reset preview scroll');
 
+    // Theme must visibly switch with ONE click, and dark branding must
+    // contrast with the editor header, in both desktop and mobile layouts.
+    const themeProbe = await page.evaluate(() => {
+      const button = document.getElementById('btn-theme-toggle');
+      Theme.set('auto');
+      const before = document.documentElement.dataset.theme;
+      button.click();
+      const after = document.documentElement.dataset.theme;
+      button.click();
+      const back = document.documentElement.dataset.theme;
+      Theme.set('dark');
+      const title = document.querySelector('.app-header__title');
+      const header = document.querySelector('.app-header');
+      const actionBar = document.querySelector('.app-header__actions');
+      const rgb = value => (value.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+      const lum = value => {
+        const v = rgb(value).map(x => x / 255).map(x =>
+          x <= .04045 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4
+        );
+        return .2126 * v[0] + .7152 * v[1] + .0722 * v[2];
+      };
+      const a = lum(getComputedStyle(title).color);
+      const bg = lum(getComputedStyle(header).backgroundColor);
+      return {
+        before, after, back,
+        contrast: (Math.max(a, bg) + .05) / (Math.min(a, bg) + .05),
+        brandVisible: title.getBoundingClientRect().width > 10,
+        navbarAlign: getComputedStyle(actionBar).justifyContent,
+      };
+    });
+    check(themeProbe.before !== themeProbe.after && themeProbe.back === themeProbe.before,
+      device.name + ': toggle requires more than one click ' + JSON.stringify(themeProbe));
+    check(themeProbe.brandVisible && themeProbe.contrast >= 4.5,
+      device.name + ': dark editor branding contrast failed ' + JSON.stringify(themeProbe));
+    if (device.name === 'desktop') {
+      check(themeProbe.navbarAlign.includes('flex-end'),
+        'desktop: editor navbar actions are not aligned right');
+    }
+
+    if (device.name !== 'desktop') {
+      const floating = await page.evaluate(() => {
+        const button = document.getElementById('editor-drawer-button');
+        const drawer = document.getElementById('editor-drawer');
+        const initiallyOpen = drawer.dataset.open === 'true';
+        if (!initiallyOpen) button.click();
+        const a = button.getBoundingClientRect();
+        const workflow = document.getElementById('workflow-actions');
+        const w = workflow.getBoundingClientRect();
+        const intersects = a.left < w.right && a.right > w.left
+          && a.top < w.bottom && a.bottom > w.top;
+        const output = {
+          intersects,
+          button: { top:a.top, bottom:a.bottom, left:a.left, right:a.right },
+          workflow: { top:w.top, bottom:w.bottom, left:w.left, right:w.right },
+          edgeDocked: a.right >= innerWidth - 2 && a.left >= innerWidth - 70,
+          reachable: a.top >= 0 && a.bottom <= innerHeight + 1,
+        };
+        if (!initiallyOpen) button.click();
+        return output;
+      });
+      check(!floating.intersects && floating.edgeDocked && floating.reachable,
+        device.name + ': editor toggle overlaps workflow actions ' + JSON.stringify(floating));
+    }
+
+    // The guide section must remain readable against dark surfaces.
+    const guideContrast = await landingPage.evaluate(() => {
+      document.documentElement.dataset.theme = 'dark';
+      document.documentElement.classList.add('dark-mode');
+      const rgb = v => (v.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+      const lum = v => {
+        const channels = rgb(v).map(x => x / 255).map(x =>
+          x <= .04045 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4
+        );
+        return .2126 * channels[0] + .7152 * channels[1] + .0722 * channels[2];
+      };
+      return [...document.querySelectorAll('.lp__guide-card')].map(card => {
+        const bg = lum(getComputedStyle(card).backgroundColor);
+        const fg = lum(getComputedStyle(card.querySelector('h3')).color);
+        const body = lum(getComputedStyle(card.querySelector('p')).color);
+        const tag = lum(getComputedStyle(card.querySelector('.lp__guide-tag')).color);
+        const ratio = value => (Math.max(value, bg) + .05) / (Math.min(value, bg) + .05);
+        return { heading:ratio(fg), description:ratio(body), tag:ratio(tag) };
+      });
+    });
+    check(guideContrast.length === 3 && guideContrast.every(x =>
+      x.heading >= 4.5 && x.description >= 4.5 && x.tag >= 4.5),
+      device.name + ': landing guide text illegible in dark mode ' + JSON.stringify(guideContrast));
+
+    // All six information pages share the same persisted theme and can
+    // switch light/dark independently without changing their routes.
+    if (device.name === 'desktop' || device.name === 'mobile-portrait') {
+      const publicPage = await browser.newPage();
+      await publicPage.setViewport({
+        width:device.width, height:device.height,
+        isMobile:device.isMobile, hasTouch:device.isMobile, deviceScaleFactor:1,
+      });
+      await publicPage.setRequestInterception(true);
+      publicPage.on('request', req => {
+        if (new URL(req.url()).origin !== origin) { void req.abort(); return; }
+        void req.continue();
+      });
+      const paths = [
+        '/panduan.html','/panduan-cetak-pdf.html','/faq.html',
+        '/tentang.html','/privasi.html','/ketentuan.html',
+      ];
+      for (const route of paths) {
+        await publicPage.goto(origin + route, { waitUntil:'domcontentloaded', timeout:25000 });
+        await publicPage.waitForFunction(() =>
+          typeof Theme !== 'undefined'
+          && document.getElementById('btn-theme-toggle')?.dataset.theme === 'dark',
+        { timeout:12000 });
+        const state = await publicPage.evaluate(() => {
+          const button = document.getElementById('btn-theme-toggle');
+          const article = document.querySelector('.article');
+          const rgb = v => (v.match(/[\d.]+/g) || []).slice(0,3).map(Number);
+          const lum = v => {
+            const channels = rgb(v).map(x => x / 255).map(x =>
+              x <= .04045 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4
+            );
+            return .2126*channels[0] + .7152*channels[1] + .0722*channels[2];
+          };
+          const bg = lum(getComputedStyle(article).backgroundColor);
+          const fg = lum(getComputedStyle(article.querySelector('p')).color);
+          const contrast = (Math.max(fg,bg)+.05)/(Math.min(fg,bg)+.05);
+          const initiallyDark = document.documentElement.dataset.theme === 'dark';
+          button.click();
+          const afterLight = document.documentElement.dataset.theme === 'light';
+          button.click();
+          const afterDark = document.documentElement.dataset.theme === 'dark';
+          return { initiallyDark, afterLight, afterDark, contrast };
+        });
+        check(state.initiallyDark && state.afterLight && state.afterDark && state.contrast >= 4.5,
+          device.name + ': public theme/contrast failed on ' + route + ': '+JSON.stringify(state));
+      }
+      await publicPage.close();
+    }
+
     report.viewports.push({
       name: device.name, viewport: device.width + 'x' + device.height,
       status: 'PASS', pages: geometry.pageCount,
@@ -572,6 +709,11 @@ try {
       editorEdgeControl: true,
       toolbarStableOnPageNavigation: true,
       statusLabelRemoved: true,
+      themeOneClick: true,
+      darkBrandContrast: themeProbe.contrast,
+      darkGuideContrast: guideContrast,
+      mobileToggleClearOfWorkflow: device.name === 'desktop' ? null : true,
+      publicDarkPagesVerified: device.name === 'desktop' || device.name === 'mobile-portrait',
       pageErrors: [],
     });
     console.info('[PP04 UAT PASS]', device.name, JSON.stringify({
