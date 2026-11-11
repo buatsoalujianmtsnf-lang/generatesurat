@@ -1,5 +1,5 @@
 /* =============================================================
-   PP-02 — Watermark dinamis dan penyamaran Preview Surat.
+   PP-03 — Watermark, masking, dan interaksi terbatas Preview Surat.
    Deterrent visual; tidak dapat memblokir screenshot/recording OS.
    Feature flag: <html data-preview-protection="off"> (DEFAULT).
    Tidak mengintersepsi keyboard, clipboard, cetak, maupun PDF.
@@ -22,6 +22,8 @@ const PreviewProtection = (() => {
   let sessionCode = '';
   let tileKey = '';
   let tileImage = '';
+  let lastNoticeAt = 0;
+  let interactionAttached = false;
   /** @type {number|null} */
   let frameId = null;
   /** @type {MutationObserver|null} */
@@ -162,8 +164,76 @@ const PreviewProtection = (() => {
     });
   }
 
+
+  /* PP-03: limit pointer-based content-menu and embedded media drag only.
+     Never cancel copy, keyboard shortcuts, touch scrolling or editor events. */
+  function _insidePreview(event) {
+    if (!preview || !event?.target) return null;
+    const target = event.target;
+    const node = target.nodeType === 3 ? target.parentElement : target;
+    if (!node || (node !== preview && !preview.contains?.(node))) return null;
+    return node;
+  }
+
+  function _isEditableOrInteractive(node) {
+    return Boolean(node.closest?.(
+      'input, textarea, select, button, a, [contenteditable], [role="textbox"], [role="button"]'
+    ));
+  }
+
+  function _notice(message) {
+    // Avoid repeated toasts from touch/long-press and rapid gestures.
+    const now = Date.now();
+    if (now - lastNoticeAt < 5000) return;
+    lastNoticeAt = now;
+    if (typeof UI !== 'undefined' && typeof UI.toast === 'function') {
+      UI.toast(message, 'info', 4000);
+    }
+  }
+
+  function _onPreviewContextMenu(event) {
+    if (!enabled || _mode() !== 'strict' || event.defaultPrevented || event.cancelable === false) return;
+    const node = _insidePreview(event);
+    if (!node || _isEditableOrInteractive(node)) return;
+
+    // Allow the keyboard context-menu key / Shift+F10 for accessibility.
+    // Right-click, macOS Ctrl-click and touch context-menu are pointer gestures.
+    const isPointerMenu = event.button === 2
+      || (event.button === 0 && event.ctrlKey === true)
+      || event.pointerType === 'touch';
+    if (!isPointerMenu) return;
+
+    event.preventDefault();
+    _notice('Menu klik kanan pada Preview Surat dibatasi. Gunakan Cetak atau PDF untuk dokumen resmi.');
+  }
+
+  function _onPreviewDragStart(event) {
+    if (!enabled || _mode() !== 'strict' || event.defaultPrevented || event.cancelable === false) return;
+    const node = _insidePreview(event);
+    if (!node || _isEditableOrInteractive(node)) return;
+    // Drag text selection is preserved. Only embedded visual assets are guarded.
+    if (!node.closest?.('img, picture, svg, canvas')) return;
+    event.preventDefault();
+    _notice('Gambar pada Preview Surat tidak dapat diseret. Gunakan Cetak atau PDF.');
+  }
+
+
+  function _syncInteractionGuard() {
+    const shouldAttach = enabled && _mode() === 'strict';
+    if (shouldAttach === interactionAttached) return;
+    if (shouldAttach) {
+      preview?.addEventListener?.('contextmenu', _onPreviewContextMenu);
+      preview?.addEventListener?.('dragstart', _onPreviewDragStart);
+    } else {
+      preview?.removeEventListener?.('contextmenu', _onPreviewContextMenu);
+      preview?.removeEventListener?.('dragstart', _onPreviewDragStart);
+    }
+    interactionAttached = shouldAttach;
+  }
+
   function _stop() {
     enabled = false;
+    _syncInteractionGuard();
     masked = false;
     sessionCode = '';
     tileKey = '';
@@ -189,6 +259,8 @@ const PreviewProtection = (() => {
   function _start() {
     if (enabled || !wrapper || !viewport || !preview || !layer) return;
     enabled = true;
+    lastNoticeAt = 0;
+    _syncInteractionGuard();
     // Anonymous per-activation label to make copied previews less reusable.
     sessionCode = Math.random().toString(36).slice(2, 8).toUpperCase().padEnd(6, '0');
 
@@ -245,6 +317,7 @@ const PreviewProtection = (() => {
     if (!initialized) return false;
     if (_flagEnabled()) {
       _start();
+      _syncInteractionGuard();
       _syncMask();
       _schedule();
     } else if (enabled) {
@@ -268,6 +341,7 @@ const PreviewProtection = (() => {
       initialized,
       enabled,
       mode: enabled ? _mode() : 'off',
+      interactionsProtected: interactionAttached,
       masked,
       pageCount: pageGeometry.length,
     });
