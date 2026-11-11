@@ -64,7 +64,8 @@ describe('MON-08 supplied AdSense code, verification-only public pages',()=>{
   });
   it('publishes accurate third-party verification disclosure',()=>{
     const html=read('privasi.html');
-    expect(html).toContain('Kode verifikasi kepemilikan situs dari Google');
+    expect(html).toContain('Tag meta identifikasi akun AdSense');
+    expect(html).toContain('Skrip verifikasi Google hanya dimuat pada halaman informasi publik');
     expect(html).toContain('metadata koneksi');
     expect(html).toContain('CMP');
     expect(html).toContain('Penayangan iklan Google AdSense');
