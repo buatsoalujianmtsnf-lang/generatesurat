@@ -98,3 +98,28 @@ jobs:
           path: artifacts/mon07-browser/
           if-no-files-found: warn
           retention-days: 14
+
+  mon08-approval:
+    name: MON-08 Google and sponsor approval dry-run (NO_GO)
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Evaluate provider approval and safe rollout without activation
+        run: node scripts/mon08-approval-gate.js --expect-blocked --write-report artifacts/mon08/approval-status.json
+      - name: Archive non-sensitive release decision
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mon08-approval-no-go
+          path: artifacts/mon08/approval-status.json
+          if-no-files-found: warn
+          retention-days: 14
