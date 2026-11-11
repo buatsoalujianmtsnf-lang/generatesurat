@@ -44,7 +44,7 @@ describe('Friendly routes and landing page', () => {
       'ijop-sptjm-kankemenag', 'rekap-nilai', 'surat-izin',
       'surat-permohonan-pindah', 'surat-keterangan-pindah',
       'surat-pemberitahuan-kegiatan', 'surat-keterangan-siswa-aktif',
-      'surat-panggilan-orang-tua', 'surat-perjanjian-siswa', 'berita-acara-pertemuan-ortu',
+      'surat-panggilan-orang-tua', 'surat-perjanjian-siswa', 'berita-acara-pertemuan-ortu', 'notulensi-rapat',
     ];
     const paths = ids.map(id => routes.templateUrl(id));
     expect(new Set(paths).size).toBe(ids.length);
@@ -58,7 +58,7 @@ describe('Friendly routes and landing page', () => {
     expect(routes.resolve('/surat/tidak-ada').kind).toBe('unknown');
   });
 
-  it('supports /, /editor, all four category paths, and the legacy DPUdanRegis URL', () => {
+  it('supports /, /editor, all five category paths, and the legacy DPUdanRegis URL', () => {
     const { routes } = createRoutes();
     expect(routes.resolve('/').kind).toBe('landing');
     expect(routes.resolve('/index.html').kind).toBe('landing');
@@ -68,7 +68,7 @@ describe('Friendly routes and landing page', () => {
       kind: 'category', groupId: 'registrasi-dpu', legacy: true,
     });
     for (const group of [
-      'registrasi-dpu', 'ijop', 'pengolahan-nilai', 'surat-menyurat-siswa',
+      'registrasi-dpu', 'ijop', 'pengolahan-nilai', 'surat-menyurat-siswa', 'administrasi-rapat',
     ]) {
       expect(routes.resolve(routes.categoryUrl(group))).toMatchObject({
         kind: 'category', groupId: group,
