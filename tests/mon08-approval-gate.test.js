@@ -35,7 +35,7 @@ describe('MON-08 independent provider and controlled launch approval',()=>{
     const r=loadMon08();
     expect(r.missing.google).toContain('realSiteStatus');
     expect(r.missing.google).toContain('verifiedPublisherAndAdsTxt');
-    expect(r.missing.google).toContain('publicCspAndScript');
+    expect(r.missing.google).toContain('isolatedPublicCspAndScript');
     expect(r.missing.operator).toContain('manualGoNoGo');
     expect(json('docs/mon08-approval-evidence.json').google.siteStatus).toBe('UNVERIFIED');
   });

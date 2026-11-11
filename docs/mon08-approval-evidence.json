@@ -25,7 +25,11 @@
     "publicContentReviewApproved": false,
     "publicContentEvidenceRef": null,
     "approvedBy": null,
-    "approvedAt": null
+    "approvedAt": null,
+    "publicPageCspVerified": false,
+    "publicPageCspEvidenceRef": null,
+    "publicAdScriptReviewed": false,
+    "publicAdScriptEvidenceRef": null
   },
   "sponsor": {
     "signedAgreementEvidenceRef": null,
