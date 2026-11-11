@@ -530,33 +530,69 @@ try {
 
     await landingPage.close();
 
-    // Regression: the editor control is an independent, visible work-area
-    // toggle at every breakpoint, and remains usable after state changes.
+    // One movable button: when compact OPEN, right-aligned beside Editor Surat;
+    // when CLOSED, immediately before Preview Surat inside its toolbar.
+    await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
     const drawerProbe = await page.evaluate(() => {
       const button = document.getElementById('editor-drawer-button');
       const root = document.getElementById('editor-drawer');
-      const rect = button.getBoundingClientRect();
+      const openSlot = document.getElementById('editor-drawer-toggle-slot-open');
+      const closedSlot = document.getElementById('editor-drawer-toggle-slot-closed');
+      const compact = matchMedia('(max-width: 1023px)').matches;
       const initial = root.dataset.open;
-      const isVisible = rect.width > 24 && rect.height >= 40
-        && rect.left >= 0 && rect.top >= 0
+      const initialParentOk = button.parentElement ===
+        (compact ? (initial === 'true' ? openSlot : closedSlot) : root);
+      const rect = button.getBoundingClientRect();
+      const isVisible = rect.width >= 36 && rect.height >= 36
+        && rect.left >= -1 && rect.top >= -1
         && rect.right <= innerWidth + 1 && rect.bottom <= innerHeight + 1
         && getComputedStyle(button).visibility === 'visible';
-      const outsideNavbar = !button.closest('.app-header')
-        && !button.closest('.preview-toolbar');
+      const outsideNavbar = !button.closest('.app-header');
+      const placement = () => {
+        const editorOpen = root.dataset.open === 'true';
+        const currentRect = button.getBoundingClientRect();
+        const expected = compact ? (editorOpen ? openSlot : closedSlot) : root;
+        const heading = document.querySelector('.editor-drawer__heading');
+        const headingRect = heading.getBoundingClientRect();
+        const titleRect = heading.querySelector('strong').getBoundingClientRect();
+        const previewLabel = document.querySelector('.preview-toolbar__label');
+        const previewRect = previewLabel.getBoundingClientRect();
+        const correct = button.parentElement === expected;
+        const withinHeading = !compact || !editorOpen || (
+          currentRect.left > titleRect.right - 2
+          && currentRect.right <= headingRect.right + 2
+          && Math.abs(currentRect.top + currentRect.height / 2
+            - (titleRect.top + titleRect.height / 2)) < 8
+        );
+        const beforePreview = !compact || editorOpen || (
+          currentRect.right <= previewRect.left + 5
+          && Math.abs(currentRect.top + currentRect.height / 2
+            - (previewRect.top + previewRect.height / 2)) < 8
+        );
+        return { correct, withinHeading, beforePreview, editorOpen };
+      };
+      const before = placement();
       button.click();
       const changed = root.dataset.open !== initial
         && button.getAttribute('aria-expanded') === root.dataset.open;
+      const afterClick = placement();
       button.click();
+      const restored = root.dataset.open === initial;
+      const afterRestore = placement();
+      const noDuplicates = document.querySelectorAll('#editor-drawer-button').length === 1;
       return {
-        isVisible, outsideNavbar, changed,
-        restored: root.dataset.open === initial,
+        isVisible, outsideNavbar, changed, restored, noDuplicates,
+        initialParentOk, before, afterClick, afterRestore,
         hasStatusBadge: !!document.getElementById('preview-protection-status'),
       };
     });
     check(drawerProbe.isVisible && drawerProbe.outsideNavbar
-      && drawerProbe.changed && drawerProbe.restored && !drawerProbe.hasStatusBadge,
-      device.name + ': editor edge action / status removal regression: ' + JSON.stringify(drawerProbe));
-
+      && drawerProbe.changed && drawerProbe.restored && drawerProbe.noDuplicates
+      && drawerProbe.initialParentOk
+      && [drawerProbe.before, drawerProbe.afterClick, drawerProbe.afterRestore]
+        .every(state => state.correct && state.withinHeading && state.beforePreview)
+      && !drawerProbe.hasStatusBadge,
+      device.name + ': movable editor control/header placement failed: ' + JSON.stringify(drawerProbe));
 
     // On compact viewports the docked editor handle must not overlap the
     // Previous/Next workflow action strip, in either drawer state.
@@ -685,6 +721,35 @@ try {
       await article.close();
     }
 
+    // Narrowest supported handset: the application brand remains readable
+    // as words that wrap naturally, never hidden/truncated with an ellipsis.
+    if (device.name === 'mobile-portrait') {
+      await page.setViewport({ width: 320, height: 700, isMobile: true, hasTouch: true, deviceScaleFactor: 1 });
+      const narrowBrand = await page.evaluate(() => {
+        const title = document.querySelector('.app-header__title');
+        const style = getComputedStyle(title);
+        const text = title.textContent.trim();
+        return {
+          text, display: style.display, whiteSpace: style.whiteSpace,
+          textOverflow: style.textOverflow,
+          width: title.clientWidth, scrollWidth: title.scrollWidth,
+          height: title.getBoundingClientRect().height,
+          lineHeight: parseFloat(style.lineHeight),
+        };
+      });
+      check(narrowBrand.text === 'Generate Suratku'
+        && narrowBrand.display !== 'none'
+        && narrowBrand.whiteSpace === 'normal'
+        && narrowBrand.textOverflow === 'clip'
+        && narrowBrand.scrollWidth <= narrowBrand.width + 2
+        && narrowBrand.height >= narrowBrand.lineHeight * 1.65,
+        device.name + ': compact app branding is hidden or truncated: ' + JSON.stringify(narrowBrand));
+      await page.setViewport({
+        width: device.width, height: device.height,
+        isMobile: device.isMobile, hasTouch: device.isMobile, deviceScaleFactor: 1,
+      });
+    }
+
     report.viewports.push({
       name: device.name, viewport: device.width + 'x' + device.height,
       status: 'PASS', pages: geometry.pageCount,
@@ -696,7 +761,9 @@ try {
       landingGroupAccordions: landingBaseline.groupAccordions,
       landingTemplates: landingBaseline.nestedTemplates,
       landingSearch: true,
-      editorEdgeControl: true,
+      editorHeaderControl: true,
+      previewHeaderControl: true,
+      smallScreenBrandWrap: device.name === 'mobile-portrait',
       mobileWorkflowUnobstructed: true,
       oneClickThemeToggle: true,
       darkLandingCardsReadable: true,

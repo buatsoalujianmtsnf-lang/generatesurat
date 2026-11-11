@@ -138,17 +138,17 @@ describe('Shared accessible light/dark theme regression', () => {
 
   it('docks mobile editor button away from workflow buttons without hiding drawer trigger', () => {
     const css = read('css/editor-drawer.css');
-    expect(css).toContain('top: clamp(136px, 42dvh, 340px)');
-    expect(css).toContain('bottom: auto;');
-    expect(css).toContain('transform: translateY(-50%);');
-    expect(css).toContain('border-radius: 14px 0 0 14px;');
+    expect(css).toContain('.editor-drawer__toggle-slot--open');
+    expect(css).toContain('.editor-drawer__toggle-slot--closed');
+    expect(css).toContain('position: static;');
+    expect(css).not.toContain('top: clamp(136px, 42dvh, 340px)');
     expect(read('index.html')).toContain('id="workflow-actions"');
     expect(read('index.html')).toContain('id="editor-drawer-button"');
   });
 
   it('refreshes offline cache with the shared public theme assets', () => {
     const worker = read('sw.js');
-    expect(worker).toContain("CACHE_PREFIX + 'v63'");
+    expect(worker).toContain("CACHE_PREFIX + 'v64'");
     expect(worker).toContain("'./js/public-theme.js'");
     expect(worker).toContain("'./css/public-content.css'");
   });

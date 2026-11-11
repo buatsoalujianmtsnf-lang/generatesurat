@@ -14,6 +14,10 @@
   transition: grid-template-columns .2s ease;
 }
 
+/* Mobile/tablet placement targets are empty on desktop; the action remains
+   at the top of the workspace via the existing desktop edge button. */
+#editor-drawer .editor-drawer__toggle-slot { display: none; }
+
 /* One prominent but nonintrusive editor control anchored to the work area,
    never to the main navbar nor to the scrollable preview toolbar. */
 #editor-drawer > .editor-drawer__edge-button {
@@ -157,25 +161,39 @@
   #editor-drawer > .drawer-content { display: block !important; }
 }
 @media (max-width: 1023px) {
-  /* Dock as a slim side handle in the upper/middle work area.
-     Bottom-right positioning used to cover the workflow Previous/Next controls.
-     Both OPEN and CLOSED states use the same placement. */
-  #editor-drawer > .editor-drawer__edge-button,
-  #editor-drawer[data-open="false"] > .editor-drawer__edge-button {
-    position: fixed;
-    top: clamp(136px, 42dvh, 340px);
-    right: max(0px, env(safe-area-inset-right));
+  /* Compact mode: one button lives inside the current panel heading.
+     OPEN: right of "Editor Surat"; CLOSED: left of "Preview Surat". */
+  #editor-drawer .editor-drawer__toggle-slot {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 0;
+  }
+  #editor-drawer .editor-drawer__toggle-slot--open { margin-left: auto; }
+  #editor-drawer .editor-drawer__toggle-slot--closed { margin-right: 2px; }
+  #editor-drawer .editor-drawer__toggle-slot > .editor-drawer__edge-button {
+    position: static;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    transform: none;
+    top: auto;
+    right: auto;
     bottom: auto;
     left: auto;
-    z-index: 42;
-    min-height: 48px;
-    max-width: min(44vw, 155px);
-    padding: 10px 12px;
-    border-radius: 14px 0 0 14px;
-    transform: translateY(-50%);
-    box-shadow: -4px 4px 16px rgba(15,23,42,.18);
+    z-index: auto;
+    min-height: 40px;
+    max-width: min(40vw, 146px);
+    padding: 7px 10px;
+    border-radius: 10px;
+    box-shadow: none;
+    gap: 6px;
+    white-space: nowrap;
   }
-  #editor-drawer > .editor-drawer__edge-button .btn-label {
+  #editor-drawer .editor-drawer__toggle-slot > .editor-drawer__edge-button .btn-label {
+    display: inline;
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -279,4 +297,15 @@
   #editor-drawer > .drawer-side,
   #editor-drawer > .drawer-side > .editor-panel,
   #editor-drawer > .editor-drawer__edge-button { transition: none !important; }
+}
+
+@media (max-width: 374px) {
+  #editor-drawer .editor-drawer__toggle-slot > .editor-drawer__edge-button {
+    width: 40px;
+    min-width: 40px;
+    padding-inline: 8px;
+  }
+  #editor-drawer .editor-drawer__toggle-slot > .editor-drawer__edge-button .btn-label {
+    display: none;
+  }
 }
