@@ -44,3 +44,57 @@ jobs:
 
       - name: Audit production and development dependencies
         run: npm audit --audit-level=moderate
+
+  mon07-redis:
+    name: MON-07 real Redis state and receipt integration (isolated)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      redis:
+        image: redis:7.4-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Execute real Redis Lua, atomic race and replay tests
+        env:
+          MON07_REDIS_INTEGRATION: "1"
+        run: npm run test:mon07:redis
+
+  mon07-browser:
+    name: MON-07 isolated headless Chromium editor and sponsor modal UAT
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Headless Chromium desktop/mobile sponsor smoke
+        run: npm run test:mon07:browser
+      - name: Upload privacy-safe smoke screenshots and summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mon07-browser-smoke
+          path: artifacts/mon07-browser/
+          if-no-files-found: warn
+          retention-days: 14

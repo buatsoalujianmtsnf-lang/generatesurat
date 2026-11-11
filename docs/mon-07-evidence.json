@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "stage": "MON-07",
+  "releaseDecision": "BLOCKED",
+  "createdAt": "2026-11-11",
+  "updatedAt": "2026-11-11",
+  "scope": "Generate Suratku self-managed sponsor 15-second video export gate and AdSense public pages",
+  "automatedEvidence": {
+    "gitHubQualityRun": "https://github.com/buatsoalujianmtsnf-lang/generatesurat/actions/runs/42975128670/job/130372332147",
+    "redis7IntegrationRun": "https://github.com/buatsoalujianmtsnf-lang/generatesurat/actions/runs/42975128670/job/130372332557",
+    "headlessChromiumRun": "https://github.com/buatsoalujianmtsnf-lang/generatesurat/actions/runs/42975128670/job/130372332461",
+    "artifact": "https://github.com/buatsoalujianmtsnf-lang/generatesurat/actions/runs/42975128670/artifacts/13834389398",
+    "sourceCommit": "44e87a24b4cfe22740bd908559ed889c3ad15492",
+    "resultsPending": false,
+    "redisChecksPassed": 17,
+    "browserViewportChecksPassed": 3,
+    "productionRedisTested": false,
+    "physicalDevicesTested": false
+  },
+  "externalApprovals": {
+    "sponsorContractSigned": false,
+    "rightsAndMaterialsValidated": false,
+    "privacyAndChildDataReviewApproved": false,
+    "accessibilityFallbackApproved": false,
+    "redisProductionConfigured": false,
+    "redisProductionFailoverTested": false,
+    "stagingGateVerified": false,
+    "pwaRollbackDrillPassed": false,
+    "browserDeviceUatApproved": false,
+    "adsensePublicOnlyAndCmpReviewApproved": false,
+    "incidentOwnerSignedOff": false
+  },
+  "manualUat": [
+    {
+      "id": "BR-01",
+      "target": "Chrome Windows desktop 1366x768",
+      "status": "NOT_RUN",
+      "evidenceRef": null
+    },
+    {
+      "id": "BR-02",
+      "target": "Edge Windows desktop 1920x1080",
+      "status": "NOT_RUN",
+      "evidenceRef": null
+    },
+    {
+      "id": "BR-03",
+      "target": "Firefox Windows desktop + Ctrl+P",
+      "status": "NOT_RUN",
+      "evidenceRef": null
+    },
+    {
+      "id": "BR-04",
+      "target": "Safari macOS + Cmd+P and native Print menu",
+      "status": "NOT_RUN",
+      "evidenceRef": null
+    },
+    {
+      "id": "BR-05",
+      "target": "Chrome Android phone portrait/landscape",
+      "status": "NOT_RUN",
+      "evidenceRef": null
+    },
+    {
+      "id": "BR-06",
+      "target": "Safari iOS/iPadOS mobile + PWA",
+      "status": "NOT_RUN",
+      "evidenceRef": null
+    },
+    {
+      "id": "AC-01",
+      "target": "Screen reader, keyboard, zoom 200%, captions/audio",
+      "status": "NOT_RUN",
+      "evidenceRef": null
+    },
+    {
+      "id": "NT-01",
+      "target": "Video CDN unavailable, throttling, offline during playback",
+      "status": "NOT_RUN",
+      "evidenceRef": null
+    },
+    {
+      "id": "NT-02",
+      "target": "Redis timeout, 429, 503, failure recovery",
+      "status": "NOT_RUN",
+      "evidenceRef": null
+    },
+    {
+      "id": "SE-01",
+      "target": "Staging direct PDF POST without/mismatched/replayed receipt",
+      "status": "NOT_RUN",
+      "evidenceRef": null
+    },
+    {
+      "id": "SE-02",
+      "target": "Real staging Redis concurrent multi-instance receipt and rate limiting",
+      "status": "NOT_RUN",
+      "evidenceRef": null
+    },
+    {
+      "id": "PW-01",
+      "target": "PWA v53 to v54 offline/online migration",
+      "status": "NOT_RUN",
+      "evidenceRef": null
+    },
+    {
+      "id": "PW-02",
+      "target": "Legacy cached HTML vs server gate enabled and rollback",
+      "status": "NOT_RUN",
+      "evidenceRef": null
+    },
+    {
+      "id": "OP-01",
+      "target": "Incident runbook, on-call/owner, rollback rehearsal",
+      "status": "NOT_RUN",
+      "evidenceRef": null
+    },
+    {
+      "id": "PO-01",
+      "target": "AdSense public-page-only and regional certified CMP check",
+      "status": "NOT_RUN",
+      "evidenceRef": null
+    }
+  ],
+  "note": "DO NOT convert checklist entries to PASS without independent evidence. CI emulator/synthetic sponsor tests are not user-device UAT or production Redis validation."
+}

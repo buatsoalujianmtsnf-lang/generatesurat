@@ -10,9 +10,12 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "check:syntax": "node scripts/check-syntax.js",
-    "check": "npm run check:syntax && npm run check:types && npm run check:sponsor && npm test",
+    "check": "npm run check:syntax && npm run check:types && npm run check:sponsor && npm run check:mon07 && npm test",
     "check:types": "tsc --project tsconfig.json --noEmit --pretty false",
-    "check:sponsor": "node scripts/validate-sponsor-campaigns.js"
+    "check:sponsor": "node scripts/validate-sponsor-campaigns.js",
+    "test:mon07:redis": "node scripts/mon07-redis-integration.js",
+    "test:mon07:browser": "node scripts/mon07-browser-smoke.js",
+    "check:mon07": "node scripts/mon07-release-readiness.js --expect-blocked"
   },
   "dependencies": {
     "@sparticuz/chromium": "153.0.0",
