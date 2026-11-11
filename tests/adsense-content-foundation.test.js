@@ -20,15 +20,21 @@ describe('MON-01 public AdSense content foundation', () => {
       canonicalUrls.add(match[1]);
       const scripts = html.match(/<script\b[^>]*>/gi) || [];
       expect(scripts.filter(tag => tag.includes('src="/js/routes.js"'))).toHaveLength(1);
-      expect(scripts.every(tag => tag.includes('src="/js/routes.js"') ||
+      const permittedScripts = [
+        '/js/theme-init.js', '/js/theme.js', '/js/public-theme.js', '/js/routes.js',
+      ];
+      expect(scripts.every(tag => permittedScripts.some(src => tag.includes('src="'+src+'"')) ||
         tag.includes('src="https://pagead2.googlesyndication.com/'))).toBe(true);
+      for (const src of permittedScripts) {
+        expect(scripts.filter(tag => tag.includes('src="'+src+'"'))).toHaveLength(1);
+      }
       if (googlePublicPages.has(slug)) {
         expect(html).toContain('src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+publisher+'"');
-        expect(scripts).toHaveLength(2);
+        expect(scripts).toHaveLength(5);
         expect(html).not.toMatch(/<ins\s+class="adsbygoogle"/i);
       } else {
         expect(html).not.toMatch(/adsbygoogle|pagead2\.googlesyndication/i);
-        expect(scripts).toHaveLength(1);
+        expect(scripts).toHaveLength(4);
       }
     }
     expect(canonicalUrls.size).toBe(pages.length);

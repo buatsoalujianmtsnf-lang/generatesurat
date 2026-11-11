@@ -572,7 +572,12 @@ try {
       const title = document.querySelector('.app-header__title');
       const header = document.querySelector('.app-header');
       const actionBar = document.querySelector('.app-header__actions');
-      const rgb = value => (value.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+      const rgb = value => {
+        const nums = (value.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+        // Chromium may return CSS Color 4 'color(srgb 0.1 0.2 0.3)'
+        // rather than 'rgb(26, 51, 77)' for color-mix surfaces.
+        return value.startsWith('color(srgb') ? nums.map(n => n * 255) : nums;
+      };
       const lum = value => {
         const v = rgb(value).map(x => x / 255).map(x =>
           x <= .04045 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4
