@@ -52,6 +52,7 @@
   <link rel="stylesheet" href="css/editor-drawer.css" />
   <link rel="stylesheet" href="css/form-accordion-spacing.css" />
   <link rel="stylesheet" href="css/arc-inspired.css" />
+  <link rel="stylesheet" href="css/sponsor-video.css" />
 </head>
 <body>
   <a class="arc-skip arc-skip--landing" href="#koleksi">Lewati ke koleksi template</a>
@@ -218,6 +219,34 @@
       <div id="modal-footer" class="modal-footer modal-action"></div>
     </div>
   </div>
+
+  <!-- MON-04: sponsor player disiapkan, tetapi belum dipanggil oleh Cetak/PDF hingga MON-05. -->
+  <dialog id="sponsor-video-modal" class="sponsor-modal" aria-labelledby="sponsor-title" aria-describedby="sponsor-description">
+    <div class="sponsor-modal__inner">
+      <header class="sponsor-modal__head">
+        <span class="sponsor-modal__label">Iklan Sponsor</span>
+        <h2 id="sponsor-title">Tonton video sponsor 15 detik</h2>
+        <p id="sponsor-description" class="sponsor-modal__intro">Untuk <span id="sponsor-action">melanjutkan</span>, selesaikan video sponsor. Anda tidak perlu mengklik, membeli, atau mendaftar. Batalkan bila tidak ingin melanjutkan.</p>
+        <p class="sponsor-modal__subtle">Disponsori oleh <strong id="sponsor-advertiser">Sponsor</strong></p>
+      </header>
+      <div class="sponsor-modal__media">
+        <video id="sponsor-video" playsinline preload="metadata" disablepictureinpicture disableremoteplayback controlslist="nodownload nofullscreen noplaybackrate" aria-label="Video iklan sponsor"></video>
+      </div>
+      <p id="sponsor-caption" class="sponsor-modal__caption">Takarir ditampilkan jika tersedia pada materi sponsor.</p>
+      <div>
+        <strong id="sponsor-count">Sisa video 15 detik</strong>
+        <progress id="sponsor-meter" class="sponsor-modal__meter" max="15" value="0" aria-label="Progres video sponsor"></progress>
+      </div>
+      <p id="sponsor-status" class="sponsor-modal__status" role="status" aria-live="polite" aria-atomic="true">Menyiapkan iklan sponsor…</p>
+      <div class="sponsor-modal__controls" role="group" aria-label="Kontrol penayangan video">
+        <button id="sponsor-play" type="button" data-primary hidden>Putar video</button>
+        <button id="sponsor-mute" type="button" disabled>Aktifkan suara</button>
+        <button id="sponsor-retry" type="button" hidden>Coba lagi</button>
+        <button id="sponsor-cancel" type="button">Batalkan tindakan</button>
+      </div>
+      <p class="sponsor-modal__notice">Iklan sponsor mandiri ini terpisah dari Google AdSense. Data siswa, tanda tangan, dan isi surat tidak dikirim ke sponsor. Hasil cetak/PDF tidak mengandung iklan. <a href="/privasi">Kebijakan Privasi</a>.</p>
+    </div>
+  </dialog>
 
   <!-- ===== APP SHELL ===== -->
   <div id="app" class="app-container">
@@ -565,6 +594,8 @@
   <script src="js/pdf-export.js"></script>
   <script src="js/data-manager.js"></script>
   <script src="js/settings.js"></script>
+  <script src="js/sponsor-video-state.js"></script>
+  <script src="js/sponsor-video-modal.js"></script>
   <script src="js/izin-declaration.js"></script>
   <script src="js/workflow.js"></script>
   <script src="js/document-viewer.js"></script>

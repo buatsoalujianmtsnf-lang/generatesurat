@@ -67,8 +67,14 @@ export function createSponsorService({
         token:sessionToken,action,campaignId:campaign.id,now:at
       });
       if (!ok) throw new SponsorFault('CONFLICT',409);
+      const captions = campaign.media?.captionsPath;
+      const captionsPath = typeof captions === 'string'
+        && /^assets\/sponsors\/[a-z0-9/-]+\.vtt$/.test(captions) ? '/' + captions : null;
       return { sessionToken, action, campaignId:campaign.id,
+        sponsorName: typeof campaign.sponsorDisplayName === 'string'
+          ? campaign.sponsorDisplayName.slice(0,120) : 'Sponsor',
         mediaPath:'/'+campaign.media.path, mediaType:campaign.media.mimeType,
+        captionsPath,
         durationSeconds:15, expiresAt:at+300_000 };
     },
     async progress({ sessionToken, positionMs, playing, visible, ip }) {
