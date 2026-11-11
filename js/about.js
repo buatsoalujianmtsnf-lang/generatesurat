@@ -12,7 +12,7 @@ const About = (() => {
 
   const WA_NUMBER = '6283167428682';
   const WA_URL = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
-    'Halo Kak Randi, saya ingin berkonsultasi tentang Generator Surat Madrasah.'
+    'Halo Kak Randi, saya ingin berkonsultasi tentang Generate Suratku.'
   )}`;
 
   function _hasAccepted() {
@@ -73,7 +73,7 @@ const About = (() => {
           <div class="about-hero__icon" aria-hidden="true"><span data-tabler-icon="mail"></span></div>
           <div class="about-hero__main">
             <span class="about-eyebrow">INFORMASI APLIKASI</span>
-            <h4 class="about-hero__title">Generator Surat Madrasah</h4>
+            <h4 class="about-hero__title">Generate Suratku</h4>
             <p class="about-hero__desc">
               Aplikasi untuk membantu membuat, mengatur, menyimpan, mencadangkan, dan mencetak
               dokumen surat madrasah melalui browser dengan alur kerja yang sederhana.
@@ -107,7 +107,7 @@ const About = (() => {
 
         ${_section('ℹ️', 'Tentang Aplikasi', `
           <p>
-            <strong>Generator Surat Madrasah</strong> dikembangkan untuk membantu operator, tenaga
+            <strong>Generate Suratku</strong> dikembangkan untuk membantu operator, tenaga
             administrasi, dan warga madrasah membuat dokumen secara lebih cepat, rapi, dan konsisten.
           </p>
           <div class="about-contact-card">
@@ -280,7 +280,7 @@ const About = (() => {
   function _show({ firstVisit = false } = {}) {
     // @ts-ignore
     UI.showModal({
-      title: firstVisit ? 'Selamat Datang di Generator Surat' : 'Tentang / About',
+      title: firstVisit ? 'Selamat Datang di Generate Suratku' : 'Tentang / About',
       body: _buildBody({ firstVisit }),
       footer: [
         {
