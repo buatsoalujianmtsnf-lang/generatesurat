@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "enabled": false,
   "mode": "manual-responsive-display",
-  "publisherId": null,
+  "publisherId": "pub-4751617120862559",
   "requireSiteApproval": true,
   "autoAds": false,
   "contentOnly": true,
@@ -46,5 +46,5 @@
       "slotId": null
     }
   ],
-  "policyNotes": "MON-08: OFF. Hanya halaman artikel publik berdiri sendiri yang boleh menjadi kandidat: /panduan, /panduan-cetak-pdf, /faq. Root / berbagi dokumen HTML dan CSP dengan editor, sehingga dikecualikan. Publisher ID, status Google Sites Ready, CMP bila relevan, slot, ads.txt dan CSP route-scoped harus diverifikasi sebelum penayangan; Auto Ads OFF."
+  "policyNotes": "MON-08: kode verifikasi pemilik situs 4751617120862559 ditempatkan hanya di halaman publik yang diizinkan (sumber ID: snippet diberikan pemilik; status Google belum diverifikasi). Semua unit, Auto Ads, editor, dan monetisasi tetap OFF. Penayangan iklan memerlukan Google Sites Ready, ads.txt, CMP jika relevan, izin rilis, dan CSP nonce per-request pada jalur publik."
 }
