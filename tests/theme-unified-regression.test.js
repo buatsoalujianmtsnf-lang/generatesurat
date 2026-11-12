@@ -148,7 +148,7 @@ describe('Shared accessible light/dark theme regression', () => {
 
   it('refreshes offline cache with the shared public theme assets', () => {
     const worker = read('sw.js');
-    expect(worker).toContain("CACHE_PREFIX + 'v66'");
+    expect(worker).toContain("CACHE_PREFIX + 'v69'");
     expect(worker).toContain("'./js/public-theme.js'");
     expect(worker).toContain("'./css/public-content.css'");
   });
