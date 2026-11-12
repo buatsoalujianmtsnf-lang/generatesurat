@@ -49,6 +49,7 @@
   <link rel="stylesheet" href="css/print.css" />
   <link rel="stylesheet" href="css/dark-mode.css" />
   <link rel="stylesheet" href="css/landing.css" />
+  <link rel="stylesheet" href="css/editor-experience.css" />
   <link rel="stylesheet" href="css/header-scroll.css" />
   <link rel="stylesheet" href="css/signature-modal.css" />
   <link rel="stylesheet" href="css/izin-declaration.css" />
@@ -478,6 +479,17 @@
           <span id="editor-drawer-toggle-slot-open" class="editor-drawer__toggle-slot editor-drawer__toggle-slot--open"></span>
         </div>
 
+        <div class="editor-experience" id="editor-experience" aria-label="Preferensi editor dan penyimpanan">
+          <div class="editor-experience__mode">
+            <label for="editor-mode">Mode Editor</label>
+            <select id="editor-mode" aria-label="Pilih mode editor">
+              <option value="simple">Mudah</option>
+              <option value="advanced">Lanjutan</option>
+            </select>
+          </div>
+          <div class="editor-experience__status" id="editor-save-status" role="status" aria-live="polite" aria-atomic="true">Memeriksa penyimpanan…</div>
+        </div>
+
         <!-- Tab Navigation -->
         <nav class="editor-tabs tabs tabs-border" role="tablist" aria-label="Bagian editor">
           <button class="editor-tab active tab" role="tab" aria-selected="true" aria-controls="tab-template" id="tab-btn-template" data-tab="template">
@@ -624,6 +636,7 @@
   <script src="js/about.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/data-io.js"></script>
+  <script src="js/editor-experience.js"></script>
   <script src="js/app.js"></script>
   <script src="js/icon-init.js"></script>
 

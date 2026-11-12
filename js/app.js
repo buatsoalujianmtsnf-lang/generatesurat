@@ -107,6 +107,8 @@ const App = (() => {
     /* MON-05. Handler Ctrl+P/Cmd+P only in required mode. */
     if (typeof SponsorExportGate !== "undefined") SponsorExportGate.init();
 
+    if (typeof EditorExperience !== "undefined") EditorExperience.init();
+
     /* 12. Bind header action buttons */
     _bindHeaderButtons();
 
