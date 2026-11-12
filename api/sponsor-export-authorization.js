@@ -1,25 +1,28 @@
-/* MON-05: enforce PDF sponsor receipts on the SERVER, never based on HTML state.
- * When the gate is disabled, no Redis is touched and existing PDF API works.
- * When SPONSOR_GATE_ENABLED is true, missing campaigns/Redis fail closed.
+/* MON-05: server-side PDF sponsor authorization, never based on HTML state.
+ * A video receipt is required only if an approved sponsor campaign is live.
+ * When no video campaign is published, downloads remain available even when
+ * an old SPONSOR_GATE_ENABLED env flag is still set. If a campaign is active,
+ * missing Redis/verification fails closed (no security bypass).
  */
-import { liveSponsorService, sponsorIsReady } from './sponsor-service.js';
+import { activeSponsor, liveSponsorService, sponsorIsReady } from './sponsor-service.js';
 
 const TOKEN = /^[A-Za-z0-9_-]{40,90}$/;
-export function pdfSponsorRequired(env = process.env) {
-  return env.SPONSOR_GATE_ENABLED === 'true';
+export function pdfSponsorRequired(env = process.env, hasActiveVideo = () => !!activeSponsor(Date.now())) {
+  return env.SPONSOR_GATE_ENABLED === 'true' && hasActiveVideo();
 }
 
 /**
  * @param {unknown} receipt Header X-Sponsor-Receipt, never a query parameter.
- * @param {{env?: NodeJS.ProcessEnv, ready?: typeof sponsorIsReady, getService?: typeof liveSponsorService}} options
+ * @param {{env?: NodeJS.ProcessEnv, hasActiveVideo?: () => boolean, ready?: typeof sponsorIsReady, getService?: typeof liveSponsorService}} options
  * @returns {Promise<{ok:boolean,status:number,error?:string}>}
  */
 export async function verifyPdfSponsorReceipt(receipt, {
   env = process.env,
+  hasActiveVideo = () => !!activeSponsor(Date.now()),
   ready = sponsorIsReady,
   getService = liveSponsorService,
 } = {}) {
-  if (!pdfSponsorRequired(env)) return { ok: true, status: 200 };
+  if (!pdfSponsorRequired(env, hasActiveVideo)) return { ok: true, status: 200 };
   if (typeof receipt !== 'string' || !TOKEN.test(receipt)) {
     return { ok: false, status: 403, error: 'Selesaikan video sponsor sebelum mengunduh PDF.' };
   }
