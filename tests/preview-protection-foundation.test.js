@@ -186,6 +186,6 @@ describe('PP-01 preview protection foundation', () => {
     const sw = read('sw.js');
     expect(sw).toContain("'./js/preview-protection.js'");
     expect(sw).toContain("'./css/preview-protection.css'");
-    expect(sw).toContain("CACHE_PREFIX + 'v66'");
+    expect(sw).toContain("CACHE_PREFIX + 'v69'");
   });
 });
