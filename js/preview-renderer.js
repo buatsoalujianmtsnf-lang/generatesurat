@@ -2177,12 +2177,14 @@ const PreviewRenderer = (() => {
     const labelWidth = options.labelWidth || '38%';
     const labelIndent = options.singleLineLabels ? '0' : '10mm';
     const labelStyle = options.singleLineLabels ? 'white-space:nowrap;font-size:0.92em;' : '';
+    const justifiedValueLabels = new Set(options.justifyValueLabels || []);
     return '<table style="width:100%;table-layout:fixed;border-collapse:collapse;margin:7pt 0 13pt;">'
       + entries.map(([label, value]) =>
         '<tr><td style="width:' + labelWidth + ';padding:2pt 4pt 2pt ' + labelIndent
         + ';vertical-align:top;' + labelStyle + '">' + _esc(label)
         + '</td><td style="width:5%;text-align:center;vertical-align:top;padding:2pt 0;">:</td>'
-        + '<td style="vertical-align:top;padding:2pt 0;white-space:pre-line;overflow-wrap:anywhere;">'
+        + '<td style="vertical-align:top;padding:2pt 0;white-space:pre-line;overflow-wrap:anywhere;'
+        + (justifiedValueLabels.has(label) ? 'text-align:justify;' : '') + '">'
         + _officialValue(value) + '</td></tr>'
       ).join('') + '</table>';
   }
@@ -2734,7 +2736,8 @@ const PreviewRenderer = (() => {
             ['Uraian Pembahasan', item?.uraian],
             ['Tanggapan/Usulan Peserta', item?.tanggapan],
             ['Kesimpulan Pembahasan', item?.kesimpulan],
-          ]) + '</div>').join('')
+          ], { justifyValueLabels: ['Uraian Pembahasan', 'Tanggapan/Usulan Peserta',
+            'Kesimpulan Pembahasan'] }) + '</div>').join('')
       : _caseP(blank);
 
     const followRows = tindakLanjut.map((item, index) => [

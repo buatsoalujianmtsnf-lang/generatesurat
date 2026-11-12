@@ -160,6 +160,59 @@ describe('Notulensi Rapat dan lampiran daftar hadir dari dokumen Word', () => {
       'Tindak lanjut anggaran']) expect(html).toContain(value);
   });
 
+  it('meratakan sembilan kelompok isi notulensi ke kiri-kanan tanpa mengubah label', () => {
+    const { tpl, renderer } = setup();
+    const data = tpl.createDefaultData();
+    data.tujuan = [
+      { id: 't1', teks: 'Tujuan pertama meningkatkan kualitas pembelajaran' },
+      { id: 't2', teks: 'Tujuan kedua menyusun kesepakatan rapat bersama' },
+    ];
+    data.pembukaan = 'Pembukaan rapat menjelaskan latar belakang dan arah pembahasan';
+    data.pembahasan = [
+      { id: 'p1', topik: 'Program kerja',
+        uraian: 'Uraian pertama tentang pelaksanaan program kerja madrasah',
+        tanggapan: 'Tanggapan pertama tentang kebutuhan sarana pembelajaran',
+        kesimpulan: 'Kesimpulan pertama menyetujui rencana program kerja' },
+      { id: 'p2', topik: 'Evaluasi',
+        uraian: 'Uraian kedua tentang evaluasi pelaksanaan kegiatan',
+        tanggapan: 'Tanggapan kedua tentang perbaikan proses evaluasi',
+        kesimpulan: 'Kesimpulan kedua menentukan rencana perbaikan' },
+    ];
+    data.keputusan = [
+      { id: 'k1', teks: 'Keputusan pertama menetapkan pelaksana kegiatan' },
+      { id: 'k2', teks: 'Keputusan kedua menetapkan jadwal tindak lanjut' },
+    ];
+    data.monitoringEvaluasi = 'Mekanisme monitoring dilaksanakan secara berkala dan terukur';
+    data.catatanKhusus = [
+      { id: 'c1', teks: 'Catatan pertama mengenai kendala pelaksanaan kegiatan' },
+      { id: 'c2', teks: 'Catatan kedua mengenai usulan perbaikan lanjutan' },
+    ];
+    data.catatanKehadiran = 'Catatan kehadiran mencakup ketidakhadiran yang telah dikonfirmasi';
+
+    const html = renderer.buildDocumentHtml(tpl, data, {}, null, null);
+    const justifiedContents = [
+      ...data.tujuan.map(item => item.teks),
+      data.pembukaan,
+      ...data.pembahasan.flatMap(item => [item.uraian, item.tanggapan, item.kesimpulan]),
+      ...data.keputusan.map(item => item.teks),
+      data.monitoringEvaluasi,
+      ...data.catatanKhusus.map(item => item.teks),
+      data.catatanKehadiran,
+    ];
+    for (const content of justifiedContents) {
+      const markup = html.match(new RegExp(
+        '<(li|p|td)\\b[^>]*style="([^"]*)"[^>]*>' + content + '<\\/\\1>'
+      ));
+      expect(markup, 'Perataan konten: ' + content).not.toBeNull();
+      expect(markup[2], 'Teks harus justify: ' + content).toContain('text-align:justify;');
+    }
+
+    // Kolom label pembahasan tetap terpisah dari kolom isi yang diratakan.
+    expect(html).toContain('Uraian Pembahasan</td>');
+    expect(html).toContain('Tanggapan/Usulan Peserta</td>');
+    expect(html).toContain('Kesimpulan Pembahasan</td>');
+  });
+
   it('menerima PNG tanda tangan dan menolak HTML, SVG, atau data URL asing', () => {
     const { tpl, renderer } = setup();
     const data = tpl.createDefaultData();
