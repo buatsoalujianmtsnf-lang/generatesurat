@@ -241,6 +241,32 @@ describe('DOCX-based new official school letters', () => {
     expect(html).not.toContain('<li value="4"');
   });
 
+  it('justifies every non-empty activity condition while preserving numbering and line breaks', () => {
+    const { notice, renderer } = setup();
+    const data = notice.createDefaultData();
+    data.ketentuanTambahan = [
+      { id: 'a', teks: 'Siswa membawa perlengkapan belajar sesuai jadwal' },
+      { id: 'empty', teks: '   ' },
+      { id: 'b', teks: 'Orang tua mendampingi peserta kegiatan\\nSampai acara selesai' },
+      { id: 'c', teks: '<strong>Konten aman</strong> tetap dibaca sebagai teks' },
+    ];
+    const html = renderer.buildDocumentHtml(notice, data, {}, null, null);
+    const conditionList = html.match(/<ol class="doc-activity__conditions"[\\s\\S]*?<\\/ol>/)?.[0];
+    expect(conditionList).toBeTruthy();
+    const items = conditionList.match(/<li\\b[^>]*>[\\s\\S]*?<\\/li>/g) || [];
+    expect(items).toHaveLength(3);
+    items.forEach((item, index) => {
+      expect(item).toContain('value="' + (index + 1) + '"');
+      expect(item).toMatch(/style="[^"]*text-align:justify;/);
+      expect(item).toContain('white-space:pre-line;');
+      expect(item).toContain('overflow-wrap:anywhere;');
+    });
+    expect(conditionList).toContain('Siswa membawa perlengkapan belajar sesuai jadwal');
+    expect(conditionList).toContain('Orang tua mendampingi peserta kegiatan\\nSampai acara selesai');
+    expect(conditionList).toContain('&lt;strong&gt;Konten aman&lt;/strong&gt;');
+    expect(conditionList).not.toContain('<strong>Konten aman</strong>');
+  });
+
   it('left-aligns NIP with the first character of the head name on both new templates', () => {
     const { notice, active, renderer } = setup();
     for (const template of [notice, active]) {
