@@ -101,26 +101,38 @@ describe('MON-05 server receipt security',()=>{
     expect(await verifyPdfSponsorReceipt(null,{env:{},ready,getService})).toEqual({ok:true,status:200});
     expect(ready).not.toHaveBeenCalled();expect(getService).not.toHaveBeenCalled();
   });
+  it('permits PDF when the deployment has no active sponsor video despite a stale env gate',async()=>{
+    const env={SPONSOR_GATE_ENABLED:'true'};
+    const ready=vi.fn(),getService=vi.fn(),hasActiveVideo=vi.fn(()=>false);
+    // The checked-in policy/registry are prelaunch with no sponsored video.
+    expect(pdfSponsorRequired(env)).toBe(false);
+    expect(pdfSponsorRequired(env,()=>true)).toBe(true);
+    expect(await verifyPdfSponsorReceipt(null,{env,ready,getService,hasActiveVideo}))
+      .toEqual({ok:true,status:200});
+    expect(hasActiveVideo).toHaveBeenCalledOnce();
+    expect(ready).not.toHaveBeenCalled();
+    expect(getService).not.toHaveBeenCalled();
+  });
   it('rejects missing or forged receipts when server flag on',async()=>{
     const ready=vi.fn();
     for(const value of [null, 'short', 99, 'z'.repeat(1000)]){
-      const r=await verifyPdfSponsorReceipt(value,{env:{SPONSOR_GATE_ENABLED:'true'},ready});
+      const r=await verifyPdfSponsorReceipt(value,{env:{SPONSOR_GATE_ENABLED:'true'},hasActiveVideo:()=>true,ready});
       expect(r.ok).toBe(false);expect(r.status).toBe(403);
     }
     expect(ready).not.toHaveBeenCalled();
   });
   it('fails closed with unconfigured Redis and on server exceptions',async()=>{
     const env={SPONSOR_GATE_ENABLED:'true'};
-    expect(await verifyPdfSponsorReceipt(receipt,{env,ready:()=>false})).toMatchObject({ok:false,status:503});
+    expect(await verifyPdfSponsorReceipt(receipt,{env,hasActiveVideo:()=>true,ready:()=>false})).toMatchObject({ok:false,status:503});
     const spy=vi.spyOn(console,'error').mockImplementation(()=>{});
-    const r=await verifyPdfSponsorReceipt(receipt,{env,ready:()=>true,
+    const r=await verifyPdfSponsorReceipt(receipt,{env,hasActiveVideo:()=>true,ready:()=>true,
       getService:()=>({consumePdfReceipt:async()=>{throw new Error('secret');}})});
     expect(r).toMatchObject({ok:false,status:503});
     expect(r.error).not.toContain('secret');spy.mockRestore();
   });
   it('consumes a PDF receipt once and denies replay',async()=>{
     const consume=vi.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false);
-    const options={env:{SPONSOR_GATE_ENABLED:'true'},ready:()=>true,
+    const options={env:{SPONSOR_GATE_ENABLED:'true'},hasActiveVideo:()=>true,ready:()=>true,
       getService:()=>({consumePdfReceipt:consume})};
     expect(await verifyPdfSponsorReceipt(receipt,options)).toMatchObject({ok:true,status:200});
     expect(await verifyPdfSponsorReceipt(receipt,options)).toMatchObject({ok:false,status:403});

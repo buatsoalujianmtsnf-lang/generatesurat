@@ -321,3 +321,43 @@
     display: none;
   }
 }
+
+/* Print must unclip the entire drawer chain. The narrow-screen rules above
+   use viewport-sized heights and overflow:hidden, which otherwise clip the
+   rendered document after the first physical paper sheet. These overrides
+   apply to printing only; on-screen scrolling/zoom is unchanged. */
+@media print {
+  html.editor-drawer-open,
+  html.editor-drawer-open body {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  #editor-drawer,
+  #editor-drawer > .drawer-content,
+  #editor-drawer > .drawer-content > .preview-panel,
+  #editor-drawer .preview-viewport,
+  #editor-drawer #preview-scroll-stage,
+  #editor-drawer #preview-canvas-wrapper {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  #editor-drawer {
+    position: static !important;
+    width: 100% !important;
+  }
+
+  #editor-drawer > .drawer-content,
+  #editor-drawer > .drawer-content > .preview-panel,
+  #editor-drawer .preview-viewport {
+    display: block !important;
+    flex: none !important;
+  }
+
+  #editor-drawer > .drawer-side {
+    display: none !important;
+  }
+}
