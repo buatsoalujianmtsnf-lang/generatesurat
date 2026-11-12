@@ -826,6 +826,52 @@ try {
       device.name + ': first-page navigation did not reset preview scroll');
 
 
+    // The drawer normally clamps its viewport height to one screen. Print
+    // must release the *entire* ancestor chain so all four sheets are printable.
+    await page.emulateMediaType('print');
+    const multiPagePrint = await page.evaluate(() => {
+      const nodes = [
+        '#editor-drawer',
+        '#editor-drawer > .drawer-content',
+        '#editor-drawer > .drawer-content > .preview-panel',
+        '#editor-drawer .preview-viewport',
+        '#preview-scroll-stage',
+        '#preview-canvas-wrapper',
+      ];
+      const clippedAncestors = nodes.filter(selector => {
+        const node = document.querySelector(selector);
+        if (!node) return true;
+        const css = getComputedStyle(node);
+        return css.maxHeight !== 'none'
+          || ['hidden', 'auto', 'scroll', 'clip'].includes(css.overflowY)
+          || ['hidden', 'auto', 'scroll', 'clip'].includes(css.overflowX);
+      });
+      const pages = [...document.querySelectorAll('#surat-preview > .surat-page')];
+      return {
+        total: pages.length,
+        clippedAncestors,
+        displayed: pages.every(node => getComputedStyle(node).display !== 'none'),
+        lastBottom: pages.at(-1)?.getBoundingClientRect().bottom || 0,
+        firstTop: pages[0]?.getBoundingClientRect().top || 0,
+      };
+    });
+    check(multiPagePrint.total === 4 && multiPagePrint.displayed
+      && multiPagePrint.clippedAncestors.length === 0
+      && multiPagePrint.lastBottom - multiPagePrint.firstTop > 4 * 900,
+      device.name + ': print clips later document sheets ' + JSON.stringify(multiPagePrint));
+    if (device.name === 'desktop') {
+      const pdf = await page.pdf({
+        format: 'A4', printBackground: true,
+        margin: { top: '0', bottom: '0', left: '0', right: '0' },
+      });
+      const printedSheets = (Buffer.from(pdf).toString('latin1').match(/\\/Type\\s*\\/Page\\b/g) || []).length;
+      check(printedSheets >= 4,
+        'Chromium multi-page print emitted fewer than four sheets: ' + printedSheets);
+      report.multiPagePrint = { sourceSheets: multiPagePrint.total, printedSheets };
+      await writeFile(resolve(output, 'dummy-print-multipage.pdf'), pdf);
+    }
+    await page.emulateMediaType('screen');
+
     // Public informational routes share the same stored theme and offer a
     // single-click switch; no inline scripts or third-party app state used.
     if (device.name === 'desktop' || device.name === 'mobile-portrait') {
