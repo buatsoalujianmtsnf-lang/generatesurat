@@ -67,9 +67,9 @@ const DocumentPreflight = (() => {
     const status = document.getElementById('preflight-status');
     if (button) button.disabled = true;
     if (status) { status.textContent = 'Memeriksa data dan menunggu pratinjau…'; status.dataset.state = 'checking'; }
-    const snapshot = revision;
     try {
       if (typeof Utils.flushDebounces === 'function') Utils.flushDebounces();
+      const snapshot = revision;
       const issues = Workflow.collectIssues();
       if (State.getActiveTemplate() && typeof PreviewRenderer.waitForReady === 'function')
         await PreviewRenderer.waitForReady();
@@ -97,6 +97,8 @@ const DocumentPreflight = (() => {
     });
     const invalidate = () => {
       revision++;
+      lastIssues = [];
+      document.getElementById('preflight-results')?.replaceChildren();
       const status = document.getElementById('preflight-status');
       if (status && status.dataset.state !== 'unchecked') {
         status.textContent = 'Data berubah. Periksa ulang.';

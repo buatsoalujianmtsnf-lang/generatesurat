@@ -54,6 +54,9 @@ const InstitutionProfile = (() => {
   }
   function applyProfile() {
     const data = getProfile();
+    if (JSON.stringify(formValues()) !== JSON.stringify(data)) {
+      notify('Simpan perubahan profil terlebih dahulu sebelum menerapkan KOP.', 'warning'); return;
+    }
     if (!data.institution || !data.address) {
       notify('Simpan nama lembaga dan alamat terlebih dahulu.', 'warning'); return;
     }
@@ -139,6 +142,8 @@ const InstitutionProfile = (() => {
     ].join('');
     const values = getProfile();
     fields.forEach(k => { const input = field('institution-' + k); if (input) input.value = values[k]; });
+    const details = /** @type {HTMLDetailsElement|null} */ (root.querySelector('details'));
+    if (details && typeof EditorExperience !== 'undefined' && EditorExperience.getMode() === 'simple') details.open = true;
     refreshPresets();
     root.querySelector('#institution-form')?.addEventListener('submit', saveProfile);
     root.querySelector('#institution-apply')?.addEventListener('click', applyProfile);

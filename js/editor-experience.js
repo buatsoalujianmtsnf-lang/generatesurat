@@ -9,6 +9,10 @@ const EditorExperience = (() => {
   function setMode(mode) {
     if (mode !== 'simple' && mode !== 'advanced') return;
     document.documentElement.dataset.editorMode = mode;
+    if (mode === 'simple') {
+      const details = /** @type {HTMLDetailsElement|null} */ (document.querySelector('#institution-profile-root details'));
+      if (details) details.open = true;
+    }
     try { localStorage.setItem(MODE_KEY, mode); } catch { /* private browsing */ }
     const select = /** @type {HTMLSelectElement|null} */ (document.getElementById('editor-mode'));
     if (select) select.value = mode;
