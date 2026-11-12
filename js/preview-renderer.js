@@ -2257,7 +2257,7 @@ const PreviewRenderer = (() => {
       ? '<div style="margin:12pt 0 10pt;"><p style="margin:0 0 6pt;">Ketentuan Tambahan/Khusus:</p>'
       + '<ol class="doc-activity__conditions" style="list-style-type:decimal;list-style-position:outside;margin:0;padding-left:16mm;">'
       + validClauses.map((item, index) => '<li value="' + (index + 1)
-        + '" style="display:list-item;list-style-type:decimal;margin-bottom:3pt;white-space:pre-line;overflow-wrap:anywhere;">'
+        + '" style="display:list-item;list-style-type:decimal;margin-bottom:3pt;text-align:justify;white-space:pre-line;overflow-wrap:anywhere;">'
         + _esc(item.teks.trim()) + '</li>').join('') + '</ol></div>'
       : '';
     const header = '<div style="display:flex;justify-content:space-between;gap:12pt;margin:12pt 0 18pt;">'
