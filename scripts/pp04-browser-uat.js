@@ -864,7 +864,7 @@ try {
         format: 'A4', printBackground: true,
         margin: { top: '0', bottom: '0', left: '0', right: '0' },
       });
-      const printedSheets = (Buffer.from(pdf).toString('latin1').match(/\\/Type\\s*\\/Page\\b/g) || []).length;
+      const printedSheets = (Buffer.from(pdf).toString('latin1').match(/\/Type\s*\/Page\b/g) || []).length;
       check(printedSheets >= 4,
         'Chromium multi-page print emitted fewer than four sheets: ' + printedSheets);
       report.multiPagePrint = { sourceSheets: multiPagePrint.total, printedSheets };
