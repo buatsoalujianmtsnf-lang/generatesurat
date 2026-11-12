@@ -106,6 +106,8 @@ const App = (() => {
       Workflow.init();
     }
 
+    if (typeof DocumentPreflight !== "undefined") DocumentPreflight.init();
+
     /* MON-05. Handler Ctrl+P/Cmd+P only in required mode. */
     if (typeof SponsorExportGate !== "undefined") SponsorExportGate.init();
 

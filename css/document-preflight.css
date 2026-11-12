@@ -1,0 +1,12 @@
+.preflight-card { margin:0 0 12px; padding:12px; border:1px solid var(--color-border,#cbd5e1); border-radius:12px; color:var(--color-text,#172235); background:var(--color-surface,#fff); }
+.preflight-card h3 { margin:0 0 6px; font-size:1rem; }
+.preflight-card p { font-size:12px; line-height:1.5; margin:0 0 10px; color:var(--color-text-secondary,#64748b); }
+.preflight-card button { min-height:40px; }
+#preflight-status { margin-top:8px; font-size:12px; line-height:1.5; overflow-wrap:anywhere; }
+#preflight-status[data-state="ready"] { color:var(--color-success,#15803d); }
+#preflight-status[data-state="blocked"] { color:var(--color-error,#b91c1c); }
+.preflight-list { margin:8px 0 0; padding-left:20px; font-size:12px; line-height:1.5; }
+.preflight-list li { padding:3px 0; overflow-wrap:anywhere; }
+.preflight-issue { cursor:pointer; width:100%; text-align:left; border-radius:7px; background:transparent; color:var(--color-text,#172235); border:1px solid var(--color-border,#cbd5e1); padding:7px; font:inherit; }
+.preflight-issue:hover { background:var(--color-base-200,#eef2f7); }
+.preflight-issue:focus-visible { outline:3px solid var(--color-primary,#2563eb); outline-offset:2px; }

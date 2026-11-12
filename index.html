@@ -51,6 +51,7 @@
   <link rel="stylesheet" href="css/landing.css" />
   <link rel="stylesheet" href="css/editor-experience.css" />
   <link rel="stylesheet" href="css/institution-profile.css" />
+  <link rel="stylesheet" href="css/document-preflight.css" />
   <link rel="stylesheet" href="css/header-scroll.css" />
   <link rel="stylesheet" href="css/signature-modal.css" />
   <link rel="stylesheet" href="css/izin-declaration.css" />
@@ -570,6 +571,13 @@
             <h2 class="section-title">Pengaturan Dokumen</h2>
             <p class="section-desc">Atur ukuran kertas, margin, orientasi, dan tampilan cetak.</p>
           </div>
+          <section id="document-preflight" class="preflight-card" aria-labelledby="preflight-title">
+            <h3 id="preflight-title">Periksa Kesiapan Surat</h3>
+            <p>Periksa kelengkapan data dan kemungkinan masalah tampilan. Peringatan visual adalah pemeriksaan awal, bukan jaminan hasil cetak.</p>
+            <button type="button" id="preflight-run" class="btn btn--primary btn-primary btn-sm">Periksa Surat</button>
+            <div id="preflight-status" data-state="unchecked" role="status" aria-live="polite">Belum diperiksa.</div>
+            <div id="preflight-results" aria-label="Hasil pemeriksaan dokumen"></div>
+          </section>
           <div id="settings-root"></div>
         </div>
 
@@ -639,6 +647,7 @@
   <script src="js/theme.js"></script>
   <script src="js/data-io.js"></script>
   <script src="js/institution-profile.js"></script>
+  <script src="js/document-preflight.js"></script>
   <script src="js/editor-experience.js"></script>
   <script src="js/app.js"></script>
   <script src="js/icon-init.js"></script>

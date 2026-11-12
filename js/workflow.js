@@ -501,6 +501,8 @@ const Workflow = (() => {
     update,
     preparePrint,
     preparePdf,
+    collectIssues: _collectPrintChecks,
+    focusIssue: _focusError,
   };
 
 })();
