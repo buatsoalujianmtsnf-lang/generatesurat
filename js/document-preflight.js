@@ -63,7 +63,7 @@ const DocumentPreflight = (() => {
   async function run() {
     if (pending) return;
     pending = true;
-    const button = document.getElementById('preflight-run');
+    const button = /** @type {HTMLButtonElement|null} */ (document.getElementById('preflight-run'));
     const status = document.getElementById('preflight-status');
     if (button) button.disabled = true;
     if (status) { status.textContent = 'Memeriksa data dan menunggu pratinjau…'; status.dataset.state = 'checking'; }
@@ -91,8 +91,8 @@ const DocumentPreflight = (() => {
     initialized = true;
     document.getElementById('preflight-run').addEventListener('click', run);
     document.getElementById('preflight-results').addEventListener('click', event => {
-      const button = event.target?.closest?.('[data-issue-index]');
-      const index = Number(button?.dataset.issueIndex);
+      const button = event.target instanceof Element ? event.target.closest('[data-issue-index]') : null;
+      const index = Number(/** @type {HTMLElement|null} */ (button)?.dataset.issueIndex);
       if (button && Number.isInteger(index) && lastIssues[index]) Workflow.focusIssue(lastIssues[index]);
     });
     const invalidate = () => {

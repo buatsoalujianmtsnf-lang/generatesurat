@@ -20,12 +20,18 @@ const InstitutionProfile = (() => {
     const data = read(PRESET_KEY, []);
     return Array.isArray(data) ? data.filter(x => x && typeof x.name === 'string' && x.kop && Array.isArray(x.kop.rows)).slice(0, 5) : [];
   }
+  function field(id) {
+    return /** @type {HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement|null} */ (document.getElementById(id));
+  }
+  function presetSelect() {
+    return /** @type {HTMLSelectElement|null} */ (document.getElementById('institution-preset-select'));
+  }
   function formValues() {
-    return Object.fromEntries(fields.map(k => [k, clean(document.getElementById('institution-' + k)?.value, k === 'address' ? 280 : 160)]));
+    return Object.fromEntries(fields.map(k => [k, clean(field('institution-' + k)?.value, k === 'address' ? 280 : 160)]));
   }
   function notify(message, type = 'info') { UI.toast(message, type); }
   function refreshPresets() {
-    const select = document.getElementById('institution-preset-select');
+    const select = presetSelect();
     if (!select) return;
     const previous = select.value;
     select.replaceChildren(new Option('Pilih preset KOP', ''));
@@ -64,7 +70,7 @@ const InstitutionProfile = (() => {
     UI.confirm('Terapkan Profil ke KOP', 'Baris teks KOP akan diganti. Logo tetap dipertahankan. Lanjutkan?', () => applyKop(kop));
   }
   function savePreset() {
-    const input = document.getElementById('institution-preset-name');
+    const input = field('institution-preset-name');
     const name = clean(input?.value, 50);
     if (!name) { input?.focus(); notify('Masukkan nama preset KOP.', 'warning'); return; }
     const presets = getPresets();
@@ -76,18 +82,18 @@ const InstitutionProfile = (() => {
     if (write(PRESET_KEY, [...presets.filter(x => x.id !== id), { id, name, kop }])) {
       input.value = '';
       refreshPresets();
-      document.getElementById('institution-preset-select').value = id;
+      presetSelect().value = id;
       notify('Preset KOP disimpan di perangkat.', 'success');
     }
   }
   function loadPreset() {
-    const id = document.getElementById('institution-preset-select')?.value;
+    const id = presetSelect()?.value;
     const preset = getPresets().find(x => x.id === id);
     if (!preset) { notify('Pilih preset KOP.', 'warning'); return; }
     UI.confirm('Gunakan Preset KOP', 'Seluruh KOP termasuk logo akan diganti. Lanjutkan?', () => applyKop(preset.kop));
   }
   function deletePreset() {
-    const id = document.getElementById('institution-preset-select')?.value;
+    const id = presetSelect()?.value;
     const preset = getPresets().find(x => x.id === id);
     if (!preset) return;
     UI.confirm('Hapus Preset KOP', 'Hapus preset terpilih dari perangkat ini?', () => {
@@ -132,7 +138,7 @@ const InstitutionProfile = (() => {
       '</div></div></div></details>'
     ].join('');
     const values = getProfile();
-    fields.forEach(k => { document.getElementById('institution-' + k).value = values[k]; });
+    fields.forEach(k => { const input = field('institution-' + k); if (input) input.value = values[k]; });
     refreshPresets();
     root.querySelector('#institution-form')?.addEventListener('submit', saveProfile);
     root.querySelector('#institution-apply')?.addEventListener('click', applyProfile);

@@ -24,7 +24,7 @@ Aplikasi web untuk membuat surat resmi madrasah secara mudah, cepat, dan profesi
 
 ## Fitur
 
-- **8 Template Surat** siap pakai: DPU, Mutasi Masuk, Siswa Baru, serta lima template IJOP
+- **18 Template Surat** siap pakai: DPU, Mutasi Masuk, Siswa Baru, serta lima template IJOP
 - **Editor KOP Surat** fleksibel — logo kiri (wajib) + logo kanan (opsional), jumlah baris dapat diatur (1–10), setiap baris dapat dikonfigurasi secara individual (font, ukuran, tebal, miring, garis bawah, rata teks, warna, transformasi huruf)
 - **Tab Pengaturan** — kontrol penuh atas ukuran kertas, orientasi, margin, skala cetak, dan tampilan preview
 - **Live Preview** surat secara real-time dengan kontrol zoom

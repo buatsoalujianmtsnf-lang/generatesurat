@@ -22,6 +22,9 @@ type GeneratorStorageApi = {
   readonly TTL_DURATION_MS: number;
 };
 
+declare var EditorExperience: any;
+declare var InstitutionProfile: any;
+declare var DocumentPreflight: any;
 declare var EditorDrawer: { init(): void; open(options?: {focus?: boolean}): void; close(options?: {returnFocus?: boolean}): void; isCompact(): boolean };
 declare var AppIcons: { svg(name: string, className?: string): string; apply(root?: Document | Element): void }; 
 declare var XLSX: any;

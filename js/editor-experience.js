@@ -10,7 +10,7 @@ const EditorExperience = (() => {
     if (mode !== 'simple' && mode !== 'advanced') return;
     document.documentElement.dataset.editorMode = mode;
     try { localStorage.setItem(MODE_KEY, mode); } catch { /* private browsing */ }
-    const select = document.getElementById('editor-mode');
+    const select = /** @type {HTMLSelectElement|null} */ (document.getElementById('editor-mode'));
     if (select) select.value = mode;
   }
   function refreshStatus() {
@@ -33,7 +33,7 @@ const EditorExperience = (() => {
     started = true;
     setMode(getMode());
     document.getElementById('editor-mode').addEventListener('change', event => {
-      setMode(event.target.value);
+      setMode(/** @type {HTMLSelectElement} */ (event.currentTarget).value);
     });
     for (const event of ['state:change', 'state:saved', 'state:restore', 'state:reset']) {
       State.on(event, refreshStatus);
