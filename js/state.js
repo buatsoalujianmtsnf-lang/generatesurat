@@ -395,6 +395,17 @@ const State = (() => {
     emit('state:change', { field: 'activeTemplate' });
   }
 
+  /* Atomic KOP replacement: preserves Undo/Redo and normalizes external presets. */
+  function replaceKop(kop) {
+    if (!kop || typeof kop !== 'object' || !Array.isArray(kop.rows)) return false;
+    _historyPush();
+    _state.kop = _normalizeKop(kop);
+    _state.ui.isDirty = true;
+    emit('kop:change', { kop: Utils.deepClone(_state.kop) });
+    emit('state:change', { field: 'kop' });
+    return true;
+  }
+
   /* ── Setter: KOP row tunggal ── */
   function setKopRow(rowId, partial) {
     const idx = _state.kop.rows.findIndex(r => r.id === rowId);
@@ -1045,6 +1056,7 @@ const State = (() => {
 
     // Setters
     setActiveTemplate,
+    replaceKop,
     setKopRow,
     setKopRowCount,
     setKopLogo,

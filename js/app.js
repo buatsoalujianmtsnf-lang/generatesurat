@@ -78,6 +78,8 @@ const App = (() => {
     /* 6. Init KOP Editor */
     KopEditor.init();
 
+    if (typeof InstitutionProfile !== "undefined") InstitutionProfile.init();
+
     /* 7. Init Form Renderer */
     FormRenderer.init();
 

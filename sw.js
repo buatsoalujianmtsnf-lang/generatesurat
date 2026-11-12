@@ -3,7 +3,7 @@
    ============================================================= */
 
 const CACHE_PREFIX = 'generator-surat-platform-';
-const CACHE_NAME = CACHE_PREFIX + 'v67';
+const CACHE_NAME = CACHE_PREFIX + 'v68';
 const APP_SHELL = [
   './',
   './index.html',
@@ -23,6 +23,7 @@ const APP_SHELL = [
   './css/landing.css',
   './css/header-scroll.css',
   './css/editor-experience.css',
+  './css/institution-profile.css',
   './css/signature-modal.css',
   './css/izin-declaration.css',
   './css/daisyui-adapter.css',
@@ -89,6 +90,7 @@ const APP_SHELL = [
   './js/about.js',
   './js/theme.js',
   './js/data-io.js',
+  './js/institution-profile.js',
   './js/editor-experience.js',
   './js/app.js',
   './js/vendor/xlsx.full.min.js',

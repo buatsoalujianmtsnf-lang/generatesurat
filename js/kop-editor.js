@@ -660,6 +660,7 @@ const KopEditor = (() => {
   return {
     init,
     renderKopHtml,
+    refresh: _render,
   };
 
 })();
